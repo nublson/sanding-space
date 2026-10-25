@@ -4,7 +4,11 @@ export type FrameParams = {
   chrome: boolean;
 };
 
-const FRAME_KEYS = new Set(["theme", "bg", "chrome"]);
+export const FRAME_PARAM_KEYS: ReadonlySet<string> = new Set([
+  "theme",
+  "bg",
+  "chrome",
+]);
 
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -20,7 +24,7 @@ export function splitParams(
   const bg = first(search.bg);
   const params: Record<string, string> = {};
   for (const [key, value] of Object.entries(search)) {
-    if (FRAME_KEYS.has(key)) continue;
+    if (FRAME_PARAM_KEYS.has(key)) continue;
     const v = first(value);
     if (v !== undefined) params[key] = v;
   }

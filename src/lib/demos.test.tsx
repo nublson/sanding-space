@@ -1,14 +1,22 @@
 import { render, screen } from "@testing-library/react";
+import type { DemoProps } from "notionic";
 import { describe, expect, it } from "vitest";
+import { demoMeta } from "./demo-meta";
 import {
   type DemoEntry,
+  demoComponents,
   deriveDemos,
   registry,
   resolveDemo,
   resolveDemoIn,
+  withoutFrameParams,
 } from "./demos";
 
-const Stub = () => <div>stub</div>;
+const Stub = ({ name, params }: DemoProps) => (
+  <div>
+    stub:{name}:{JSON.stringify(params)}
+  </div>
+);
 const testRegistry: Record<string, DemoEntry> = {
   current: {
     component: Stub,
@@ -56,13 +64,51 @@ describe("resolveDemo", () => {
 describe("deriveDemos", () => {
   it("maps live entries to their component and retired ones to RetiredDemo", () => {
     const map = deriveDemos(testRegistry);
-    expect(map.current).toBe(Stub);
+    const Current = map.current;
+    render(<Current name="current" params={{}} />);
+    expect(screen.getByText("stub:current:{}")).toBeInTheDocument();
     const Retired = map.gone;
     render(<Retired name="gone" params={{}} />);
     expect(screen.getByText("This demo has moved")).toBeInTheDocument();
-    expect(screen.getByRole("link")).toHaveAttribute("href", "/some-essay");
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("href", "/some-essay");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener");
+  });
+  it("maps every alias to its target's component", () => {
+    const map = deriveDemos(testRegistry);
+    const Old = map.old;
+    expect(Old).toBe(map.current);
+    render(<Old name="old" params={{ a: "1" }} />);
+    expect(screen.getByText('stub:old:{"a":"1"}')).toBeInTheDocument();
   });
   it("derives the real registry", () => {
     expect(Object.keys(deriveDemos(registry))).toContain("button-press-scale");
+  });
+});
+
+describe("withoutFrameParams", () => {
+  it("passes demo params through and drops theme, bg and chrome", () => {
+    const Wrapped = withoutFrameParams(Stub);
+    render(
+      <Wrapped
+        name="x"
+        params={{
+          stiffness: "500",
+          theme: "dark",
+          bg: "transparent",
+          chrome: "0",
+        }}
+      />,
+    );
+    expect(screen.getByText('stub:x:{"stiffness":"500"}')).toBeInTheDocument();
+  });
+});
+
+describe("demo component map", () => {
+  it("has exactly the names in demoMeta", () => {
+    expect(Object.keys(demoComponents).sort()).toEqual(
+      Object.keys(demoMeta).sort(),
+    );
   });
 });

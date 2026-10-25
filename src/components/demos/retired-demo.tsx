@@ -6,6 +6,8 @@ export function RetiredDemo({ essay }: { essay: string }) {
       <p className="font-medium">This demo has moved</p>
       <Link
         href={`/${essay}`}
+        target="_blank"
+        rel="noopener"
         className="text-muted-foreground underline underline-offset-4"
       >
         Read the essay
