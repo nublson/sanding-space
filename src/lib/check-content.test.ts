@@ -79,6 +79,24 @@ describe("checkContent", () => {
     expect(r.errors).toHaveLength(1);
     expect(r.errors[0]).toContain("nope");
   });
+  it("2: ignores unknown cover demos on Soon and Draft essays", () => {
+    const r = checkContent(
+      base({
+        essays: [
+          essay({ id: "s", slug: "s", status: "Soon", coverDemo: "nope" }),
+          essay({ id: "d", slug: "d", status: "Draft", coverDemo: "nope" }),
+        ],
+        embedsByEssay: {},
+      }),
+    );
+    expect(r.errors.filter((e) => e.includes("rule 2"))).toEqual([]);
+  });
+  it("2: errors on unknown cover demo for Preview essays", () => {
+    const r = checkContent(
+      base({ essays: [essay({ status: "Preview", coverDemo: "nope" })] }),
+    );
+    expect(r.errors.some((e) => e.includes("rule 2"))).toBe(true);
+  });
   it("2: accepts alias cover demo", () => {
     const r = checkContent(
       base({
@@ -154,6 +172,13 @@ describe("checkContent", () => {
       }),
     );
     expect(draft.errors).toHaveLength(1);
+  });
+  it("7: warns only when essay is Preview", () => {
+    const r = checkContent(
+      base({ essays: [essay({ status: "Preview" })], embedsByEssay: {} }),
+    );
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toHaveLength(1);
   });
   it("7: warns only when essay is Soon", () => {
     const r = checkContent(

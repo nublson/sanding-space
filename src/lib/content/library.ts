@@ -36,3 +36,14 @@ export function findPublishedEssay(library: Library, slug: string) {
   const entry = library.bySlug.get(slug);
   return entry && entry.essay.status === "Published" ? entry : null;
 }
+
+/**
+ * Settles Preview essays for this environment: Published where previews show,
+ * Draft (absent) in production. Everything downstream only sees the four rules
+ * of Published / Soon / Draft.
+ */
+export function resolvePreview(essays: Essay[], show: boolean): Essay[] {
+  return essays.map((e) =>
+    e.status === "Preview" ? { ...e, status: show ? "Published" : "Draft" } : e,
+  );
+}

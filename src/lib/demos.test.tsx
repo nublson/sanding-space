@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import type { DemoProps } from "notionic";
 import { describe, expect, it } from "vitest";
+import { lazyDemoNames } from "@/components/demos/lazy-demo";
 import { demoMeta } from "./demo-meta";
 import {
   type DemoEntry,
@@ -110,5 +111,8 @@ describe("demo component map", () => {
     expect(Object.keys(demoComponents).sort()).toEqual(
       Object.keys(demoMeta).sort(),
     );
+  });
+  it("has a lazy loader for every demo", () => {
+    expect([...lazyDemoNames].sort()).toEqual(Object.keys(demoMeta).sort());
   });
 });

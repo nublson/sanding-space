@@ -68,7 +68,7 @@ Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's 
 
 ## Rules that are easy to break
 
-- **Essay status**: `Published` → live page. `Soon` → listed, muted, not clickable, no page. `Draft` → invisible (draft mode only). Sections show only when `Visible = true` and they have at least one Published or Soon essay.
+- **Essay status**: `Published` → live page. `Soon` → listed, muted, not clickable, no page. `Preview` → Published everywhere except Vercel production, where it is Draft (resolved once in `getLibrary` via `showPreviews()`). `Draft` → invisible (draft mode only). Sections show only when `Visible = true` and they have at least one Published or Soon essay.
 - **Demo names are permanent.** Renaming = add the old name to `aliases` (308 redirect, keep the query string). Demos are never deleted; retired ones render a "This demo has moved" card.
 - **Frame params** `theme`, `bg`, `chrome` are consumed by the demo route and never passed to the demo. Demos must not use those param names.
 - **Headers**: `/demos/:path*` gets `frame-ancestors *` (no `X-Frame-Options`); everything else gets `frame-ancestors 'self'`.

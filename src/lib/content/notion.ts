@@ -2,7 +2,8 @@ import { Client } from "@notionhq/client";
 import { cacheLife, cacheTag } from "next/cache";
 import type { NotionBlock } from "notionic";
 import { fetchBlocks } from "notionic/fetch";
-import { buildLibrary } from "./library";
+import { showPreviews } from "../site";
+import { buildLibrary, resolvePreview } from "./library";
 import { parseEssay, parseSection } from "./parse";
 import { queryAll } from "./query";
 import type { Library } from "./types";
@@ -28,7 +29,10 @@ export async function getLibrary(): Promise<Library> {
     queryAll(notion, env("NOTION_SECTIONS_DATA_SOURCE_ID")),
     queryAll(notion, env("NOTION_ESSAYS_DATA_SOURCE_ID")),
   ]);
-  return buildLibrary(sections.map(parseSection), essays.map(parseEssay));
+  return buildLibrary(
+    sections.map(parseSection),
+    resolvePreview(essays.map(parseEssay), showPreviews()),
+  );
 }
 
 export async function getBlocks(pageId: string): Promise<NotionBlock[]> {

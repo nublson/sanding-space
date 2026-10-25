@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { EssayCard } from "@/components/library/essay-card";
 import { SectionBlock } from "@/components/library/section-block";
 import type { Essay } from "@/lib/content/types";
@@ -31,8 +31,9 @@ const essay = (o: Partial<Essay>): Essay => ({
   ...o,
 });
 
-function expectNoFocusableButton(link: HTMLElement) {
-  // The demo is mounted and live...
+async function expectNoFocusableButton(link: HTMLElement) {
+  // The demo is mounted and live (it loads lazily)...
+  await waitFor(() => expect(link.querySelector("button")).not.toBeNull());
   const button = link.querySelector("button");
   expect(button).not.toBeNull();
   // ...but sits in an inert, aria-hidden stage: out of the a11y tree and
@@ -45,13 +46,13 @@ function expectNoFocusableButton(link: HTMLElement) {
 }
 
 describe("thumbnail previews inside links", () => {
-  it("an EssayCard link contains no focusable button", () => {
+  it("an EssayCard link contains no focusable button", async () => {
     render(<EssayCard essay={essay({})} />);
     act(() => fire());
-    expectNoFocusableButton(screen.getByRole("link"));
+    await expectNoFocusableButton(screen.getByRole("link"));
   });
 
-  it("the featured SectionBlock link contains no focusable button", () => {
+  it("the featured SectionBlock link contains no focusable button", async () => {
     render(
       <SectionBlock
         section={{
@@ -67,6 +68,6 @@ describe("thumbnail previews inside links", () => {
       />,
     );
     act(() => fire());
-    expectNoFocusableButton(screen.getByRole("link"));
+    await expectNoFocusableButton(screen.getByRole("link"));
   });
 });

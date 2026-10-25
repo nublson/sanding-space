@@ -54,3 +54,15 @@ describe("parseEssay", () => {
     expect(parsed.published).toBeNull();
   });
 });
+
+describe("parseEssay status", () => {
+  it("reads the Preview status", () => {
+    const page = structuredClone(essayFixture) as unknown as PageObjectResponse;
+    const props = page.properties as Record<
+      string,
+      { status?: { name: string } }
+    >;
+    props.Status = { ...props.Status, status: { name: "Preview" } };
+    expect(parseEssay(page).status).toBe("Preview");
+  });
+});
