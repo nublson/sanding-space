@@ -36,6 +36,16 @@ describe("embed.js", () => {
     expect(marked.style.height).toBe("500px");
   });
 
+  it("never grows an iframe past its data-sanding-max-height", () => {
+    const { marked } = setup();
+    marked.setAttribute("data-sanding-max-height", "200");
+    post(marked.contentWindow, "https://sanding.space", {
+      type: "sanding:resize",
+      height: 500,
+    });
+    expect(marked.style.height).toBe("200px");
+  });
+
   it("ignores other origins", () => {
     const { marked } = setup();
     post(marked.contentWindow, "https://evil.example", {

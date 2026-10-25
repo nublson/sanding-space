@@ -329,7 +329,7 @@ body {
 }
 
 .shell-track {
-  transition: transform 400ms var(--ease-push);
+  transition: translate 400ms var(--ease-push);
 }
 @media (min-width: 768px) {
   .shell-track {

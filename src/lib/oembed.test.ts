@@ -91,6 +91,33 @@ describe("buildOembed", () => {
     expect(big).toMatchObject({ width: 640, height: 320 });
   });
 
+  it("applies size limits to the iframe itself", () => {
+    const html = (
+      buildOembed(
+        {
+          url: `${siteUrl}/demos/button-press-scale`,
+          maxwidth: 400,
+          maxheight: 200,
+        },
+        ctx,
+      ) as { html: string }
+    ).html;
+    expect(html).toContain("max-width:400px");
+    expect(html).toContain('data-sanding-max-height="200"');
+  });
+
+  it("keeps the requested demo query on the iframe", () => {
+    const html = (
+      buildOembed(
+        { url: `${siteUrl}/demos/old-press?scale=0.5&theme=dark&chrome=0` },
+        ctx,
+      ) as { html: string }
+    ).html;
+    expect(html).toContain(
+      `src="${siteUrl}/demos/button-press-scale?scale=0.5&amp;theme=dark&amp;chrome=0"`,
+    );
+  });
+
   it("resolves alias urls, trailing slashes and query strings", () => {
     expect(
       buildOembed({ url: `${siteUrl}/demos/old-press/?theme=dark` }, ctx),

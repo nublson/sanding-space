@@ -61,6 +61,14 @@ describe("MobileShell", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("clicking the header home link closes it", async () => {
+    const user = userEvent.setup();
+    const { toggle } = setup();
+    await user.click(toggle);
+    await user.click(screen.getByRole("link", { name: "Sanding Space" }));
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+  });
+
   it("clicking the pushed content closes it", async () => {
     const user = userEvent.setup();
     const { toggle } = setup();

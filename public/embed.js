@@ -13,7 +13,9 @@
     const frames = document.querySelectorAll("iframe[data-sanding]");
     for (const frame of frames) {
       if (frame.contentWindow === event.source) {
-        frame.style.height = `${height}px`;
+        const max = Number(frame.getAttribute("data-sanding-max-height"));
+        const clamped = max > 0 ? Math.min(height, max) : height;
+        frame.style.height = `${clamped}px`;
         return;
       }
     }

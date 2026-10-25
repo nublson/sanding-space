@@ -87,6 +87,7 @@ export function MobileShell({
         </button>
         <Link
           href="/"
+          onClick={() => close(false)}
           className="flex h-11 items-center gap-2 text-sm font-medium text-foreground"
         >
           <ShavingMark size={18} />

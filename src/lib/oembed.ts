@@ -25,21 +25,37 @@ export type OembedResponse =
 
 const DEFAULT_WIDTH = 640;
 
+function escapeAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 function richFor(
   name: string,
   entry: DemoMeta,
   title: string,
   input: { maxwidth?: number; maxheight?: number },
   siteUrl: string,
+  /** The requested demo URL's query (e.g. "?scale=0.5"), kept on the iframe. */
+  query = "",
 ): OembedResponse {
-  const clamp = (v: number, max?: number) =>
-    max !== undefined && Number.isFinite(max) && max > 0 ? Math.min(v, max) : v;
-  const width = clamp(DEFAULT_WIDTH, input.maxwidth);
-  const height = clamp(entry.height, input.maxheight);
-  const frameTitle = `${entry.title} · ${SITE_NAME}`;
+  const limit = (max?: number) =>
+    max !== undefined && Number.isFinite(max) && max > 0 ? max : undefined;
+  const maxwidth = limit(input.maxwidth);
+  const maxheight = limit(input.maxheight);
+  const width = maxwidth ? Math.min(DEFAULT_WIDTH, maxwidth) : DEFAULT_WIDTH;
+  const height = maxheight ? Math.min(entry.height, maxheight) : entry.height;
+  const frameTitle = escapeAttr(`${entry.title} · ${SITE_NAME}`);
+  const src = escapeAttr(`${siteUrl}/demos/${name}${query}`);
+  // Limits apply to the iframe itself; embed.js honors the max height on resize.
+  const maxWidthStyle = maxwidth ? `;max-width:${width}px` : "";
+  const maxHeightAttr = maxheight ? ` data-sanding-max-height="${height}"` : "";
   const html =
-    `<iframe src="${siteUrl}/demos/${name}"\n` +
-    `  data-sanding loading="lazy" style="width:100%;height:${height}px;border:0"\n` +
+    `<iframe src="${src}"\n` +
+    `  data-sanding${maxHeightAttr} loading="lazy" style="width:100%${maxWidthStyle};height:${height}px;border:0"\n` +
     `  title="${frameTitle}"></iframe>\n` +
     `<script async src="${siteUrl}/embed.js"></script>`;
   return {
@@ -87,7 +103,7 @@ export function buildOembed(
   const segments = oembedSegments(input.url, ctx.siteUrl);
   if (!segments) return null;
 
-  const demo = (name: string, title?: string) => {
+  const demo = (name: string, title?: string, query?: string) => {
     let resolved = resolveDemoIn(ctx.demos, name);
     if (resolved.kind === "alias")
       resolved = resolveDemoIn(ctx.demos, resolved.target);
@@ -98,12 +114,17 @@ export function buildOembed(
       title ?? resolved.entry.title,
       input,
       ctx.siteUrl,
+      query,
     );
   };
 
   if (segments[0] === "demos" && segments.length === 2) {
     try {
-      return demo(decodeURIComponent(segments[1]));
+      return demo(
+        decodeURIComponent(segments[1]),
+        undefined,
+        new URL(input.url).search,
+      );
     } catch {
       return null;
     }
