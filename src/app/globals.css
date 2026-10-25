@@ -279,3 +279,102 @@ body {
     translate: none;
   }
 }
+
+/*
+ * Site shell. Below md the sidebar sits off-canvas and the track slides it in,
+ * pushing the content right (no overlay). Spring-like linear() curve, ~400 ms.
+ */
+:root {
+  --ease-push: linear(
+    0,
+    0.02 1.6%,
+    0.09 3.4%,
+    0.36 8.6%,
+    0.62 13.2%,
+    0.82 18%,
+    0.95 23%,
+    1.02 28%,
+    1.04 33%,
+    1.03 40%,
+    1.01 50%,
+    1 62%,
+    1
+  );
+}
+
+.shell-track {
+  transition: transform 400ms var(--ease-push);
+}
+@media (min-width: 768px) {
+  .shell-track {
+    transition: none;
+  }
+}
+
+/* Closed off-canvas sidebar leaves the tab order and the accessibility tree. */
+@media (max-width: 767.98px) {
+  .shell-sidebar[data-open="false"] {
+    visibility: hidden;
+    transition: visibility 0s linear 400ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-track,
+  .shell-sidebar {
+    transition: none;
+  }
+}
+
+/* Entrance: the page's top-level blocks rise in, staggered. CSS only. */
+.article-layout > * {
+  animation: page-enter 500ms var(--ease-out) both;
+}
+.article-layout > :nth-child(2) {
+  animation-delay: 60ms;
+}
+.article-layout > :nth-child(3) {
+  animation-delay: 120ms;
+}
+.article-layout > :nth-child(4) {
+  animation-delay: 180ms;
+}
+.article-layout > :nth-child(n + 5) {
+  animation-delay: 240ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .article-layout > * {
+    animation: none;
+  }
+}
+
+/* Route change: crossfade of the main column, opacity only, 200 ms. */
+::view-transition-old(.page-fade) {
+  animation: 200ms var(--ease-out) both page-fade-out;
+}
+::view-transition-new(.page-fade) {
+  animation: 200ms var(--ease-out) both page-fade-in;
+}
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+::view-transition {
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    /* biome-ignore-start lint/complexity/noImportantStyles: must beat React's per-name animations */
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    /* biome-ignore-end lint/complexity/noImportantStyles: reduced-motion */
+  }
+}
