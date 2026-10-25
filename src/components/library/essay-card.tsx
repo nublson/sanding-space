@@ -44,6 +44,7 @@ export function EssayCard({ essay }: { essay: Essay }) {
         demo={essay.coverDemo}
         essaySlug={essay.slug}
         size="card"
+        preview
       />
       {textBlock(false, essay)}
     </Link>

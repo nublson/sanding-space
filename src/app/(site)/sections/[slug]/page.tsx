@@ -6,6 +6,7 @@ import { PageFade } from "@/components/page-fade";
 import { withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
+import { siteComponents } from "@/lib/content/renderer";
 import { demos } from "@/lib/demos";
 import { title } from "@/lib/site";
 
@@ -48,6 +49,7 @@ export default async function SectionPage({ params }: Props) {
                 blocks={blocks}
                 demos={demos}
                 pageHref={pageHref(library)}
+                components={siteComponents}
               />
             </div>
           }

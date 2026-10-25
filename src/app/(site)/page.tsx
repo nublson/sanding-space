@@ -5,6 +5,7 @@ import { PageFade } from "@/components/page-fade";
 import { firstParagraph, withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
+import { siteComponents } from "@/lib/content/renderer";
 import { demos } from "@/lib/demos";
 
 export default async function IndexPage() {
@@ -32,6 +33,7 @@ export default async function IndexPage() {
                     blocks={intros[i]}
                     demos={demos}
                     pageHref={href}
+                    components={siteComponents}
                   />
                   <Link
                     href={`/sections/${section.slug}`}

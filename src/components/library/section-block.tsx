@@ -38,6 +38,7 @@ export function SectionBlock({
             demo={featured.coverDemo}
             essaySlug={featured.slug}
             size="hero"
+            preview
           />
           <div className="mt-3 px-0.5">
             <h3 className="text-sm font-medium text-foreground">

@@ -15,16 +15,19 @@ export function LiveThumbnail({
   demo,
   essaySlug,
   size,
+  preview = false,
 }: {
   demo: string | null;
   essaySlug: string;
   size: "hero" | "card";
+  /** Render as a non-interactive preview, for thumbnails inside links. */
+  preview?: boolean;
 }) {
   const name = targetName(demo);
   const Demo = name ? demos[name] : undefined;
   return (
     <ViewTransition name={`demo-${essaySlug}`}>
-      <DemoStage size={size}>
+      <DemoStage size={size} preview={preview}>
         {name && Demo && (
           <InViewMount>
             <Demo name={name} params={{}} />

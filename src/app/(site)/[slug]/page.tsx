@@ -3,21 +3,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NotionRenderer } from "notionic";
 import { PageFade } from "@/components/page-fade";
-import { SiteDemoFrame } from "@/components/stage/demo-frame";
 import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { findPublishedEssay } from "@/lib/content/library";
 import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
+import { siteComponents } from "@/lib/content/renderer";
 import { demos } from "@/lib/demos";
 import { SITE_URL, title } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
-
-const components = {
-  demo: SiteDemoFrame,
-  child_database: () => null,
-  unsupported: () => null,
-};
 
 export async function generateStaticParams() {
   const library = await getLibrary();
@@ -82,7 +76,7 @@ export default async function EssayPage({ params }: Props) {
             blocks={blocks}
             demos={demos}
             pageHref={pageHref(library)}
-            components={components}
+            components={siteComponents}
           />
         </div>
       </article>
