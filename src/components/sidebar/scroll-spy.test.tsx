@@ -95,6 +95,27 @@ describe("ScrollSpy", () => {
     expect(screen.getByTestId("sidebar")).toHaveAttribute("data-essay", "");
   });
 
+  it("a batched first callback (first intersecting, rest below) selects the first section", () => {
+    addHeadings();
+    render(<ScrollSpy sections={sections} footer={null} />);
+    const [first, second] = observed;
+    act(() =>
+      callback([
+        { isIntersecting: true, target: first },
+        {
+          isIntersecting: false,
+          target: second,
+          boundingClientRect: { top: 1000 } as DOMRectReadOnly,
+          rootBounds: { bottom: 300 } as DOMRectReadOnly,
+        },
+      ]),
+    );
+    expect(screen.getByTestId("sidebar")).toHaveAttribute(
+      "data-section",
+      "principles",
+    );
+  });
+
   it("on an essay page, derives section and essay from the URL", () => {
     pathname = "/button-press";
     render(<ScrollSpy sections={sections} footer={null} />);

@@ -57,24 +57,25 @@ export function ScrollSpy({
     if (headings.length === 0) return;
     const order = headings.map((h) => h.dataset.section as string);
 
-    // A band across the top of the viewport: the heading inside it, or the
-    // last one above it, is the current section.
+    // A band across the top of the viewport. The current section is the last
+    // heading at or above the band's bottom edge (the first if none is).
+    // Callbacks may be batched, so derive from every heading's latest state.
+    const above = new Map<string, boolean>();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           const slug = (entry.target as HTMLElement).dataset.section;
           if (!slug) continue;
-          if (entry.isIntersecting) {
-            setSpied(slug);
-          } else if (
-            entry.rootBounds &&
-            entry.boundingClientRect.top >= entry.rootBounds.bottom
-          ) {
-            // Scrolled back up past this heading: the previous section is current.
-            const previous = order[order.indexOf(slug) - 1];
-            if (previous) setSpied(previous);
-          }
+          above.set(
+            slug,
+            entry.isIntersecting ||
+              (entry.rootBounds
+                ? entry.boundingClientRect.top < entry.rootBounds.bottom
+                : false),
+          );
         }
+        const current = order.findLast((slug) => above.get(slug)) ?? order[0];
+        setSpied(current);
       },
       { rootMargin: "0px 0px -70% 0px" },
     );

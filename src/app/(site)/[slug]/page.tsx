@@ -21,9 +21,11 @@ const components = {
 
 export async function generateStaticParams() {
   const library = await getLibrary();
-  return Array.from(library.bySlug.values())
+  const params = Array.from(library.bySlug.values())
     .filter(({ essay }) => essay.status === "Published")
     .map(({ essay }) => ({ slug: essay.slug }));
+  // cacheComponents rejects an empty list; the sentinel resolves to notFound().
+  return params.length > 0 ? params : [{ slug: "__none" }];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

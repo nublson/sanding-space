@@ -13,7 +13,9 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const library = await getLibrary();
-  return library.sections.map((section) => ({ slug: section.slug }));
+  const params = library.sections.map((section) => ({ slug: section.slug }));
+  // cacheComponents rejects an empty list; the sentinel resolves to notFound().
+  return params.length > 0 ? params : [{ slug: "__none" }];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
