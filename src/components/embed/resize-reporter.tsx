@@ -4,9 +4,14 @@ import { type ReactNode, useEffect, useRef } from "react";
 
 export function ResizeReporter({
   name,
+  minHeight,
+  className,
   children,
 }: {
   name: string;
+  /** The registry height in px: the root never reports less than this. */
+  minHeight: number;
+  className?: string;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -30,5 +35,14 @@ export function ResizeReporter({
     return () => observer.disconnect();
   }, [name]);
 
-  return <div ref={ref}>{children}</div>;
+  return (
+    <div
+      ref={ref}
+      data-resize-root
+      className={className}
+      style={{ minHeight: `${minHeight}px` }}
+    >
+      {children}
+    </div>
+  );
 }

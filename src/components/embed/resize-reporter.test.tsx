@@ -30,7 +30,7 @@ describe("ResizeReporter", () => {
     } as unknown as Window);
     vi.spyOn(window, "top", "get").mockReturnValue({} as Window);
     render(
-      <ResizeReporter name="button-press-scale">
+      <ResizeReporter name="button-press-scale" minHeight={320}>
         <p>x</p>
       </ResizeReporter>,
     );
@@ -39,6 +39,15 @@ describe("ResizeReporter", () => {
       { type: "sanding:resize", name: "button-press-scale", height: 320 },
       "*",
     );
+  });
+
+  it("sets the root's min-height from the given entry height", () => {
+    const { container } = render(
+      <ResizeReporter name="button-press-scale" minHeight={320}>
+        <p>x</p>
+      </ResizeReporter>,
+    );
+    expect(container.firstElementChild).toHaveStyle({ minHeight: "320px" });
   });
 
   it("posts nothing at top level", () => {
@@ -50,7 +59,7 @@ describe("ResizeReporter", () => {
     vi.spyOn(window, "top", "get").mockReturnValue(me);
     vi.spyOn(window, "self", "get").mockReturnValue(me);
     render(
-      <ResizeReporter name="button-press-scale">
+      <ResizeReporter name="button-press-scale" minHeight={320}>
         <p>x</p>
       </ResizeReporter>,
     );

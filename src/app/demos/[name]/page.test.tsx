@@ -43,14 +43,22 @@ describe("demo page", () => {
     expect(notFound).toHaveBeenCalled();
   });
 
-  it("prerenders the default frame in the Suspense fallback", async () => {
+  it("prerenders the frame without the mark in the Suspense fallback", async () => {
     const el = (await DemoPage(props("button-press-scale"))) as {
       props: { fallback: React.ReactElement };
     };
     render(el.props.fallback);
     expect(screen.getByText("Press and hold")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /Sanding Space/ }),
-    ).toBeInTheDocument();
+    expect(screen.queryByText(/Sanding Space/)).toBeNull();
+  });
+
+  it("gives the measured root the registry height as min-height", async () => {
+    const { container } = await frame("button-press-scale");
+    const root = container.querySelector("[data-resize-root]");
+    expect(root).toHaveStyle({ minHeight: "320px" });
+    // The attribution lives inside the measured area, after the stage.
+    const link = screen.getByRole("link", { name: /Sanding Space/ });
+    expect(root).toContainElement(link);
+    expect(link).not.toHaveClass("fixed");
   });
 });

@@ -31,10 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const DEFAULT_FRAME: FrameParams = {
+// The prerendered shell can't see the query string. It leaves the mark out,
+// so with ?chrome=0 it never flashes in; otherwise it appears once the
+// search params resolve.
+const FALLBACK_FRAME: FrameParams = {
   theme: "system",
   bg: "default",
-  chrome: true,
+  chrome: false,
 };
 
 export function Frame({
@@ -60,20 +63,29 @@ export function Frame({
         frame.bg === "default" && "bg-background text-foreground",
       )}
     >
-      <ResizeReporter name={name}>
-        <Demo name={name} params={params} />
+      {/* The measured root is never shorter than the registry height, so
+          embed.js keeps the stage size; taller content grows it. The
+          attribution sits in its own row so it never covers the demo. */}
+      <ResizeReporter
+        name={name}
+        minHeight={entry.height}
+        className="flex w-full flex-col"
+      >
+        <div className="flex w-full flex-1 items-center justify-center">
+          <Demo name={name} params={params} />
+        </div>
+        {frame.chrome && (
+          <a
+            href={`/${entry.essay}`}
+            target="_blank"
+            rel="noopener"
+            className="flex items-center gap-1 self-end px-3 pb-3 text-xs text-subtle-foreground"
+          >
+            <ShavingMark size={12} />
+            Sanding Space ↗
+          </a>
+        )}
       </ResizeReporter>
-      {frame.chrome && (
-        <a
-          href={`/${entry.essay}`}
-          target="_blank"
-          rel="noopener"
-          className="fixed right-3 bottom-3 flex items-center gap-1 text-xs text-subtle-foreground"
-        >
-          <ShavingMark size={12} />
-          Sanding Space ↗
-        </a>
-      )}
     </div>
   );
 }
@@ -98,7 +110,7 @@ export default async function DemoPage({
   if (resolveDemo(name).kind !== "demo") notFound();
   return (
     <Suspense
-      fallback={<Frame name={name} frame={DEFAULT_FRAME} params={{}} />}
+      fallback={<Frame name={name} frame={FALLBACK_FRAME} params={{}} />}
     >
       <DemoFrame name={name} searchParams={searchParams} />
     </Suspense>
