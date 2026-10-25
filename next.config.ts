@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
   async redirects() {
     return aliasRedirects();
   },
+  async headers() {
+    return [
+      {
+        source: "/demos/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors *" },
+        ],
+      },
+      {
+        source: "/((?!demos/).*)",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {
