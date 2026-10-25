@@ -43,9 +43,23 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 
 Reserved essay slugs: `demos`, `sections`, `api`, `about`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add every new top-level route to this list (here and in the build checks).
 
+## Interface layout
+
+Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not decided yet.
+
+- **Sidebar** (same component on every size): wordmark, sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + theme toggle in the footer. On the index it follows scroll.
+- **Index**: per section, name + first paragraph of its intro, a large live thumbnail of its first Published essay, the rest in a 3-column card grid. **Section page**: full intro + same essay block.
+- **Essay**: section eyebrow, title, large demo stage with caption, then the body.
+- **Mobile**: same header with a sidebar toggle before the logo; the sidebar pushes the content right (no overlay).
+- Demo frame is **stage + caption only**; Replay / Copy link / Embed / Open are deferred.
+
+## Brand
+
+Decided in [docs/spec.md §10](docs/spec.md): the **shaving** mark (one curl stroke, `currentColor`, static) and a **monochrome** palette called silicon carbide. There is no accent hue: links, the current-essay bar and focus rings use the foreground ink. Demos may use color; the site chrome does not.
+
 ## Rules that are easy to break
 
-- **Essay status**: `Published` → live page. `Soon` → listed, muted, not clickable, no page. `Draft` → invisible (draft mode only). Sections show only when `Visible = true`.
+- **Essay status**: `Published` → live page. `Soon` → listed, muted, not clickable, no page. `Draft` → invisible (draft mode only). Sections show only when `Visible = true` and they have at least one Published or Soon essay.
 - **Demo names are permanent.** Renaming = add the old name to `aliases` (308 redirect, keep the query string). Demos are never deleted; retired ones render a "This demo has moved" card.
 - **Frame params** `theme`, `bg`, `chrome` are consumed by the demo route and never passed to the demo. Demos must not use those param names.
 - **Headers**: `/demos/:path*` gets `frame-ancestors *` (no `X-Frame-Options`); everything else gets `frame-ancestors 'self'`.

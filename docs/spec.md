@@ -101,7 +101,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 - `Soon`: listed in the index and sidebar with a "Soon" treatment (muted / badge, not clickable), no essay page (404 or not generated).
 - `Draft`: invisible on the site. Optionally viewable via Next.js draft mode for previewing.
 
-A section is shown only if `Visible = true`. A visible section with no `Published` or `Soon` essays should still render its header (suggested) or be hidden (your call, but be consistent).
+A section is shown only if `Visible = true` **and** it has at least one `Published` or `Soon` essay (decided). Empty visible sections are hidden everywhere (index, sidebar, `/sections/<slug>` returns 404).
 
 ---
 
@@ -247,8 +247,8 @@ Without the script, the iframe uses the inline height (from the registry `height
 
 Override `components.demo` with a Sanding Space frame:
 
-- Stage with the demo, caption from Notion centered below (via `RichText`).
-- Actions revealed on hover/focus (and always visible on touch):
+- Stage with the demo, caption from Notion centered below (via `RichText`). No actions on the frame for now (decided).
+- **Deferred** until there is a real need: actions revealed on hover/focus (and always visible on touch). Keep this as the reference when they come back:
   - **Replay**: remount the demo by changing its `key` (important for motion demos that play once).
   - **Copy link**: `https://sanding.space/demos/<name>` plus any non-frame params from the embed.
   - **Copy embed**: the iframe + script snippet above.
@@ -284,7 +284,7 @@ Deliver, end to end:
 3. Routes: `/`, `/<slug>`, `/sections/<slug>`, `/demos/<name>`.
 4. Demo registry with **one real demo**, `button-press-scale` (a button that scales down on press with a spring and returns on release; params: `stiffness`, `damping`, `scale`). Essay slug: `button-press` (already exists in Notion as a Draft in the Interaction section).
 5. Headers (§6.5), `embed.js` auto-height (§6.6), oEmbed endpoint (§6.7).
-6. Custom demo frame with Replay / Copy link / Copy embed / Open (§6.9).
+6. Custom demo frame: stage + caption only (§6.9; actions deferred). Interface layout per §9.
 7. Build checks script (§7) wired to `pnpm build` or a separate CI step.
 8. README covering setup, env vars, how to add a demo, and how to embed one.
 
@@ -296,3 +296,78 @@ Deliver, end to end:
 - `/api/oembed?url=https://sanding.space/demos/button-press-scale` returns valid oEmbed JSON.
 - Pages without demos ship no client JavaScript for demos.
 - Lighthouse accessibility score of 100 on the essay and demo pages.
+
+---
+
+## 9. Interface layout (decided)
+
+Agreed through low-fidelity mocks (direction "Contents", inspired by devouringdetails.com). Visual style (type, color, spacing) is not decided yet; this section fixes structure only.
+
+### 9.1 Sidebar (one component, all sizes)
+
+- Top: the wordmark (shaving mark + **Sanding Space**, §10), linking to `/`.
+- Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
+- The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
+- The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
+- Footer pinned to the bottom: **About** link and a light/dark theme toggle (defaults to system).
+- Current section: on an essay page, the essay's section; on `/sections/<slug>`, that section; on the index, the section currently on screen (scroll-spy), with no essay marked.
+- Desktop: always visible, sticky beside the content.
+
+### 9.2 Index `/`
+
+For each visible section, in `Order`, stacked and separated by a hairline:
+
+1. Section **name** as the heading (no Question here; the sidebar shows it).
+2. The **first paragraph** of the section's Notion page body (the intro), linking on to `/sections/<slug>` for the rest.
+3. A **large live thumbnail** of the section's first `Published` essay (lowest `Order`), rendering that essay's `Cover demo`, with title and `Summary` below. `Soon` essays never take this slot.
+4. The section's remaining essays as **cards in a 3-column grid**: small live thumbnail (`Cover demo`), title, `Summary`. `Soon` cards keep their place with an empty stage, muted text and a "Soon" badge.
+
+Live thumbnails mount their demo only when scrolled into view.
+
+### 9.3 Section page `/sections/<slug>`
+
+The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then the same large thumbnail + card grid as on the index. Index and section page share one component for the essay block.
+
+### 9.4 Essay `/<slug>`
+
+- Section name as a small eyebrow above the title.
+- A large demo stage (the first demo in the body, or the `Cover demo`) with its caption centered below.
+- Essay body below a hairline; inline demos use the same stage + caption frame (§6.9), without actions.
+
+### 9.5 Mobile
+
+- Header identical to the desktop wordmark, with a **sidebar toggle button before the logo**. The header stays fixed.
+- The sidebar is the same component (sections, Question, essays, About + theme footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
+- While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
+- The essay hero demo runs edge to edge; the card grid drops to 2 columns.
+
+---
+
+## 10. Brand (decided)
+
+### 10.1 Mark
+
+The **shaving**: a single curl of material lifted off the work, hinting at an S without spelling it. Used before the wordmark in the sidebar/header and alone as the favicon.
+
+```svg
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 34C6 18 26 6 37 15C46 23 38 37 27 35C19 33 20 22 28 23"
+        fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+</svg>
+```
+
+- Always `currentColor`, so it follows the theme. Never recolor it per section.
+- Static. No logo animation.
+- Lockup: mark + **Sanding Space** in the UI font, mark height ≈ cap height × 1.4.
+
+### 10.2 Color: silicon carbide (monochrome)
+
+Named after the near-black of wet-and-dry sandpaper. There is **no accent hue**: the brand color is the ink. Anything that would be "accent" (current-essay bar, links, focus ring) uses the foreground color; hierarchy comes from weight, size and the muted tone, not color.
+
+| Token | Light | Dark | Contrast on bg |
+|---|---|---|---|
+| `--background` | `#FAFAF9` | `#121212` | |
+| `--foreground` (brand, ink) | `#1A1A19` | `#F2F1EE` | 16.7:1 / 16.6:1 |
+| `--muted-foreground` (Soon, Question, captions) | `#6B6A66` | `#9A9893` | 5.2:1 / 6.5:1 |
+
+All text tokens pass WCAG AA. Map these onto the shadcn/ui token names in `globals.css`; surfaces, borders and the demo stage tones are decided with the rest of the visual style (suggested: derive them from the same warm-gray family). Demos may use color internally; the site chrome does not.
