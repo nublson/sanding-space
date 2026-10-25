@@ -44,7 +44,12 @@ export function parseSection(page: PageObjectResponse): Section {
   };
 }
 
-const STATUSES: readonly EssayStatus[] = ["Published", "Soon", "Draft"];
+const STATUSES: readonly EssayStatus[] = [
+  "Published",
+  "Preview",
+  "Soon",
+  "Draft",
+];
 
 export function parseEssay(page: PageObjectResponse): Essay {
   const p = page.properties;

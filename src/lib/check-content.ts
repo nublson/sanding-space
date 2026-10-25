@@ -44,9 +44,11 @@ export function checkContent(input: CheckInput): CheckResult {
     }
   }
 
-  // 2. cover demos exist
+  // 2. cover demos exist for essays that have a page (Soon cards show an
+  // empty stage, so their covers may name demos that aren't built yet)
   for (const e of essays) {
-    if (e.coverDemo && !known.has(e.coverDemo))
+    const hasPage = e.status === "Published" || e.status === "Preview";
+    if (hasPage && e.coverDemo && !known.has(e.coverDemo))
       errors.push(
         `[rule 2] essay ${essayLabel(e)} has unknown Cover demo "${e.coverDemo}"`,
       );
@@ -99,9 +101,9 @@ export function checkContent(input: CheckInput): CheckResult {
       errors.push(
         `[rule 7] demo ${name} points to essay "${d.essay}", which is missing or Draft`,
       );
-    else if (target.status === "Soon")
+    else if (target.status === "Soon" || target.status === "Preview")
       warnings.push(
-        `[rule 7] demo ${name} points to essay "${d.essay}", which is still Soon`,
+        `[rule 7] demo ${name} points to essay "${d.essay}", which is still ${target.status}`,
       );
   }
 

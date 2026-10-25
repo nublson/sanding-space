@@ -1,4 +1,5 @@
-export type EssayStatus = "Published" | "Soon" | "Draft";
+/** Preview is Published outside Vercel production and Draft in it (see showPreviews). */
+export type EssayStatus = "Published" | "Preview" | "Soon" | "Draft";
 export type Section = {
   id: string;
   slug: string;

@@ -29,20 +29,20 @@ beforeEach(() => {
 });
 
 describe("LiveThumbnail", () => {
-  it("renders the demo only once in view", () => {
+  it("renders the demo only once in view", async () => {
     render(
       <LiveThumbnail demo="button-press-scale" essaySlug="x" size="card" />,
     );
     expect(screen.queryByRole("button")).toBeNull();
     act(() => fire());
     expect(
-      screen.getByRole("button", { name: /press and hold/i }),
+      await screen.findByRole("button", { name: /press and hold/i }),
     ).toBeInTheDocument();
   });
-  it("resolves aliases to the target demo", () => {
+  it("resolves aliases to the target demo", async () => {
     render(<LiveThumbnail demo="old-name" essaySlug="x" size="card" />);
     act(() => fire());
-    expect(screen.getByRole("button")).toBeInTheDocument();
+    expect(await screen.findByRole("button")).toBeInTheDocument();
   });
   it("renders an empty stage for unknown or null demos", () => {
     const { container, rerender } = render(

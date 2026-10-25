@@ -48,7 +48,7 @@ describe("demo page", () => {
       props: { fallback: React.ReactElement };
     };
     render(el.props.fallback);
-    expect(screen.getByText("Press and hold")).toBeInTheDocument();
+    expect(await screen.findByText("Press and hold")).toBeInTheDocument();
     expect(screen.queryByText(/Sanding Space/)).toBeNull();
   });
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildLibrary, featuredEssay, findPublishedEssay } from "./library";
+import {
+  buildLibrary,
+  featuredEssay,
+  findPublishedEssay,
+  resolvePreview,
+} from "./library";
 import type { Essay, Section } from "./types";
 
 const section = (o: Partial<Section> = {}): Section => ({
@@ -115,5 +120,31 @@ describe("findPublishedEssay", () => {
     expect(findPublishedEssay(lib, "s")).toBeNull();
     expect(findPublishedEssay(lib, "d")).toBeNull();
     expect(findPublishedEssay(lib, "nope")).toBeNull();
+  });
+});
+
+describe("resolvePreview", () => {
+  const essays = [
+    essay({ slug: "a", status: "Preview" }),
+    essay({ slug: "b", status: "Published" }),
+    essay({ slug: "c", status: "Soon" }),
+  ];
+  it("treats Preview as Published when previews are shown", () => {
+    expect(resolvePreview(essays, true).map((e) => e.status)).toEqual([
+      "Published",
+      "Published",
+      "Soon",
+    ]);
+  });
+  it("treats Preview as Draft in production", () => {
+    const resolved = resolvePreview(essays, false);
+    expect(resolved.map((e) => e.status)).toEqual([
+      "Draft",
+      "Published",
+      "Soon",
+    ]);
+    expect(
+      findPublishedEssay(buildLibrary([section()], resolved), "a"),
+    ).toBeNull();
   });
 });

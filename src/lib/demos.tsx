@@ -1,6 +1,6 @@
 import type { DemoProps, Demos } from "notionic";
 import type { ComponentType } from "react";
-import ButtonPressScale from "@/components/demos/button-press-scale";
+import { LazyDemo } from "@/components/demos/lazy-demo";
 import { RetiredDemo } from "@/components/demos/retired-demo";
 import {
   type DemoMeta,
@@ -11,8 +11,16 @@ import {
 } from "@/lib/demo-meta";
 import { FRAME_PARAM_KEYS } from "@/lib/frame-params";
 
+// Binds the canonical name, so a demo rendered under an alias still loads.
+function lazy(name: string): ComponentType<DemoProps> {
+  function Demo({ params }: DemoProps) {
+    return <LazyDemo name={name} params={params} />;
+  }
+  return Demo;
+}
+
 export const demoComponents: Record<string, ComponentType<DemoProps>> = {
-  "button-press-scale": ButtonPressScale,
+  "button-press-scale": lazy("button-press-scale"),
 };
 
 export type DemoEntry = DemoMeta & {

@@ -86,7 +86,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 | Title | title | |
 | Slug | text | Unique across all essays. URL: `sanding.space/<slug>` |
 | Section | relation → Sections | Limited to one page |
-| Status | status | `Draft` / `Soon` / `Published` |
+| Status | status | `Draft` / `Soon` / `Preview` / `Published` |
 | Order | number | Order within its section |
 | Summary | text | Card text and meta description |
 | Cover demo | text | A demo name (e.g. `button-press-scale`) rendered live, scaled down, as the index card thumbnail |
@@ -100,6 +100,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 
 - `Published`: essay page is live, listed normally.
 - `Soon`: listed in the index and sidebar with a "Soon" treatment (muted / badge, not clickable), no essay page (404 or not generated).
+- `Preview`: behaves exactly like `Published` locally, in `next dev` and on Vercel preview deployments, and like `Draft` in production (`VERCEL_ENV=production`). Used to review an essay before publishing it (decided).
 - `Draft`: invisible on the site. Optionally viewable via Next.js draft mode for previewing.
 
 A section is shown only if `Visible = true` **and** it has at least one `Published` or `Soon` essay (decided). Empty visible sections are hidden everywhere (index, sidebar, `/sections/<slug>` returns 404).
