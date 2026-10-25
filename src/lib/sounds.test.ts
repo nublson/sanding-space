@@ -112,4 +112,13 @@ describe("sounds", () => {
     expect(setMasterVolume).toHaveBeenLastCalledWith(1);
     expect(isMuted()).toBe(false);
   });
+
+  it("applySavedMute silences only when saved as muted", async () => {
+    const { applySavedMute } = await load();
+    applySavedMute();
+    expect(setMasterVolume).not.toHaveBeenCalled();
+    localStorage.setItem("sanding:muted", "1");
+    applySavedMute();
+    expect(setMasterVolume).toHaveBeenCalledWith(0);
+  });
 });

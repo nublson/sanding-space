@@ -14,14 +14,23 @@ const icon =
 export function MuteButton() {
   const [muted, setMutedState] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const pendingMute = useRef(false);
 
   useEffect(() => {
     setMutedState(isMuted());
-    return () => clearTimeout(timer.current);
+    return () => {
+      clearTimeout(timer.current);
+      // Flush a mute still waiting on its delay so unmounting never drops it.
+      if (pendingMute.current) {
+        pendingMute.current = false;
+        setMuted(true);
+      }
+    };
   }, []);
 
   function toggle() {
     clearTimeout(timer.current);
+    pendingMute.current = false;
     if (muted) {
       setMuted(false);
       setMutedState(false);
@@ -29,7 +38,11 @@ export function MuteButton() {
     } else {
       setMutedState(true);
       playSound("toggle-off");
-      timer.current = setTimeout(() => setMuted(true), MUTE_DELAY_MS);
+      pendingMute.current = true;
+      timer.current = setTimeout(() => {
+        pendingMute.current = false;
+        setMuted(true);
+      }, MUTE_DELAY_MS);
     }
   }
 

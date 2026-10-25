@@ -74,6 +74,10 @@ export function setMuted(muted: boolean): void {
   setMasterVolume(muted ? 0 : 1);
 }
 
+export function applySavedMute(): void {
+  if (isMuted()) setMasterVolume(0);
+}
+
 export function playSound(name: SoundName): void {
   if (typeof window === "undefined" || isMuted()) return;
   const now = Date.now();

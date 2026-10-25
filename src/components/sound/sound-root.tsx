@@ -1,12 +1,11 @@
 "use client";
 
-import { setMasterVolume } from "@web-kits/audio";
 import { type ReactNode, useEffect } from "react";
-import { isMuted, playSound, type SoundName } from "@/lib/sounds";
+import { applySavedMute, playSound, type SoundName } from "@/lib/sounds";
 
 export function SoundRoot({ children }: { children: ReactNode }) {
   useEffect(() => {
-    if (isMuted()) setMasterVolume(0);
+    applySavedMute();
 
     function onClick(event: MouseEvent) {
       const target = event.target;

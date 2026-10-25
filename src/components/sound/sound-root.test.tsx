@@ -4,10 +4,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const playSound = vi.fn();
 const setMuted = vi.fn();
+const applySavedMute = vi.fn();
 let muted = false;
 
 vi.mock("@/lib/sounds", () => ({
   playSound: (n: string) => playSound(n),
+  applySavedMute: () => applySavedMute(),
   setMuted: (m: boolean) => {
     muted = m;
     setMuted(m);
@@ -21,10 +23,16 @@ import { SoundRoot } from "./sound-root";
 beforeEach(() => {
   playSound.mockClear();
   setMuted.mockClear();
+  applySavedMute.mockClear();
   muted = false;
 });
 
 describe("SoundRoot", () => {
+  it("applies the saved mute on mount", () => {
+    render(<SoundRoot>x</SoundRoot>);
+    expect(applySavedMute).toHaveBeenCalledTimes(1);
+  });
+
   it("plays on a data-sound element and its children", () => {
     render(
       <SoundRoot>
@@ -55,6 +63,16 @@ describe("SoundRoot", () => {
 });
 
 describe("MuteButton", () => {
+  it("flushes a pending mute on unmount", () => {
+    vi.useFakeTimers();
+    const { unmount } = render(<MuteButton />);
+    fireEvent.click(screen.getByRole("button", { name: "Mute sound" }));
+    expect(setMuted).not.toHaveBeenCalled();
+    unmount();
+    expect(setMuted).toHaveBeenCalledWith(true);
+    vi.useRealTimers();
+  });
+
   it("toggles aria-pressed and accessible name", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
