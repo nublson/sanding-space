@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter, Newsreader } from "next/font/google";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+});
+
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  axes: ["opsz"],
 });
 
 const geistMono = Geist_Mono({
@@ -13,7 +21,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sanding Space",
+  metadataBase: new URL(SITE_URL),
+  title: { template: `%s · ${SITE_NAME}`, default: SITE_NAME },
   description:
     "Short essays about design engineering and product engineering, with live, embeddable demos.",
 };
@@ -22,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${inter.variable} ${newsreader.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
