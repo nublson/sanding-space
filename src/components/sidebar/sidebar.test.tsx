@@ -61,13 +61,13 @@ const setup = (
   );
 
 describe("Sidebar", () => {
-  it("collapsed sections link to their section page", () => {
+  it("collapsed sections link to their section page and hide their essays", () => {
     setup();
     expect(screen.getByRole("link", { name: "Principles" })).toHaveAttribute(
       "href",
       "/sections/principles",
     );
-    expect(screen.queryByText("Taste")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Taste" })).toBeNull();
   });
 
   it("current section shows its question and essays", () => {

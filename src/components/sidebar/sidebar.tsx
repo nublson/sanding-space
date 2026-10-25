@@ -49,56 +49,58 @@ export function Sidebar({
                   current ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
                 )}
               >
-                <div className="overflow-hidden">
+                <div
+                  className="overflow-hidden"
+                  inert={!current}
+                  aria-hidden={!current}
+                >
                   {current && (
-                    <>
-                      <p className="pb-1 text-xs/4 text-subtle-foreground">
-                        {section.question}
-                      </p>
-                      <ul className="border-l border-border">
-                        {section.essays.map((essay) => {
-                          const active = essay.slug === currentEssaySlug;
-                          return (
-                            <li key={essay.id}>
-                              {essay.status === "Published" ? (
-                                <Link
-                                  href={`/${essay.slug}`}
-                                  data-sound="page"
-                                  aria-current={active ? "page" : undefined}
-                                  className={cn(
-                                    row,
-                                    "relative pl-3 text-sm",
-                                    active
-                                      ? "text-foreground"
-                                      : "text-muted-foreground",
-                                    active &&
-                                      "before:absolute before:top-1/2 before:left-[-1.5px] before:h-3 before:w-0.5 before:-translate-y-1/2 before:bg-foreground",
-                                  )}
-                                >
-                                  {active ? (
-                                    <ViewTransition name="sidebar-marker">
-                                      <span>{essay.title}</span>
-                                    </ViewTransition>
-                                  ) : (
-                                    essay.title
-                                  )}
-                                </Link>
-                              ) : (
-                                <span
-                                  className={cn(
-                                    row,
-                                    "pl-3 text-sm text-subtle-foreground",
-                                  )}
-                                >
-                                  {essay.title}
-                                </span>
-                              )}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </>
+                    <p className="pb-1 text-xs/4 text-subtle-foreground">
+                      {section.question}
+                    </p>
                   )}
+                  <ul className="border-l border-border">
+                    {section.essays.map((essay) => {
+                      const active = essay.slug === currentEssaySlug;
+                      return (
+                        <li key={essay.id}>
+                          {essay.status === "Published" ? (
+                            <Link
+                              href={`/${essay.slug}`}
+                              data-sound="page"
+                              aria-current={active ? "page" : undefined}
+                              className={cn(
+                                row,
+                                "relative pl-3 text-sm",
+                                active
+                                  ? "text-foreground"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              {active && (
+                                <ViewTransition name="sidebar-marker">
+                                  <span
+                                    aria-hidden="true"
+                                    className="absolute top-1/2 left-[-1.5px] h-3 w-0.5 -translate-y-1/2 bg-foreground"
+                                  />
+                                </ViewTransition>
+                              )}
+                              {essay.title}
+                            </Link>
+                          ) : (
+                            <span
+                              className={cn(
+                                row,
+                                "pl-3 text-sm text-subtle-foreground",
+                              )}
+                            >
+                              {essay.title}
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               </div>
             </li>
