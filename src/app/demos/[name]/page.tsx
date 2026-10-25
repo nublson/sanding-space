@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
 import { ResizeReporter } from "@/components/embed/resize-reporter";
-import { demos, registry, resolveDemo } from "@/lib/demos";
-import { splitParams } from "@/lib/frame-params";
+import { resolveDemo } from "@/lib/demo-meta";
+import { demos, registry } from "@/lib/demos";
+import { type FrameParams, splitParams } from "@/lib/frame-params";
 import { SITE_URL, title } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -30,32 +31,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function queryString(search: Search): string {
-  const qs = new URLSearchParams();
-  for (const [key, value] of Object.entries(search)) {
-    if (value === undefined) continue;
-    for (const v of Array.isArray(value) ? value : [value]) qs.append(key, v);
-  }
-  return qs.toString();
-}
+const DEFAULT_FRAME: FrameParams = {
+  theme: "system",
+  bg: "default",
+  chrome: true,
+};
 
-export async function DemoFrame({
+export function Frame({
   name,
-  searchParams,
+  frame,
+  params,
 }: {
   name: string;
-  searchParams: Promise<Search>;
+  frame: FrameParams;
+  params: Record<string, string>;
 }) {
   const resolved = resolveDemo(name);
-  if (resolved.kind === "missing") notFound();
-  const search = await searchParams;
-  if (resolved.kind === "alias") {
-    const query = queryString(search);
-    permanentRedirect(`/demos/${resolved.target}${query ? `?${query}` : ""}`);
-  }
   if (resolved.kind !== "demo") notFound();
   const { entry } = resolved;
-  const { frame, params } = splitParams(search);
   const Demo = demos[name];
 
   return (
@@ -85,14 +78,28 @@ export async function DemoFrame({
   );
 }
 
+export async function DemoFrame({
+  name,
+  searchParams,
+}: {
+  name: string;
+  searchParams: Promise<Search>;
+}) {
+  const { frame, params } = splitParams(await searchParams);
+  return <Frame name={name} frame={frame} params={params} />;
+}
+
+// Alias names are redirected (308) by next.config.ts before reaching this page.
 export default async function DemoPage({
   params,
   searchParams,
 }: Props & { searchParams: Promise<Search> }) {
   const { name } = await params;
-  if (resolveDemo(name).kind === "missing") notFound();
+  if (resolveDemo(name).kind !== "demo") notFound();
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={<Frame name={name} frame={DEFAULT_FRAME} params={{}} />}
+    >
       <DemoFrame name={name} searchParams={searchParams} />
     </Suspense>
   );

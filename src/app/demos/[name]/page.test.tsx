@@ -1,25 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import DemoPage, { DemoFrame } from "@/app/demos/[name]/page";
 
-const { notFound, permanentRedirect } = vi.hoisted(() => ({
+const { notFound } = vi.hoisted(() => ({
   notFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
-  permanentRedirect: vi.fn((url: string) => {
-    throw new Error(`REDIRECT:${url}`);
-  }),
 }));
-vi.mock("next/navigation", () => ({ notFound, permanentRedirect }));
-vi.mock("@/lib/demos", async (orig) => {
-  const mod = await orig<typeof import("@/lib/demos")>();
-  return {
-    ...mod,
-    resolveDemo: (name: string) =>
-      name === "old-name"
-        ? { kind: "alias", target: "button-press-scale" }
-        : mod.resolveDemo(name),
-  };
-});
+vi.mock("next/navigation", () => ({ notFound }));
 
 const props = (name: string) => ({
   params: Promise.resolve({ name }),
@@ -56,15 +43,14 @@ describe("demo page", () => {
     expect(notFound).toHaveBeenCalled();
   });
 
-  it("redirects aliases permanently, preserving the query", async () => {
-    await expect(
-      DemoFrame({
-        name: "old-name",
-        searchParams: Promise.resolve({ theme: "light", x: ["1", "2"] }),
-      }),
-    ).rejects.toThrow("REDIRECT:/demos/button-press-scale?theme=light&x=1&x=2");
-    await expect(
-      DemoFrame({ name: "old-name", searchParams: Promise.resolve({}) }),
-    ).rejects.toThrow("REDIRECT:/demos/button-press-scale");
+  it("prerenders the default frame in the Suspense fallback", async () => {
+    const el = (await DemoPage(props("button-press-scale"))) as {
+      props: { fallback: React.ReactElement };
+    };
+    render(el.props.fallback);
+    expect(screen.getByText("Press and hold")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Sanding Space/ }),
+    ).toBeInTheDocument();
   });
 });

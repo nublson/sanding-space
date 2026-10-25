@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { aliasRedirects } from "./src/lib/demo-meta";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -7,6 +8,9 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  async redirects() {
+    return aliasRedirects();
+  },
   turbopack: {
     rules: {
       "*.css": {
