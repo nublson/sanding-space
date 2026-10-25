@@ -23,7 +23,8 @@ Read the whole document before writing code. Decisions marked **(decided)** are 
 ## 2. Stack (decided unless noted)
 
 - Next.js (App Router), TypeScript, React Server Components
-- Tailwind CSS + shadcn/ui tokens
+- Tailwind CSS v4 + shadcn/ui on **Base UI** primitives (decided, see §11.1)
+- `@web-kits/audio` for interface sound (decided, see §11.4)
 - `notionic` + `@notionhq/client`
 - Motion (`motion/react`) for demo animation (suggested)
 - Deploy on Vercel
@@ -196,7 +197,7 @@ Rules (decided):
 - Prerender every demo with `generateStaticParams` over the registry.
 - Only that demo's JavaScript ships.
 - Apply `theme` and `bg`. With `bg=transparent`, `html` and `body` must be transparent.
-- Respect `prefers-reduced-motion` and `prefers-color-scheme` unless overridden.
+- Respect `prefers-reduced-motion`, and `prefers-color-scheme` when `theme=system` (§11.6).
 - `notFound()` for unknown names (after checking aliases).
 - `<meta name="robots" content="noindex">` is **not** wanted; demos should be indexable, but set the canonical URL to the demo URL itself.
 
@@ -279,7 +280,7 @@ Run in CI before deploy; fail the build on any error:
 
 Deliver, end to end:
 
-1. Next.js app with Tailwind, shadcn/ui tokens, notionic styles imported after Tailwind (`@import "tailwindcss"; @import "notionic/styles.css";`), light and dark themes.
+1. Next.js app with Tailwind, shadcn/ui tokens, notionic styles imported after Tailwind (import order in §11.1), dark-only site with light tokens for embeds (§11).
 2. Notion data layer reading Sections and Essays with the rules in §3 and §5.
 3. Routes: `/`, `/<slug>`, `/sections/<slug>`, `/demos/<name>`.
 4. Demo registry with **one real demo**, `button-press-scale` (a button that scales down on press with a spring and returns on release; params: `stiffness`, `damping`, `scale`). Essay slug: `button-press` (already exists in Notion as a Draft in the Interaction section).
@@ -309,7 +310,7 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 - Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
 - The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
 - The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
-- Footer pinned to the bottom: **About** link and a light/dark theme toggle (defaults to system).
+- Footer pinned to the bottom: **About** link and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
 - Current section: on an essay page, the essay's section; on `/sections/<slug>`, that section; on the index, the section currently on screen (scroll-spy), with no essay marked.
 - Desktop: always visible, sticky beside the content.
 
@@ -337,7 +338,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 ### 9.5 Mobile
 
 - Header identical to the desktop wordmark, with a **sidebar toggle button before the logo**. The header stays fixed.
-- The sidebar is the same component (sections, Question, essays, About + theme footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
+- The sidebar is the same component (sections, Question, essays, About + mute footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
 - While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
 - The essay hero demo runs edge to edge; the card grid drops to 2 columns.
 
@@ -362,12 +363,130 @@ The **shaving**: a single curl of material lifted off the work, hinting at an S 
 
 ### 10.2 Color: silicon carbide (monochrome)
 
-Named after the near-black of wet-and-dry sandpaper. There is **no accent hue**: the brand color is the ink. Anything that would be "accent" (current-essay bar, links, focus ring) uses the foreground color; hierarchy comes from weight, size and the muted tone, not color.
+Named after the near-black of wet-and-dry sandpaper. There is **no accent hue**: the brand color is the ink. Anything that would be "accent" (current-essay bar, links, focus ring) uses the foreground color; hierarchy comes from weight, size and the muted tones, not color. Demos may use color internally; the site chrome does not.
 
-| Token | Light | Dark | Contrast on bg |
+The site is **dark only**. The exact token values are the ones from the author's portfolio (nublson.com, achromatic OKLCH) and are listed in §11.2.
+
+---
+
+## 11. Visual style and feedback (decided)
+
+Goal: a focused, refined space that feels alive. The interface answers every press with motion and sound; reading stays calm. The visual system is the author's portfolio ([nublson.com](https://nublson.com), repo `nublson/nublson`), adapted to a sidebar layout and extended with sound.
+
+### 11.1 Foundation
+
+- shadcn/ui with **Base UI** primitives: the Base UI variant of the portfolio's Nova style (`base-nova`; the portfolio itself uses `radix-nova`). Same `components.json` otherwise: `rsc: true`, `baseColor: neutral`, CSS variables, aliases `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/hooks`, `iconLibrary: lucide`, and the `@notionic` registry (`https://notionic.dev/r/{name}.json`).
+- `globals.css` imports, in order: `tailwindcss`, `tw-animate-css`, `shadcn/tailwind.css`, `notionic/styles.css`.
+- **Dark only.** No `next-themes`, no theme toggle; `<html class="dark">`. Light tokens exist only for demo embeds (§11.6).
+
+### 11.2 Type and tokens
+
+Fonts via `next/font/google`: **Inter** (`--font-sans`, normal + italic), **Newsreader** (`--font-heading`, `opsz` axis), **Geist Mono** (`--font-mono`).
+
+Body: `font-size: 14px; line-height: 22px; letter-spacing: -0.006em; font-feature-settings: "cv11", "ss01"`.
+
+Dark tokens (site):
+
+| Token | Value | Contrast on background |
+|---|---|---|
+| `--background` | `oklch(0.178 0 0)` | |
+| `--foreground` (ink, brand) | `oklch(0.946 0 0)` | 16.1:1 |
+| `--muted-foreground` (body text, intros) | `oklch(0.7 0 0)` | 7.1:1 |
+| `--subtle-foreground` (labels, Question, captions, Soon) | `oklch(0.64 0 0)` | 5.6:1 |
+| `--card` / `--muted` / `--secondary` / `--accent` / `--popover` (stage, hover) | `oklch(0.218 0 0)` | |
+| `--border` | `oklch(0.248 0 0)` | |
+| `--input` | `oklch(0.27 0 0)` | |
+| `--ring` (focus) | `oklch(0.7 0 0)` | 7.1:1 |
+| `--primary` / `--primary-foreground` | `oklch(0.922 0 0)` / `oklch(0.205 0 0)` | |
+
+Light tokens (embeds only): the portfolio's `:root` values, e.g. background `oklch(0.985 0 0)`, foreground `oklch(0.205 0 0)` (17.2:1), muted `oklch(0.439 0 0)` (7.5:1), subtle `oklch(0.55 0 0)` (4.65:1), card `oklch(0.955 0 0)`, border `oklch(0.94 0 0)`, ring `oklch(0.556 0 0)`.
+
+Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`. Utilities carried over: `.skip-link`, `:focus-visible` ring (2px, offset 2px, `ring`), `.thumbnail` (10px radius), `.link`, `.press`, `.nudge-out` / `.nudge-back`, `page-enter` and `stream-in` keyframes, and the global `prefers-reduced-motion` override.
+
+### 11.3 Components
+
+**Sidebar** (structure in §9.1)
+- 160px wide, sticky, 32px top padding; 32px gap to the content.
+- Wordmark: shaving mark 18px + "Sanding Space", Inter 14 medium.
+- Rows 28px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
+- Question: 12/16, `subtle-foreground`, under the current section.
+- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 12px `foreground` bar on the guide line.
+- Footer: 1px `border` top, About link (`.link`) and a 28px mute button (lucide `Volume2` / `VolumeX`).
+
+**Headings**: section heading Newsreader 22/28, tracking -0.01em; essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`.
+
+**Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 12.5px on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
+
+**Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Large stage 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
+
+**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 14 medium `foreground`, summary 13/20 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, an outlined "Soon" badge (11/16, 1px `border`, 6px radius); no hover, press, sound or pointer cursor.
+
+### 11.4 Sound
+
+Library: `@web-kits/audio` (Web Audio synthesis, no audio files). All sounds are defined in **`src/lib/sounds.ts`**; elements opt in with `data-sound="<name>"`, and one client component at the root listens for activations and plays them. Server components need no client code to make a sound.
+
+| Name | Definition | Used for |
+|---|---|---|
+| `tap` | triangle 1400 → 900 Hz, decay 0.035 s, gain 0.12 | non-navigating presses: in-text links, About, mobile sidebar toggle |
+| `page` | pink noise through a bandpass at 700 Hz (Q 1.4) sweeping to 2800 Hz (attack 0.07, decay 0.16); envelope attack 0.05, decay 0.2; gain 0.09 | any press that navigates: cards, thumbnails, sidebar essays and sections |
+| `toggle-on` | sine 660 Hz then 990 Hz (+60 ms), decays 0.07 / 0.1 s, gain 0.12 each | unmute, open mobile sidebar |
+| `toggle-off` | the same notes in reverse | mute (plays just before silence), close mobile sidebar |
+
+Every play uses `jitter: { detune: 30, volume: 0.08 }`.
+
+Rules:
+- **On by default.** Sound answers user gestures only, so browser autoplay rules are never hit (the audio context resumes on the first gesture).
+- **One sound per gesture**: a navigating link plays `page`, never `tap` + `page`. Keyboard activation (Enter/Space) plays the same sound as a click.
+- **Silent**: hover, focus, scroll, page load, Soon items.
+- Throttle: the same sound can't restart within 60 ms.
+- **Mute** button in the sidebar footer: sets master volume to 0 via `setMasterVolume`, persisted in `localStorage`, `aria-pressed`, accessible name "Mute sound" / "Unmute sound".
+- Reduced motion does not mute. Sound never carries information that is not also visible.
+- Demos may define their own sounds and must respect the site mute.
+
+### 11.5 Motion
+
+Approach: CSS first (portfolio patterns) plus React `<ViewTransition>` for route changes. Motion (`motion/react`) is used only inside demos, never in site chrome. Animate only `transform`, `opacity`, `color` and `background-color` (exception: sidebar section expand uses the `grid-template-rows: 0fr → 1fr` technique).
+
+| Moment | Motion | Timing | Sound |
 |---|---|---|---|
-| `--background` | `#FAFAF9` | `#121212` | |
-| `--foreground` (brand, ink) | `#1A1A19` | `#F2F1EE` | 16.7:1 / 16.6:1 |
-| `--muted-foreground` (Soon, Question, captions) | `#6B6A66` | `#9A9893` | 5.2:1 / 6.5:1 |
+| First page load | `page-enter`: blocks rise 6px, staggered | 500 ms, 60 ms stagger | none |
+| Route change | crossfade of the main column (`<ViewTransition>`) | 200 ms | `page` |
+| Card thumbnail → essay | shared-element morph into the essay's large stage (`<ViewTransition name="demo-<slug>">`) | 350 ms | `page` |
+| Current essay changes | sidebar bar slides to the new essay (shared `<ViewTransition>` name) | 250 ms | part of `page` |
+| Section switch in sidebar | new section's essays expand, old collapse | 200 ms | none |
+| Press: cards, thumbnails, rows | `.press`, scale 0.98 | 160 ms | per §11.4 |
+| Press: small buttons | scale 0.94 | 160 ms | per §11.4 |
+| Link hover | `subtle` → `foreground`; arrows nudge | 150 ms | none |
+| Card hover (fine pointer) | `card` fill appears | 150 ms | none |
+| Mute toggle | icon crossfade + scale 0.6 → 1 | 150 ms | `toggle-off` / `toggle-on` |
+| Mobile sidebar push | content `translateX`, spring-like CSS `linear()` curve | ~400 ms | `toggle-on` / `toggle-off` |
+| Live thumbnail mounts | `stream-in` fade | 200 ms | none |
 
-All text tokens pass WCAG AA. Map these onto the shadcn/ui token names in `globals.css`; surfaces, borders and the demo stage tones are decided with the rest of the visual style (suggested: derive them from the same warm-gray family). Demos may use color internally; the site chrome does not.
+All easing is `--ease-out` unless noted. With `prefers-reduced-motion`, everything above becomes instant except color changes, and view transitions are skipped.
+
+Rejected (decoration, not explanation): hover sounds, scroll-triggered reveals, parallax, cursor followers, logo animation, shimmering skeletons, hover effects on live demo thumbnails, animated focus rings.
+
+### 11.6 Embeds (`/demos/<name>`)
+
+- `?theme=system` (default) resolves to the light tokens on light hosts and the dark tokens on dark ones; `?theme=light|dark` forces one. This is the only place light mode exists.
+- `?bg=transparent` and `?chrome=0` as in §6.2. The attribution mark is the shaving mark + "Sanding Space ↗", 12px `subtle-foreground`, bottom-right, `target="_blank"`.
+- No site sounds and no page entrance inside embeds. A demo's own sounds play only on interaction inside the iframe.
+
+### 11.7 Accessibility
+
+Lighthouse 100 on essay and demo pages, plus:
+- Every text token passes AA against its background (§11.2); Soon text uses `subtle-foreground`, never a dimmer value.
+- Skip link; landmarks `<nav aria-label="Sections">` and `<main id="main-content">`; `aria-current="page"` on the current essay.
+- Mobile sidebar toggle: `aria-expanded` + `aria-controls`; page content `inert` while open; Escape closes and focus returns to the toggle.
+- Hit areas ≥ 28px on fine pointers, ≥ 44px on touch.
+- Focus rings are instant, never animated.
+
+### 11.8 Quality gates
+
+The `better-interface`, `find-animation-opportunities` and `improve` skills review built code, so they run **after** each milestone, not before:
+
+1. `better-interface` once the first screens exist (accessibility, layout, writing, type, color, polish) against this section.
+2. `find-animation-opportunities` (read-only) on the built pages, checking §11.5 against reality.
+3. `improve` at the end of the milestone, producing prioritized plans for the next one.
+
+Findings feed the next implementation plan rather than being patched ad hoc.

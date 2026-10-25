@@ -47,7 +47,7 @@ Reserved essay slugs: `demos`, `sections`, `api`, `about`, `rss`, `og`, `embed.j
 
 Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not decided yet.
 
-- **Sidebar** (same component on every size): wordmark, sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + theme toggle in the footer. On the index it follows scroll.
+- **Sidebar** (same component on every size): wordmark, sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + mute button in the footer. On the index it follows scroll.
 - **Index**: per section, name + first paragraph of its intro, a large live thumbnail of its first Published essay, the rest in a 3-column card grid. **Section page**: full intro + same essay block.
 - **Essay**: section eyebrow, title, large demo stage with caption, then the body.
 - **Mobile**: same header with a sidebar toggle before the logo; the sidebar pushes the content right (no overlay).
@@ -56,6 +56,15 @@ Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not de
 ## Brand
 
 Decided in [docs/spec.md §10](docs/spec.md): the **shaving** mark (one curl stroke, `currentColor`, static) and a **monochrome** palette called silicon carbide. There is no accent hue: links, the current-essay bar and focus rings use the foreground ink. Demos may use color; the site chrome does not.
+
+## Visual style and feedback
+
+Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's portfolio (nublson.com, repo `nublson/nublson`): Inter / Newsreader / Geist Mono, achromatic OKLCH dark tokens, `--ease-out` motion utilities.
+
+- **UI kit**: shadcn/ui on **Base UI** primitives (`base-nova`), lucide icons. Don't add Radix.
+- **Sound**: `@web-kits/audio`. Four sounds (`tap`, `page`, `toggle-on`, `toggle-off`) defined only in `src/lib/sounds.ts`; elements opt in with `data-sound`. Press and state changes only, never hover/focus/scroll/load. One sound per gesture.
+- **Motion**: CSS first + React `<ViewTransition>` for routes. `motion/react` is for demos only, never site chrome. Animate transform/opacity/color only; honor reduced motion.
+- **Quality gates** after each milestone: `better-interface`, then `find-animation-opportunities`, then `improve` (§11.8).
 
 ## Rules that are easy to break
 
@@ -66,7 +75,7 @@ Decided in [docs/spec.md §10](docs/spec.md): the **shaving** mark (one curl str
 - Pages without demos must ship no demo JavaScript; a demo page ships only its own demo.
 - The linked Essays database view at the end of a section page body must render nothing.
 - Unknown demo names and unknown linked pages degrade gracefully (link / plain text), never break the page.
-- Accessibility target is Lighthouse 100 on essay and demo pages; respect `prefers-reduced-motion` and `prefers-color-scheme`.
+- Accessibility target is Lighthouse 100 on essay and demo pages; respect `prefers-reduced-motion`. The site is dark only; light tokens exist only for demo embeds (`?theme`).
 
 ## Environment
 
