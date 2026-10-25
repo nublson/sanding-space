@@ -126,5 +126,6 @@ describe("buildOembed", () => {
     expect(buildOembed({ url: `${siteUrl}/nope` }, ctx)).toBeNull();
     expect(buildOembed({ url: `${siteUrl}/demos/nope` }, ctx)).toBeNull();
     expect(buildOembed({ url: "not a url" }, ctx)).toBeNull();
+    expect(buildOembed({ url: `${siteUrl}/demos/%E0%A4%A` }, ctx)).toBeNull();
   });
 });

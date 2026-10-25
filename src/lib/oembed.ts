@@ -85,7 +85,11 @@ export function buildOembed(
   };
 
   if (segments[0] === "demos" && segments.length === 2) {
-    return demo(decodeURIComponent(segments[1]));
+    try {
+      return demo(decodeURIComponent(segments[1]));
+    } catch {
+      return null;
+    }
   }
   if (segments.length === 1) {
     const found = findPublishedEssay(ctx.library, segments[0]);
