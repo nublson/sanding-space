@@ -1,0 +1,93 @@
+{
+  "object": "page",
+  "id": "aa48ccb1-566c-4a75-b691-2f62717ac4e2",
+  "created_time": "2026-01-01T00:00:00.000Z",
+  "last_edited_time": "2026-03-04T10:00:00.000Z",
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "92208a07-e0f7-4a67-94d6-a220d3529348",
+    "database_id": "aa48ccb1-566c-4a75-b691-2f62717ac4e1"
+  },
+  "archived": false,
+  "in_trash": false,
+  "properties": {
+    "Title": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": { "content": "Button Press", "link": null },
+          "plain_text": "Button Press"
+        }
+      ]
+    },
+    "Slug": {
+      "id": "a",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "button-press", "link": null },
+          "plain_text": "button-press"
+        }
+      ]
+    },
+    "Section": {
+      "id": "b",
+      "type": "relation",
+      "relation": [{ "id": "2fd8c999-c699-4334-85fd-e2b2fdea1ac5" }],
+      "has_more": false
+    },
+    "Status": {
+      "id": "c",
+      "type": "status",
+      "status": { "id": "s1", "name": "Published", "color": "green" }
+    },
+    "Order": { "id": "d", "type": "number", "number": 1 },
+    "Summary": {
+      "id": "e",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "Scale on press.", "link": null },
+          "plain_text": "Scale on press."
+        }
+      ]
+    },
+    "Cover demo": {
+      "id": "f",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "button-press-scale", "link": null },
+          "plain_text": "button-press-scale"
+        }
+      ]
+    },
+    "Tags": {
+      "id": "g",
+      "type": "multi_select",
+      "multi_select": [{ "id": "t1", "name": "Accessibility", "color": "blue" }]
+    },
+    "Published": {
+      "id": "h",
+      "type": "date",
+      "date": { "start": "2026-03-01", "end": null, "time_zone": null }
+    },
+    "Updated": {
+      "id": "i",
+      "type": "last_edited_time",
+      "last_edited_time": "2026-03-04T10:00:00.000Z"
+    },
+    "Related": {
+      "id": "j",
+      "type": "relation",
+      "relation": [{ "id": "11111111222233334444555555555555" }],
+      "has_more": false
+    }
+  },
+  "url": "https://www.notion.so/aa48ccb1566c4a75b6912f62717ac4e2"
+}

@@ -1,0 +1,62 @@
+{
+  "object": "page",
+  "id": "2fd8c999-c699-4334-85fd-e2b2fdea1ac5",
+  "created_time": "2026-01-01T00:00:00.000Z",
+  "last_edited_time": "2026-02-01T00:00:00.000Z",
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "f38f8100-846a-4076-953e-296370a910d2",
+    "database_id": "2fd8c999-c699-4334-85fd-e2b2fdea1ac4"
+  },
+  "archived": false,
+  "in_trash": false,
+  "properties": {
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": { "content": "Inter", "link": null },
+          "plain_text": "Inter"
+        },
+        {
+          "type": "text",
+          "text": { "content": "action", "link": null },
+          "plain_text": "action"
+        }
+      ]
+    },
+    "Slug": {
+      "id": "a",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "interaction", "link": null },
+          "plain_text": "interaction"
+        }
+      ]
+    },
+    "Question": {
+      "id": "b",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "How should it respond?", "link": null },
+          "plain_text": "How should it respond?"
+        }
+      ]
+    },
+    "Order": { "id": "c", "type": "number", "number": 3 },
+    "Visible": { "id": "d", "type": "checkbox", "checkbox": true },
+    "Essays": {
+      "id": "e",
+      "type": "relation",
+      "relation": [{ "id": "aa48ccb1-566c-4a75-b691-2f62717ac4e2" }],
+      "has_more": false
+    }
+  },
+  "url": "https://www.notion.so/2fd8c999c699433485fde2b2fdea1ac5"
+}
