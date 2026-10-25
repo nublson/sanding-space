@@ -41,7 +41,7 @@ describe("parseEssay", () => {
 
   it("handles missing section, cover demo, order and date", () => {
     const page = structuredClone(essay) as unknown as {
-      properties: Record<string, any>;
+      properties: Record<string, Record<string, unknown>>;
     };
     page.properties.Section.relation = [];
     page.properties["Cover demo"].rich_text = [];
