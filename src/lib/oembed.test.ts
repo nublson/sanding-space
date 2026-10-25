@@ -1,7 +1,7 @@
 import { buildLibrary } from "./content/library";
 import type { Essay, Section } from "./content/types";
 import type { DemoMeta } from "./demo-meta";
-import { buildOembed } from "./oembed";
+import { buildOembed, needsLibrary } from "./oembed";
 
 const siteUrl = "https://sanding.space";
 const demos: Record<string, DemoMeta> = {
@@ -127,5 +127,24 @@ describe("buildOembed", () => {
     expect(buildOembed({ url: `${siteUrl}/demos/nope` }, ctx)).toBeNull();
     expect(buildOembed({ url: "not a url" }, ctx)).toBeNull();
     expect(buildOembed({ url: `${siteUrl}/demos/%E0%A4%A` }, ctx)).toBeNull();
+  });
+});
+
+describe("needsLibrary", () => {
+  it("is true only for single-segment urls on this site", () => {
+    expect(needsLibrary(`${siteUrl}/button-press`, siteUrl)).toBe(true);
+    expect(needsLibrary(`${siteUrl}/button-press/`, siteUrl)).toBe(true);
+    expect(needsLibrary(`${siteUrl}/demos/button-press-scale`, siteUrl)).toBe(
+      false,
+    );
+    expect(needsLibrary("https://evil.example/plain", siteUrl)).toBe(false);
+    expect(needsLibrary("not a url", siteUrl)).toBe(false);
+  });
+  it("demo urls build without a library; essay urls need one", () => {
+    const noLib = { ...ctx, library: null };
+    expect(
+      buildOembed({ url: `${siteUrl}/demos/button-press-scale` }, noLib),
+    ).toMatchObject({ type: "rich" });
+    expect(buildOembed({ url: `${siteUrl}/button-press` }, noLib)).toBeNull();
   });
 });

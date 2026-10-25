@@ -4,6 +4,8 @@
 
 Essays are written in Notion and rendered with [notionic](https://notionic.dev). Demos are React components in this repo. The full build brief is in [docs/spec.md](docs/spec.md).
 
+Pages: the index (`/`), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), and standalone demos (`/demos/<name>`).
+
 Stack: Next.js (App Router), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, notionic, Motion, pnpm, Biome.
 
 ## Setup
@@ -52,7 +54,8 @@ pnpm dev
 Rules:
 
 - Demo names are permanent. To rename, add the old name to `aliases` (it becomes a 308 redirect that keeps the query string). Never delete a demo; set `retired: true` and it renders a "This demo has moved" card.
-- The params `theme`, `bg` and `chrome` belong to the demo frame and are never passed to the demo. Do not use them as demo params.
+- The params `theme`, `bg` and `chrome` belong to the demo frame and are never passed to the demo, on `/demos/<name>` or inline in an essay. Do not use them as demo params.
+- Thumbnails on the index and section pages sit inside links, so they render as live but non-interactive previews (`inert`). The essay page and `/demos/<name>` stay interactive.
 
 ## Embedding a demo
 
@@ -65,9 +68,17 @@ Every demo has a permanent standalone URL: `https://sanding.space/demos/<name>`.
 <script async src="https://sanding.space/embed.js"></script>
 ```
 
-`embed.js` resizes iframes marked `data-sanding` to the demo's height. Without it, the inline height is used.
+`embed.js` resizes iframes marked `data-sanding` to the demo's height. The demo never reports less than its registry `height`, and taller content grows the iframe. Without the script, the inline height is used. `embed.js` only accepts messages from `https://sanding.space` (plus the page's own origin when it runs on `localhost`), so auto-height doesn't work for iframes pointing at preview deployments.
 
-Frame params: `?theme=`, `?bg=`, `?chrome=0` (hides the attribution).
+Frame params:
+
+| Param | Values | Default |
+|---|---|---|
+| `theme` | `light` / `dark` / `system` | `system` |
+| `bg` | `default` / `transparent` | `default` |
+| `chrome` | `0` hides the "Sanding Space ↗" mark | shown |
+
+The demo page is prerendered without the query string, so the mark only appears once the params are read (it never flashes in with `?chrome=0`). With a forced `theme`, the first paint may briefly use the system theme.
 
 oEmbed:
 
@@ -75,7 +86,9 @@ oEmbed:
 GET https://sanding.space/api/oembed?url=https://sanding.space/demos/button-press-scale&maxwidth=&maxheight=&format=json
 ```
 
-Returns `type: "rich"` JSON with the iframe `html`, so Notion and other oEmbed consumers can embed a demo from its URL.
+- Demo URLs (`/demos/<name>`, aliases included) return `type: "rich"` JSON with the iframe `html`. They come from the in-repo registry and work without Notion.
+- Essay URLs (`/<slug>`) need Notion. A Published essay with a cover demo returns that demo as `rich`, one without returns `type: "link"`. If Notion is unavailable, the endpoint answers `503`.
+- Other origins, unknown paths and Soon essays return `404`. Only `format=json` is supported (`501` otherwise).
 
 ## Revalidation
 

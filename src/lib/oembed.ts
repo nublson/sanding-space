@@ -54,21 +54,38 @@ function richFor(
   };
 }
 
-export function buildOembed(
-  input: { url: string; maxwidth?: number; maxheight?: number },
-  ctx: { siteUrl: string; demos: Record<string, DemoMeta>; library: Library },
-): OembedResponse | null {
-  let url: URL;
+/**
+ * Path segments of `url` when it is on this site, else null. A single segment
+ * is an essay URL, the only kind that needs the Notion library.
+ */
+export function oembedSegments(url: string, siteUrl: string): string[] | null {
+  let parsed: URL;
   let site: URL;
   try {
-    url = new URL(input.url);
-    site = new URL(ctx.siteUrl);
+    parsed = new URL(url);
+    site = new URL(siteUrl);
   } catch {
     return null;
   }
-  if (url.origin !== site.origin) return null;
-  const path = url.pathname.replace(/\/+$/, "");
-  const segments = path.split("/").filter(Boolean);
+  if (parsed.origin !== site.origin) return null;
+  return parsed.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+}
+
+export function needsLibrary(url: string, siteUrl: string): boolean {
+  return oembedSegments(url, siteUrl)?.length === 1;
+}
+
+export function buildOembed(
+  input: { url: string; maxwidth?: number; maxheight?: number },
+  ctx: {
+    siteUrl: string;
+    demos: Record<string, DemoMeta>;
+    /** Only needed for essay URLs; null means essays resolve to nothing. */
+    library: Library | null;
+  },
+): OembedResponse | null {
+  const segments = oembedSegments(input.url, ctx.siteUrl);
+  if (!segments) return null;
 
   const demo = (name: string, title?: string) => {
     let resolved = resolveDemoIn(ctx.demos, name);
@@ -92,6 +109,7 @@ export function buildOembed(
     }
   }
   if (segments.length === 1) {
+    if (!ctx.library) return null;
     const found = findPublishedEssay(ctx.library, segments[0]);
     if (!found) return null;
     const { essay } = found;

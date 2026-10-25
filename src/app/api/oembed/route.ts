@@ -1,6 +1,7 @@
 import { getLibrary } from "@/lib/content/notion";
+import type { Library } from "@/lib/content/types";
 import { demoMeta } from "@/lib/demo-meta";
-import { buildOembed } from "@/lib/oembed";
+import { buildOembed, needsLibrary } from "@/lib/oembed";
 import { SITE_URL } from "@/lib/site";
 
 function dimension(v: string | null): number | undefined {
@@ -22,7 +23,18 @@ export async function GET(request: Request) {
   if (format && format !== "json")
     return Response.json({ error: "Unsupported format" }, { status: 501 });
 
-  const library = await getLibrary();
+  // Demo URLs resolve from the in-repo registry; only essay URLs need Notion.
+  let library: Library | null = null;
+  if (needsLibrary(url, SITE_URL)) {
+    try {
+      library = await getLibrary();
+    } catch {
+      return Response.json(
+        { error: "Content temporarily unavailable" },
+        { status: 503 },
+      );
+    }
+  }
   const result = buildOembed(
     {
       url,
