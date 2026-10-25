@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { aliasRedirects } from "./src/lib/demo-meta";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -7,6 +8,25 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  async redirects() {
+    return aliasRedirects();
+  },
+  async headers() {
+    return [
+      {
+        source: "/demos/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors *" },
+        ],
+      },
+      {
+        source: "/((?!demos/).*)",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

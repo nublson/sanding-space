@@ -1,26 +1,406 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "notionic/styles.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-heading: var(--font-newsreader);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.006em;
+  font-feature-settings: "cv11", "ss01";
+}
+
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --radius: 0.625rem;
+}
+
+/* Light tokens: demo embeds only (?theme=light). The site is dark only. */
+.light {
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.205 0 0);
+  --card: oklch(0.955 0 0);
+  --card-foreground: oklch(0.205 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.205 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.961 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.961 0 0);
+  --muted-foreground: oklch(0.439 0 0);
+  --subtle-foreground: oklch(0.55 0 0); /* 4.65:1 on background */
+  --accent: oklch(0.961 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.94 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.556 0 0); /* focus ring, 4.5:1 on background */
+  --image-outline: oklch(0 0 0 / 0.1);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.6 0 0);
+}
+
+.dark {
+  --background: oklch(0.178 0 0);
+  --foreground: oklch(0.946 0 0);
+  --card: oklch(0.218 0 0);
+  --card-foreground: oklch(0.946 0 0);
+  --popover: oklch(0.218 0 0);
+  --popover-foreground: oklch(0.946 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.218 0 0);
+  --secondary-foreground: oklch(0.946 0 0);
+  --muted: oklch(0.218 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --subtle-foreground: oklch(0.64 0 0); /* 5.61:1 on background */
+  --accent: oklch(0.218 0 0);
+  --accent-foreground: oklch(0.946 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.248 0 0);
+  --input: oklch(0.27 0 0);
+  --ring: oklch(0.7 0 0);
+  --image-outline: oklch(1 0 0 / 0.1);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Embeds with theme=system: dark by default, light tokens on light hosts. */
+@media (prefers-color-scheme: light) {
+  .theme-system {
+    --background: oklch(0.985 0 0);
+    --foreground: oklch(0.205 0 0);
+    --card: oklch(0.955 0 0);
+    --card-foreground: oklch(0.205 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.205 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.961 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.961 0 0);
+    --muted-foreground: oklch(0.439 0 0);
+    --subtle-foreground: oklch(0.55 0 0);
+    --accent: oklch(0.961 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.94 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.556 0 0);
+    --image-outline: oklch(0 0 0 / 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  :focus-visible {
+    @apply rounded-sm outline-2 outline-offset-2 outline-ring;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      /* biome-ignore-start lint/complexity/noImportantStyles: reduced-motion must beat component styles */
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+      /* biome-ignore-end lint/complexity/noImportantStyles: reduced-motion */
+    }
+  }
+}
+
+/*
+ * Skip link: visually hidden (not merely translated) until :focus-visible.
+ * Percent translateY does not move a one-line link off-screen.
+ */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skip-link:focus-visible {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 9999;
+  width: max-content;
+  height: auto;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.08),
+    0 1px 2px -1px rgb(0 0 0 / 0.08);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.thumbnail {
+  @apply w-full h-auto object-cover rounded-[10px];
+}
+
+.link {
+  @apply text-subtle-foreground transition-colors duration-150 ease-(--ease-out) hover:text-foreground;
+}
+
+/* Entrance: page blocks rise in. CSS only, so it runs without JS. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/*
+ * Streamed sections (Suspense content) replace their skeleton as a new node,
+ * so they fade in once, opacity only, instead of replaying the page entrance.
+ * Skeletons don't animate at all; a nested streamed section rides its parent.
+ */
+@keyframes stream-in {
+  from {
+    opacity: 0;
+  }
+}
+
+[data-stream] {
+  animation: stream-in 200ms var(--ease-out) both;
+}
+[data-stream] [data-stream],
+[data-skeleton] {
+  animation: none;
+}
+
+/* Press feedback on full-width rows: 0.98, not 0.96, so a wide row doesn't jump. */
+.press {
+  transition:
+    scale 160ms var(--ease-out),
+    background-color 150ms var(--ease-out),
+    color 150ms var(--ease-out);
+}
+.press:active {
+  scale: 0.98;
+}
+
+/* Directional nudges: the arrow moves the way the link goes. */
+.nudge-back,
+.nudge-out {
+  display: inline-block;
+  transition:
+    translate 150ms var(--ease-out),
+    color 150ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover .nudge-back {
+    translate: -2px 0;
+  }
+  a:hover .nudge-out {
+    translate: 1px -1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .press:active {
+    scale: none;
+  }
+  a:hover .nudge-back,
+  a:hover .nudge-out {
+    translate: none;
+  }
+}
+
+/*
+ * Site shell. Below md the sidebar sits off-canvas and the track slides it in,
+ * pushing the content right (no overlay). Spring-like linear() curve, ~400 ms.
+ */
+:root {
+  --ease-push: linear(
+    0,
+    0.02 1.6%,
+    0.09 3.4%,
+    0.36 8.6%,
+    0.62 13.2%,
+    0.82 18%,
+    0.95 23%,
+    1.02 28%,
+    1.04 33%,
+    1.03 40%,
+    1.01 50%,
+    1 62%,
+    1
+  );
+}
+
+.shell-track {
+  transition: translate 400ms var(--ease-push);
+}
+@media (min-width: 768px) {
+  .shell-track {
+    transition: none;
+  }
+}
+
+/* Closed off-canvas sidebar leaves the tab order and the accessibility tree. */
+@media (max-width: 767.98px) {
+  .shell-sidebar[data-open="false"] {
+    visibility: hidden;
+    transition: visibility 0s linear 400ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-track,
+  .shell-sidebar {
+    transition: none;
+  }
+}
+
+/* Entrance: the page's top-level blocks rise in, staggered. CSS only. */
+.article-layout > * {
+  animation: page-enter 500ms var(--ease-out) both;
+}
+.article-layout > :nth-child(2) {
+  animation-delay: 60ms;
+}
+.article-layout > :nth-child(3) {
+  animation-delay: 120ms;
+}
+.article-layout > :nth-child(4) {
+  animation-delay: 180ms;
+}
+.article-layout > :nth-child(n + 5) {
+  animation-delay: 240ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .article-layout > * {
+    animation: none;
+  }
+}
+
+/* Route change: crossfade of the main column, opacity only, 200 ms. */
+::view-transition-old(.page-fade) {
+  animation: 200ms var(--ease-out) both page-fade-out;
+}
+::view-transition-new(.page-fade) {
+  animation: 200ms var(--ease-out) both page-fade-in;
+}
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+::view-transition {
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    /* biome-ignore-start lint/complexity/noImportantStyles: must beat React's per-name animations */
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    /* biome-ignore-end lint/complexity/noImportantStyles: reduced-motion */
+  }
 }
