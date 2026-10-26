@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  type SkeletonLineSpec,
+  SkeletonLines,
+} from "@/components/skeleton-line";
 import { DemoStage } from "@/components/stage/demo-stage";
 import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import type { Essay } from "@/lib/content/types";
@@ -25,6 +29,49 @@ const textBlock = (soon: boolean, essay: Essay, level: TitleLevel) => {
     </div>
   );
 };
+
+// Line counts of a typical card at each size (measured on the live sections):
+// the hero's title fits one line and its summary wraps on a phone; a grid
+// card is narrow, so its title takes two lines and its summary three or four.
+const CARD_LINES: Record<
+  "card" | "hero",
+  { title: SkeletonLineSpec[]; summary: SkeletonLineSpec[] }
+> = {
+  hero: {
+    title: [{ width: "40%" }],
+    summary: [{ width: "100%", mobile: true }, { width: "62%" }],
+  },
+  card: {
+    title: [{ width: "92%" }, { width: "48%" }],
+    summary: [
+      { width: "100%" },
+      { width: "94%" },
+      { width: "97%", mobile: true },
+      { width: "58%" },
+    ],
+  },
+};
+
+/**
+ * The card while its data streams in: the same stage and text box, with as
+ * many lines as the text usually takes, so the card lands without moving.
+ */
+export function EssayCardSkeleton({ size }: { size: "card" | "hero" }) {
+  const lines = CARD_LINES[size];
+  return (
+    <div>
+      <DemoStage size={size} />
+      <div className="mt-2.5 px-0.5">
+        <SkeletonLines lines={lines.title} lineClassName="h-6 max-md:h-5" />
+        <SkeletonLines
+          lines={lines.summary}
+          lineClassName="h-[22px] max-md:h-5"
+          className="mt-0.5"
+        />
+      </div>
+    </div>
+  );
+}
 
 export function EssayCard({
   essay,

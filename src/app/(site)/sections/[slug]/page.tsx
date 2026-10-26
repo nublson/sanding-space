@@ -3,9 +3,11 @@ import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { NotionRenderer } from "notionic";
 import { Suspense } from "react";
-import { SectionBlock } from "@/components/library/section-block";
+import {
+  SectionBlock,
+  SectionBlockSkeleton,
+} from "@/components/library/section-block";
 import { PageFade } from "@/components/page-fade";
-import { DemoStage } from "@/components/stage/demo-stage";
 import { withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
@@ -49,7 +51,7 @@ async function sectionMetadata(slug: string): Promise<Metadata> {
 export default function SectionPage({ params }: Props) {
   return (
     <PageFade>
-      <Suspense fallback={<SectionSkeleton />}>
+      <Suspense fallback={<SectionBlockSkeleton />}>
         <SectionContent params={params} />
       </Suspense>
     </PageFade>
@@ -79,17 +81,6 @@ async function SectionContent({ params }: Props) {
           </div>
         }
       />
-    </div>
-  );
-}
-
-// Same bones as the page: the title row, then the large stage. Static, no
-// shimmer (spec §11.5); the content fades over it once it streams in.
-function SectionSkeleton() {
-  return (
-    <div data-skeleton aria-hidden="true" className="flex flex-col gap-6">
-      <div className="h-7" />
-      <DemoStage size="hero" />
     </div>
   );
 }
