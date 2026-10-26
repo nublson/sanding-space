@@ -12,8 +12,12 @@
  * - Anything else (feature branches without a PR): skip the build.
  *
  * Requires env GITHUB_WAIT_TOKEN on Vercel (classic PAT: repo scope, or
- * fine-grained: Contents read + Checks read + Commit statuses read).
- * Use Preview + Production as needed.
+ * fine-grained: Contents read + Checks read + Commit statuses read, plus
+ * Pull requests read to resolve the PR head; without it the deployment's
+ * own commit is used). Use Preview + Production as needed.
+ *
+ * Any unexpected error is logged and the build is allowed (exit 1): a gate
+ * that fails closed would block every preview on a GitHub hiccup.
  */
 
 const RELEASE_STATUS_CONTEXT = "release/build-validation";
@@ -87,8 +91,17 @@ async function githubJson(path, { allow404 = false } = {}) {
 }
 
 async function resolvePrHeadSha() {
-  const pr = await githubJson(`/repos/${owner}/${repo}/pulls/${prId}`);
-  return pr.head?.sha ?? commitSha;
+  try {
+    const pr = await githubJson(`/repos/${owner}/${repo}/pulls/${prId}`);
+    return pr.head?.sha ?? commitSha;
+  } catch (error) {
+    // A token without "Pull requests: read" gets a 403 here. The deployment
+    // was created from the PR head, so its commit is the one to wait on.
+    console.warn(
+      `[vercel-wait-github-ci] Could not read PR #${prId} (${error.message.split("\\n")[0].slice(0, 120)}); using the deployment commit.`,
+    );
+    return commitSha;
+  }
 }
 
 function isBadConclusion(c) {
@@ -191,9 +204,16 @@ async function waitForReleaseGate(sha) {
   exit(0);
 }
 
-if (mode === "pr") {
-  const sha = await resolvePrHeadSha();
-  await waitForPrChecks(sha);
-} else {
-  await waitForReleaseGate(commitSha);
+try {
+  if (mode === "pr") {
+    const sha = await resolvePrHeadSha();
+    await waitForPrChecks(sha);
+  } else {
+    await waitForReleaseGate(commitSha);
+  }
+} catch (error) {
+  console.warn(
+    `[vercel-wait-github-ci] ${error.message.split("\\n")[0].slice(0, 200)}; allowing build.`,
+  );
+  exit(1);
 }

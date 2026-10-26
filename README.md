@@ -81,7 +81,7 @@ Vercel builds only when it makes sense. `vercel.json` runs `scripts/vercel-wait-
 - `main` builds production only after the Release workflow posts the `release/build-validation` commit status.
 - Any other branch without a pull request is skipped.
 
-The script needs `GITHUB_WAIT_TOKEN` in the Vercel project (Preview and Production): a fine-grained GitHub token with Contents, Checks and Commit statuses read access on this repository. Without it the script lets every build through and says so in the build log.
+The script needs `GITHUB_WAIT_TOKEN` in the Vercel project (Preview and Production): a fine-grained GitHub token with Contents, Checks, Commit statuses and Pull requests read access on this repository. Without the token, or on any GitHub error, the script lets the build through and says so in the build log.
 
 Frame params:
 
