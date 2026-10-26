@@ -9,7 +9,9 @@ export type DemoMeta = {
 
 // Names are permanent: rename with `aliases`, retire with `retired`. Each entry
 // also needs a loader in src/components/demos/lazy-demo.tsx.
-export const demoMeta: Record<string, DemoMeta> = {};
+export const demoMeta: Record<string, DemoMeta> = {
+  surface: { title: "Surface", height: 336 },
+};
 
 export type ResolvedDemo<T extends DemoMeta = DemoMeta> =
   | { kind: "demo"; name: string; entry: T }

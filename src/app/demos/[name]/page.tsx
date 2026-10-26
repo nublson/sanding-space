@@ -106,8 +106,10 @@ export async function DemoFrame({
   return <Frame name={name} frame={frame} params={params} />;
 }
 
-// Alias names are redirected (308) by next.config.ts before reaching this page.
-export default async function DemoPage({
+// Reads the name inside the outer boundary, so the route shell never waits on
+// params. Every registered name is prerendered, so the shell normally holds
+// the demo already; only an unknown name resolves late, to notFound().
+async function NamedDemo({
   params,
   searchParams,
 }: Props & { searchParams: Promise<Search> }) {
@@ -118,6 +120,17 @@ export default async function DemoPage({
       fallback={<Frame name={name} frame={FALLBACK_FRAME} params={{}} />}
     >
       <DemoFrame name={name} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+// Alias names are redirected (308) by next.config.ts before reaching this page.
+export default function DemoPage(
+  props: Props & { searchParams: Promise<Search> },
+) {
+  return (
+    <Suspense fallback={<div className="min-h-dvh" />}>
+      <NamedDemo {...props} />
     </Suspense>
   );
 }
