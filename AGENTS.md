@@ -96,7 +96,7 @@ Query Notion by **data source ID** (API 2025-09-03+).
 
 ## Git
 
-`develop` is the base branch for work; `main` is production. Branch off `develop` and open PRs into it.
+`develop` is the base branch for work; `main` is production. Branch off `develop` and open PRs into it. Vercel builds previews for `develop` and for branches with an open PR (after GitHub checks pass) and production for `main` after the release gate; other branches are skipped by `scripts/vercel-wait-github-ci.mjs` (see README, Deployment).
 
 <!-- BEGIN:nextjs-agent-feedback -->
 
