@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client";
 import { cacheLife, cacheTag } from "next/cache";
-import type { NotionBlock, NotionPage } from "notionic";
-import { fetchBlocks, fetchPage } from "notionic/fetch";
+import type { NotionBlock } from "notionic";
+import { fetchBlocks } from "notionic/fetch";
 import { showPreviews } from "../site";
 import { buildLibrary, resolvePreview } from "./library";
 import { parseEssay, parseSection } from "./parse";
@@ -40,14 +40,4 @@ export async function getBlocks(pageId: string): Promise<NotionBlock[]> {
   cacheTag("notion");
   cacheLife("minutes");
   return fetchBlocks(client(), pageId);
-}
-
-/** A standalone page's metadata (title, icon…) and its blocks. */
-export async function getPage(
-  pageId: string,
-): Promise<{ page: NotionPage; blocks: NotionBlock[] }> {
-  "use cache";
-  cacheTag("notion");
-  cacheLife("minutes");
-  return fetchPage(client(), pageId);
 }

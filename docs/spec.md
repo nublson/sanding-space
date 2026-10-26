@@ -319,7 +319,7 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 
 ### 9.2 Introduction `/introduction` (decided)
 
-The default page: `/` redirects here (temporary 307, so the home page can change later). Its name ("Introduction") and path are fixed in code (`src/lib/introduction.ts`), along with the Notion page id of a standalone page (not part of the Sections or Essays databases). The page shows "Introduction" as a small eyebrow, the Notion page's title as the heading, then its body rendered with notionic. Links in essays to that Notion page resolve to `/introduction`.
+The default page: `/` redirects here (temporary 307, so the home page can change later). Its name ("Introduction") and path are fixed in code (`src/lib/introduction.ts`), along with the Notion page id of a standalone page (not part of the Sections or Essays databases). It is laid out exactly like a section page: "Introduction" as the heading, then the page body rendered with notionic. Links in essays to that Notion page resolve to `/introduction`.
 
 The earlier index (every section with its intro paragraph and cards) is replaced by this page; sections are reached from the sidebar.
 

@@ -5,6 +5,28 @@ import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { featuredEssay } from "@/lib/content/library";
 import type { LibrarySection } from "@/lib/content/types";
 
+/** The heading every section-like page uses (section pages, the Introduction). */
+export function SectionHeading({
+  id,
+  level = 2,
+  children,
+}: {
+  id: string;
+  level?: 1 | 2 | 3;
+  children: ReactNode;
+}) {
+  const Heading = `h${level}` as const;
+  return (
+    <Heading
+      id={id}
+      data-section={id}
+      className="font-heading text-[22px] leading-7 tracking-[-0.01em] text-foreground"
+    >
+      {children}
+    </Heading>
+  );
+}
+
 export function SectionBlock({
   section,
   intro,
@@ -14,19 +36,14 @@ export function SectionBlock({
   intro: ReactNode;
   headingLevel?: 1 | 2 | 3;
 }) {
-  const Heading = `h${headingLevel}` as const;
   const featured = featuredEssay(section);
   const rest = section.essays.filter((e) => e !== featured);
 
   return (
     <section className="flex flex-col gap-6">
-      <Heading
-        id={section.slug}
-        data-section={section.slug}
-        className="font-heading text-[22px] leading-7 tracking-[-0.01em] text-foreground"
-      >
+      <SectionHeading id={section.slug} level={headingLevel}>
         {section.name}
-      </Heading>
+      </SectionHeading>
       {intro}
       {featured && (
         <Link

@@ -49,7 +49,7 @@ Reserved essay slugs: `demos`, `sections`, `api`, `about`, `introduction`, `rss`
 Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not decided yet.
 
 - **Sidebar** (same component on every size): wordmark (links to `/introduction`), the fixed **Introduction** item, then sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + mute button in the footer. The current item comes from the URL.
-- **Introduction** (`/introduction`, the default page): eyebrow "Introduction", the Notion page title as heading, then its body. **Section page**: full intro, a large live thumbnail of its first Published essay, the rest in a 3-column card grid.
+- **Introduction** (`/introduction`, the default page): laid out like a section page, "Introduction" as the heading and the Notion body below. **Section page**: full intro, a large live thumbnail of its first Published essay, the rest in a 3-column card grid.
 - **Essay**: section eyebrow, title, large demo stage with caption, then the body.
 - **Mobile**: same header with a sidebar toggle before the logo; the sidebar pushes the content right (no overlay).
 - Demo frame is **stage + caption only**; Replay / Copy link / Embed / Open are deferred.
