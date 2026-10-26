@@ -1,29 +1,42 @@
 import type { Metadata } from "next";
+import { NotionRenderer } from "notionic";
 import { SectionHeading } from "@/components/library/section-block";
 import { PageFade } from "@/components/page-fade";
+import { withoutDatabases } from "@/lib/content/blocks";
+import { pageHref } from "@/lib/content/links";
+import { getAbout, getLibrary } from "@/lib/content/notion";
+import { siteComponents } from "@/lib/content/renderer";
+import { demos } from "@/lib/demos";
 import { pageMetadata } from "@/lib/site";
+import { ABOUT } from "@/lib/standalone";
 
-// Static route: Next matches it before the (site)/[slug] essay route.
-export const metadata: Metadata = pageMetadata({
-  name: "About",
-  description:
-    "What Sanding Space is: a library of short essays about design engineering and product engineering, each with live, embeddable demos.",
-  path: "/about",
-});
+// Static route: Next matches it before the (site)/[slug] essay route. The
+// colophon: the sidebar label and path are fixed, the page is Notion's.
+export async function generateMetadata(): Promise<Metadata> {
+  const { title } = await getAbout();
+  return pageMetadata({ name: title, path: ABOUT.path });
+}
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [library, { title, blocks }] = await Promise.all([
+    getLibrary(),
+    getAbout(),
+  ]);
+
   return (
     <PageFade>
       <article className="article-layout flex flex-col gap-6">
         <SectionHeading id="about" level={1}>
-          About
+          {title}
         </SectionHeading>
-        <p className="measure text-pretty text-muted-foreground">
-          Sanding Space is a library of short essays about design engineering
-          and product engineering. Every essay contains live, interactive demos,
-          and every demo has its own permanent URL, so it can be embedded
-          anywhere on the web.
-        </p>
+        <div className="text-pretty text-muted-foreground">
+          <NotionRenderer
+            blocks={withoutDatabases(blocks)}
+            demos={demos}
+            pageHref={pageHref(library)}
+            components={siteComponents}
+          />
+        </div>
       </article>
     </PageFade>
   );

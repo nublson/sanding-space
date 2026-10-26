@@ -37,6 +37,7 @@ NOTION_TOKEN=                       # Notion integration token with access to th
 NOTION_SECTIONS_DATA_SOURCE_ID=f38f8100-846a-4076-953e-296370a910d2
 NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
 NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
+NOTION_ABOUT_PAGE_ID=
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 
@@ -321,9 +322,11 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 
 ### 9.2 Introduction `/introduction` (decided)
 
-The default page: `/` redirects here (temporary 307, so the home page can change later). Its sidebar label ("Introduction") and path are fixed in code (`src/lib/introduction.ts`); the Notion page id of a standalone page (not part of the Sections or Essays databases) comes from `NOTION_INTRODUCTION_PAGE_ID`. It is laid out exactly like a section page: the Notion page's title as the heading, then the page body rendered with notionic; the document title is the Notion title too. Links in essays to that Notion page resolve to `/introduction`.
+The default page: `/` redirects here (temporary 307, so the home page can change later). Its sidebar label ("Introduction") and path are fixed in code (`src/lib/standalone.ts`); the Notion page id of a standalone page (not part of the Sections or Essays databases) comes from `NOTION_INTRODUCTION_PAGE_ID`. It is laid out exactly like a section page: the Notion page's title as the heading, then the page body rendered with notionic; the document title is the Notion title too. Links in essays to that Notion page resolve to `/introduction`.
 
 The earlier index (every section with its intro paragraph and cards) is replaced by this page; sections are reached from the sidebar.
+
+**About** (`/about`, linked from the sidebar footer) is the colophon: who makes the site, how it is built, what readers may do with the demos, where to find the author. Same mechanism as the Introduction: a standalone Notion page named by `NOTION_ABOUT_PAGE_ID`, heading and document title from the page (decided).
 
 ### 9.3 Section page `/sections/<slug>`
 
@@ -383,7 +386,7 @@ Goal: a focused, refined space that feels alive. The interface answers every pre
 
 Fonts via `next/font/google`: **Inter** (`--font-sans`, normal + italic), **Newsreader** (`--font-heading`, `opsz` axis), **Geist Mono** (`--font-mono`).
 
-Body: `font-size: 14px; line-height: 22px; letter-spacing: -0.006em; font-feature-settings: "cv11", "ss01"`.
+Body (chrome: sidebar, cards, captions): `font-size: 14px; line-height: 22px; letter-spacing: -0.006em; font-feature-settings: "cv11", "ss01"`. Reading text (Notion bodies on every page): 16px / 26px, letter-spacing -0.008em, so the 32rem measure holds about 65 characters; body headings Inter 500 at 22/28, 18/26 and 16/26; the essay summary is a lede at 18/28 (decided).
 
 Dark tokens (site):
 
@@ -416,7 +419,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 
 **Headings**: top-level page titles (section pages, Introduction, About) use the sidebar wordmark's type, Inter 14 medium on a 28px line, so title and wordmark share baseline, cap height and center across the columns, as on devouringdetails.com/system (decided). Essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`. Content and sidebar both start 128px from the top on desktop and 64px below the 56px header on mobile.
 
-**Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 12.5px on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
+**Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 14px (0.875em of the reading size) on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
 
 **Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Large stage 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
 

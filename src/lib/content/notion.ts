@@ -2,8 +2,13 @@ import { Client } from "@notionhq/client";
 import { cacheLife, cacheTag } from "next/cache";
 import type { NotionBlock } from "notionic";
 import { fetchBlocks, fetchPage } from "notionic/fetch";
-import { introductionPageId } from "../introduction";
 import { showPreviews } from "../site";
+import {
+  ABOUT,
+  INTRODUCTION,
+  type StandalonePage,
+  standalonePageId,
+} from "../standalone";
 import { buildLibrary, resolvePreview } from "./library";
 import { parseEssay, parseSection } from "./parse";
 import { queryAll } from "./query";
@@ -36,17 +41,33 @@ export async function getLibrary(): Promise<Library> {
   );
 }
 
-/** The Introduction page: its title and last edit from Notion, and its blocks. */
-export async function getIntroduction(): Promise<{
+export type StandalonePageContent = {
   title: string;
   lastEditedTime: string;
   blocks: NotionBlock[];
-}> {
+};
+
+/** A standalone page (Introduction, About): its Notion title, last edit and blocks. */
+export async function getStandalonePage(
+  pageId: string,
+): Promise<StandalonePageContent> {
   "use cache";
   cacheTag("notion");
   cacheLife("minutes");
-  const { page, blocks } = await fetchPage(client(), introductionPageId());
+  const { page, blocks } = await fetchPage(client(), pageId);
   return { title: page.title, lastEditedTime: page.lastEditedTime, blocks };
+}
+
+export function getIntroduction(): Promise<StandalonePageContent> {
+  return getStandalonePage(standalonePageId(INTRODUCTION));
+}
+
+export function getAbout(): Promise<StandalonePageContent> {
+  return getStandalonePage(standalonePageId(ABOUT));
+}
+
+export function getPage(page: StandalonePage): Promise<StandalonePageContent> {
+  return getStandalonePage(standalonePageId(page));
 }
 
 export async function getBlocks(pageId: string): Promise<NotionBlock[]> {

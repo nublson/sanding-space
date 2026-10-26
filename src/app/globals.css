@@ -323,21 +323,40 @@ body {
 }
 
 /*
+ * Reading text. The chrome (sidebar, cards, captions) stays at the 14px body
+ * size; Notion bodies are long-form and read at 16px on a 26px line, which
+ * keeps the 32rem measure at about 65 characters. A divider as the first
+ * block is a Notion habit, not content, so it never opens a page with a gap.
+ */
+.notionic {
+  font-size: 16px;
+  line-height: 26px;
+  letter-spacing: -0.008em;
+}
+.notionic > hr:first-child {
+  display: none;
+}
+/* Inline code at 0.875em of the reading size, on the card surface. */
+.notionic :not(pre) > code {
+  font-size: 14px;
+}
+
+/*
  * Notion body headings on the site's scale: Inter medium stepping down from
- * 18px, so they sit close to the 14px page title (a label-style line that
- * shares the wordmark's type) instead of dwarfing it.
+ * 22px over the 16px reading text. The 14px page title above them is a
+ * label-style line that shares the wordmark's type, by decision.
  */
 .notionic > :is(div:has(> h2), details:has(> summary > h2)) {
-  font-size: 18px;
-  line-height: 24px;
+  font-size: 22px;
+  line-height: 28px;
 }
 .notionic > :is(div:has(> h3), details:has(> summary > h3)) {
-  font-size: 16px;
-  line-height: 22px;
+  font-size: 18px;
+  line-height: 26px;
 }
 .notionic > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 16px;
+  line-height: 26px;
 }
 .notionic
   > :is(div, details):has(

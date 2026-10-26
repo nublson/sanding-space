@@ -23,6 +23,7 @@ Fill in `.env.local`:
 | `NOTION_SECTIONS_DATA_SOURCE_ID` | Sections data source (query by data source ID) |
 | `NOTION_ESSAYS_DATA_SOURCE_ID` | Essays data source |
 | `NOTION_INTRODUCTION_PAGE_ID` | The standalone Notion page behind `/introduction` |
+| `NOTION_ABOUT_PAGE_ID` | The standalone Notion page behind `/about` (the colophon) |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin, `https://sanding.space` in production |
 | `REVALIDATE_SECRET` | Bearer secret for `POST /api/revalidate` |
 

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getIntroduction, getLibrary } from "@/lib/content/notion";
+import { getAbout, getIntroduction, getLibrary } from "@/lib/content/notion";
 import type { Library } from "@/lib/content/types";
 import { demoMeta } from "@/lib/demo-meta";
 import { INTRODUCTION } from "@/lib/introduction";
@@ -10,6 +10,7 @@ export function sitemapEntries(
   library: Library,
   demos: Record<string, { retired?: boolean }> = demoMeta,
   introductionUpdated?: string,
+  aboutUpdated?: string,
 ): MetadataRoute.Sitemap {
   const essays = library.sections.flatMap((section) =>
     section.essays
@@ -28,7 +29,12 @@ export function sitemapEntries(
       priority: 1,
       changeFrequency: "weekly",
     },
-    { url: absoluteUrl("/about"), priority: 0.3, changeFrequency: "yearly" },
+    {
+      url: absoluteUrl("/about"),
+      lastModified: aboutUpdated ? new Date(aboutUpdated) : undefined,
+      priority: 0.3,
+      changeFrequency: "yearly",
+    },
     ...library.sections.map((section) => ({
       url: absoluteUrl(`/sections/${section.slug}`),
       lastModified: latest(
@@ -56,9 +62,15 @@ export function sitemapEntries(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [library, introduction] = await Promise.all([
+  const [library, introduction, about] = await Promise.all([
     getLibrary(),
     getIntroduction(),
+    getAbout(),
   ]);
-  return sitemapEntries(library, demoMeta, introduction.lastEditedTime);
+  return sitemapEntries(
+    library,
+    demoMeta,
+    introduction.lastEditedTime,
+    about.lastEditedTime,
+  );
 }

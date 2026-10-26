@@ -35,7 +35,8 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 | URL | What |
 |---|---|
 | `/` | Redirects (307) to `/introduction` |
-| `/introduction` | Introduction: default page, a standalone Notion page (`NOTION_INTRODUCTION_PAGE_ID`); sidebar label and path fixed in `src/lib/introduction.ts`, heading and title from the page |
+| `/introduction` | Introduction: default page, a standalone Notion page (`NOTION_INTRODUCTION_PAGE_ID`); sidebar label and path fixed in `src/lib/standalone.ts`, heading and title from the page |
+| `/about` | About, the colophon: who makes the site, how it is built, what you may do with the demos. A standalone Notion page (`NOTION_ABOUT_PAGE_ID`), same mechanism as the Introduction |
 | `/<slug>` | Essay (flat URL; section only appears in the UI) |
 | `/sections/<slug>` | Section intro + its essays |
 | `/demos/<name>` | Standalone embeddable demo (permanent URL) |
@@ -87,6 +88,7 @@ NOTION_TOKEN=
 NOTION_SECTIONS_DATA_SOURCE_ID=f38f8100-846a-4076-953e-296370a910d2
 NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
 NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
+NOTION_ABOUT_PAGE_ID=
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 

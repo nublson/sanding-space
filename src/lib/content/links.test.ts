@@ -3,6 +3,7 @@ import { introductionPageId } from "../introduction";
 
 process.env.NOTION_INTRODUCTION_PAGE_ID =
   "405b1726-8ab3-81f0-9d46-ef735904da9e";
+process.env.NOTION_ABOUT_PAGE_ID = "00000000-0000-0000-0000-00000000ab07";
 
 import { buildLibrary } from "./library";
 import { pageHref } from "./links";

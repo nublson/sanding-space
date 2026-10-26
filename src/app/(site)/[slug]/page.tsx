@@ -138,7 +138,7 @@ async function EssayContent({ params }: Props) {
           {essay.title}
         </h1>
         {essay.summary && (
-          <p className="measure text-pretty text-muted-foreground">
+          <p className="measure text-lg/7 text-pretty text-muted-foreground">
             {essay.summary}
           </p>
         )}
