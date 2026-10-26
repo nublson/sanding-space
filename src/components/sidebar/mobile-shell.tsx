@@ -2,7 +2,7 @@
 
 import { PanelLeft } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   type ReactNode,
   useCallback,
@@ -34,6 +34,7 @@ export function MobileShell({
   const toggleRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const [shownPath, setShownPath] = useState(pathname);
 
   // A navigation closes the sidebar in the render that brings the new page,
@@ -74,6 +75,20 @@ export function MobileShell({
         ?.focus({ preventScroll: true });
     }
   }, [open]);
+
+  // Links prefetch as they enter the viewport, but the closed sidebar sits
+  // off-screen and opening it doesn't count, so on a phone nothing in it was
+  // prefetched: a tap waited on the server with no response on screen. Opening
+  // is the intent; warm every route in it so a tap lands on its shell at once.
+  useEffect(() => {
+    if (!open) return;
+    const links =
+      sidebarRef.current?.querySelectorAll<HTMLAnchorElement>('a[href^="/"]');
+    const hrefs = new Set(
+      Array.from(links ?? [], (link) => link.getAttribute("href") ?? ""),
+    );
+    for (const href of hrefs) if (href !== pathname) router.prefetch(href);
+  }, [open, pathname, router]);
 
   useEffect(() => {
     const el = sidebarRef.current;
