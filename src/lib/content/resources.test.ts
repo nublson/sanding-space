@@ -51,6 +51,22 @@ describe("buildResources", () => {
     expect(built.categories[0].resources.map((r) => r.id)).toEqual(["ok"]);
   });
 
+  it("gives categories that slug alike distinct ids", () => {
+    const built = buildResources(
+      { intro: "", categories: ["A & B", "A-B", "a b"] },
+      [
+        entry({ id: "1", category: "A & B" }),
+        entry({ id: "2", category: "A-B" }),
+        entry({ id: "3", category: "a b" }),
+      ],
+    );
+    expect(built.categories.map((c) => c.id)).toEqual([
+      "a-b",
+      "a-b-2",
+      "a-b-3",
+    ]);
+  });
+
   it("puts rows with no Order last", () => {
     const built = buildResources(schema, [
       entry({ id: "none", order: Number.POSITIVE_INFINITY }),

@@ -32,20 +32,26 @@ export function categoryId(name: string): string {
 /**
  * The page's data from the database's schema and rows. A row shows only
  * with a name, a URL and a Category that is one of the options; a category
- * shows only with at least one row. Rows sort by Order, then by name.
+ * shows only with at least one row. Rows sort by Order, then by name. Two
+ * names that slug alike ("A & B", "A-B") get distinct ids, since the id is
+ * the heading's and the section's label.
  */
 export function buildResources(
   schema: ResourcesSchema,
   entries: ResourceEntry[],
 ): Resources {
+  const ids = new Set<string>();
   const categories = schema.categories.flatMap((name) => {
     const resources = entries
       .filter((e) => e.category === name && e.name && e.url)
       .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
       .map(({ category: _category, ...resource }) => resource);
-    return resources.length > 0
-      ? [{ id: categoryId(name), name, resources }]
-      : [];
+    if (resources.length === 0) return [];
+    const base = categoryId(name);
+    let id = base;
+    for (let n = 2; ids.has(id); n++) id = `${base}-${n}`;
+    ids.add(id);
+    return [{ id, name, resources }];
   });
   return { intro: schema.intro, categories };
 }

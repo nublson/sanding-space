@@ -95,19 +95,20 @@ describe("parseResource", () => {
     const page = structuredClone(resourceFixture) as unknown as {
       properties: Record<string, Record<string, unknown>>;
     };
-    const { Name, URL, Description, Category, ...rest } = page.properties;
+    const { Name, URL, Description, Category, Order } = page.properties;
     page.properties = {
       Title: Name,
       Link: URL,
       Blurb: Description,
       Group: Category,
-      ...rest,
+      Rank: Order,
     };
     const parsed = parseResource(page as unknown as PageObjectResponse);
     expect(parsed.name).toBe("Craft");
     expect(parsed.url).toBe("https://craft.gustavofior.com");
     expect(parsed.description).toBe("Gustavo Fior's craft notes.");
     expect(parsed.category).toBe("Inspiration");
+    expect(parsed.order).toBe(1);
   });
 
   it("handles an empty URL, category and order", () => {

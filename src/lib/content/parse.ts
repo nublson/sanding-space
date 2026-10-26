@@ -105,7 +105,7 @@ export function parseResource(page: PageObjectResponse): ResourceEntry {
       propOfType(p, "Description", "rich_text")?.rich_text,
     ).trim(),
     category: propOfType(p, "Category", "select")?.select?.name ?? null,
-    order: num(p, "Order"),
+    order: propOfType(p, "Order", "number")?.number ?? Number.POSITIVE_INFINITY,
   };
 }
 
