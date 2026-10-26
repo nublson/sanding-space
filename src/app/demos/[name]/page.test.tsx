@@ -53,15 +53,34 @@ describe("demo page", () => {
     expect(sys.container.firstElementChild).toHaveClass("dark", "theme-system");
   });
 
+  // The page wraps NamedDemo in a Suspense boundary; NamedDemo reads the
+  // name and nests the frame's own boundary.
+  const named = async (name: string) => {
+    const page = DemoPage(props(name)) as {
+      props: { children: React.ReactElement<Record<string, unknown>> };
+    };
+    const Inner = page.props.children.type as (
+      p: Record<string, unknown>,
+    ) => Promise<{ props: { fallback: React.ReactElement } }>;
+    return Inner(page.props.children.props);
+  };
+
+  it("reads the name inside Suspense, behind a plain shell", () => {
+    const page = DemoPage(props("test-demo")) as {
+      props: { fallback: React.ReactElement };
+    };
+    const { container } = render(page.props.fallback);
+    expect(container.firstElementChild).toHaveClass("min-h-dvh");
+    expect(container.textContent).toBe("");
+  });
+
   it("calls notFound for unknown names", async () => {
-    await expect(DemoPage(props("nope"))).rejects.toThrow("NEXT_NOT_FOUND");
+    await expect(named("nope")).rejects.toThrow("NEXT_NOT_FOUND");
     expect(notFound).toHaveBeenCalled();
   });
 
   it("prerenders the frame without the mark in the Suspense fallback", async () => {
-    const el = (await DemoPage(props("test-demo"))) as {
-      props: { fallback: React.ReactElement };
-    };
+    const el = await named("test-demo");
     render(el.props.fallback);
     expect(await screen.findByText("Press and hold")).toBeInTheDocument();
     expect(screen.queryByText(/Sanding Space/)).toBeNull();
