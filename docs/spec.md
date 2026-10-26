@@ -36,6 +36,7 @@ Read the whole document before writing code. Decisions marked **(decided)** are 
 NOTION_TOKEN=                       # Notion integration token with access to the Sanding Space teamspace
 NOTION_SECTIONS_DATA_SOURCE_ID=f38f8100-846a-4076-953e-296370a910d2
 NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
+NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 
@@ -112,17 +113,18 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 | What | URL | Notes |
 |---|---|---|
 | Home | `/` | Redirects (307, temporary) to `/introduction` (decided) |
-| Introduction | `/introduction` | Default page: a standalone Notion page (§9.2). Name and path fixed in code (decided) |
+| Introduction | `/introduction` | Default page: a standalone Notion page (§9.2). Sidebar label and path fixed in code, page id from env, heading from the page (decided) |
 | Essay | `/<slug>` | Flat URL (decided). Section shown in UI/breadcrumb only, so moving an essay between sections never breaks a link |
 | Section | `/sections/<slug>` | Section intro + its essays |
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
-| Demo OG image | `/demos/<name>/opengraph-image` | |
+| Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays and sections have their own, the root one is the fallback |
+| Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
 | oEmbed | `/api/oembed` | |
 | Embed helper | `/embed.js` | Auto-height script |
 
 ### Reserved slugs (decided)
 
-Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `apple-icon`. Add any new top-level route to this list.
+Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add any new top-level route to this list.
 
 ### Linking between Notion pages
 
@@ -244,7 +246,7 @@ Without the script, the iframe uses the inline height (from the registry `height
 
 - Each demo gets an OG image at `/demos/[name]/opengraph-image`.
 - Preferred: a real screenshot of the demo captured with Playwright in CI on each deploy and stored as a static asset; fall back to a generated image (title + Sanding Space wordmark) when no screenshot exists.
-- Essay OG images use the cover demo screenshot plus the title.
+- Essay OG images are typographic: section, title (Newsreader) and summary on the silicon-carbide card. The cover demo screenshot waits for a screenshot pipeline (deferred).
 
 ### 6.9 Demo frame inside essays
 
@@ -319,7 +321,7 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 
 ### 9.2 Introduction `/introduction` (decided)
 
-The default page: `/` redirects here (temporary 307, so the home page can change later). Its name ("Introduction") and path are fixed in code (`src/lib/introduction.ts`), along with the Notion page id of a standalone page (not part of the Sections or Essays databases). It is laid out exactly like a section page: "Introduction" as the heading, then the page body rendered with notionic. Links in essays to that Notion page resolve to `/introduction`.
+The default page: `/` redirects here (temporary 307, so the home page can change later). Its sidebar label ("Introduction") and path are fixed in code (`src/lib/introduction.ts`); the Notion page id of a standalone page (not part of the Sections or Essays databases) comes from `NOTION_INTRODUCTION_PAGE_ID`. It is laid out exactly like a section page: the Notion page's title as the heading, then the page body rendered with notionic; the document title is the Notion title too. Links in essays to that Notion page resolve to `/introduction`.
 
 The earlier index (every section with its intro paragraph and cards) is replaced by this page; sections are reached from the sidebar.
 

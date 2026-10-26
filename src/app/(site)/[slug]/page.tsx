@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { NotionRenderer } from "notionic";
 import { Suspense } from "react";
 import { PageFade } from "@/components/page-fade";
+import { JsonLd } from "@/components/seo/json-ld";
 import { DemoStage } from "@/components/stage/demo-stage";
 import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { findPublishedEssay } from "@/lib/content/library";
@@ -12,7 +13,14 @@ import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
 import { siteComponents } from "@/lib/content/renderer";
 import { demos } from "@/lib/demos";
-import { SITE_URL, title } from "@/lib/site";
+import {
+  AUTHOR,
+  absoluteUrl,
+  pageMetadata,
+  SITE_NAME,
+  SITE_URL,
+  title,
+} from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -39,11 +47,25 @@ async function essayMetadata(slug: string): Promise<Metadata> {
   const entry = findPublishedEssay(await getLibrary(), slug);
   // The not-found boundary renders under this route, so its title lives here.
   if (!entry) return { title: { absolute: title("Not found") } };
-  const url = `${SITE_URL}/${entry.essay.slug}`;
+  const { essay, section } = entry;
+  const url = `${SITE_URL}/${essay.slug}`;
+  const base = pageMetadata({
+    name: essay.title,
+    description: essay.summary || undefined,
+    path: `/${essay.slug}`,
+    ownImage: true,
+    type: "article",
+    article: {
+      publishedTime: essay.published,
+      modifiedTime: essay.updated,
+      tags: essay.tags,
+      section: section.name,
+    },
+  });
   return {
-    title: { absolute: title(entry.essay.title) },
-    description: entry.essay.summary || undefined,
+    ...base,
     alternates: {
+      ...base.alternates,
       types: {
         "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(url)}&format=json`,
       },
@@ -70,9 +92,40 @@ async function EssayContent({ params }: Props) {
   if (!entry) notFound();
   const { essay, section } = entry;
   const blocks = await getBlocks(essay.id);
+  const url = absoluteUrl(`/${essay.slug}`);
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: essay.title,
+    description: essay.summary || undefined,
+    image: `${url}/opengraph-image`,
+    url,
+    mainEntityOfPage: url,
+    datePublished: essay.published ?? undefined,
+    dateModified: essay.updated,
+    articleSection: section.name,
+    keywords: essay.tags.length ? essay.tags : undefined,
+    author: { "@type": "Person", name: AUTHOR.name, url: AUTHOR.url },
+    publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: section.name,
+        item: absoluteUrl(`/sections/${section.slug}`),
+      },
+      { "@type": "ListItem", position: 2, name: essay.title, item: url },
+    ],
+  };
 
   return (
     <article data-stream className="article-layout flex flex-col gap-12">
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       <header className="flex flex-col gap-3">
         <Link
           href={`/sections/${section.slug}`}

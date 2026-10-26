@@ -35,21 +35,23 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 | URL | What |
 |---|---|
 | `/` | Redirects (307) to `/introduction` |
-| `/introduction` | Introduction: default page, a standalone Notion page; name, path and page id fixed in `src/lib/introduction.ts` |
+| `/introduction` | Introduction: default page, a standalone Notion page (`NOTION_INTRODUCTION_PAGE_ID`); sidebar label and path fixed in `src/lib/introduction.ts`, heading and title from the page |
 | `/<slug>` | Essay (flat URL; section only appears in the UI) |
 | `/sections/<slug>` | Section intro + its essays |
 | `/demos/<name>` | Standalone embeddable demo (permanent URL) |
 | `/api/oembed` | oEmbed endpoint |
 | `/embed.js` | Auto-height helper script |
+| `/opengraph-image`, `/<slug>/opengraph-image`, `/sections/<slug>/opengraph-image`, `/demos/<name>/opengraph-image` | Generated Open Graph cards (`src/lib/og/image.tsx`) |
+| `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
 
-Reserved essay slugs: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `apple-icon`. Add every new top-level route to this list (here and in the build checks).
+Reserved essay slugs: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add every new top-level route to this list (here and in the build checks).
 
 ## Interface layout
 
 Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not decided yet.
 
 - **Sidebar** (same component on every size): wordmark (links to `/introduction`), the fixed **Introduction** item, then sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + mute button in the footer. The current item comes from the URL.
-- **Introduction** (`/introduction`, the default page): laid out like a section page, "Introduction" as the heading and the Notion body below. **Section page**: full intro, its first essay by Order as a large card (Soon included: empty stage, muted text, not a link), the rest in a 3-column card grid. There is no Soon badge; the title carries a screen-reader-only "(coming soon)".
+- **Introduction** (`/introduction`, the default page): laid out like a section page, the Notion page’s title as the heading and its body below. **Section page**: full intro, its first essay by Order as a large card (Soon included: empty stage, muted text, not a link), the rest in a 3-column card grid. There is no Soon badge; the title carries a screen-reader-only "(coming soon)".
 - **Essay**: section eyebrow, title, large demo stage with caption, then the body.
 - **Mobile**: same header with a sidebar toggle before the logo; the sidebar pushes the content right (no overlay).
 - Demo frame is **stage + caption only**; Replay / Copy link / Embed / Open are deferred.
@@ -84,6 +86,7 @@ Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's 
 NOTION_TOKEN=
 NOTION_SECTIONS_DATA_SOURCE_ID=f38f8100-846a-4076-953e-296370a910d2
 NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
+NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 

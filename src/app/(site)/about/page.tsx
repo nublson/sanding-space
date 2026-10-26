@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { SectionHeading } from "@/components/library/section-block";
 import { PageFade } from "@/components/page-fade";
-import { title } from "@/lib/site";
+import { pageMetadata } from "@/lib/site";
 
 // Static route: Next matches it before the (site)/[slug] essay route.
-export const metadata: Metadata = {
-  title: { absolute: title("About") },
-};
+export const metadata: Metadata = pageMetadata({
+  name: "About",
+  description:
+    "What Sanding Space is: a library of short essays about design engineering and product engineering, each with live, embeddable demos.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

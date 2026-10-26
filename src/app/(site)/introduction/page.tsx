@@ -4,22 +4,24 @@ import { SectionHeading } from "@/components/library/section-block";
 import { PageFade } from "@/components/page-fade";
 import { withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
-import { getBlocks, getLibrary } from "@/lib/content/notion";
+import { getIntroduction, getLibrary } from "@/lib/content/notion";
 import { siteComponents } from "@/lib/content/renderer";
 import { demos } from "@/lib/demos";
 import { INTRODUCTION } from "@/lib/introduction";
-import { title } from "@/lib/site";
+import { pageMetadata } from "@/lib/site";
 
-// Static route: Next matches it before the (site)/[slug] essay route.
-export const metadata: Metadata = {
-  title: { absolute: title(INTRODUCTION.name) },
-};
+// Static route: Next matches it before the (site)/[slug] essay route. The
+// sidebar label and path are fixed; the title is the Notion page's own.
+export async function generateMetadata(): Promise<Metadata> {
+  const { title } = await getIntroduction();
+  return pageMetadata({ name: title, path: INTRODUCTION.path });
+}
 
-// Laid out like a section page: the heading, then the Notion content below.
+// Laid out like a section page: the Notion title as the heading, then the body.
 export default async function IntroductionPage() {
-  const [library, blocks] = await Promise.all([
+  const [library, { title, blocks }] = await Promise.all([
     getLibrary(),
-    getBlocks(INTRODUCTION.pageId),
+    getIntroduction(),
   ]);
 
   return (
@@ -27,7 +29,7 @@ export default async function IntroductionPage() {
       <div className="article-layout">
         <section className="flex flex-col gap-6">
           <SectionHeading id="introduction" level={1}>
-            {INTRODUCTION.name}
+            {title}
           </SectionHeading>
           <div className="text-pretty text-muted-foreground">
             <NotionRenderer

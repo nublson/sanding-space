@@ -14,4 +14,6 @@ export const RESERVED_SLUGS: readonly string[] = [
   "icon0.svg",
   "icon1",
   "apple-icon",
+  "icon2",
+  "manifest.webmanifest",
 ];

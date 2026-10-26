@@ -1,7 +1,8 @@
 import { Client } from "@notionhq/client";
 import { cacheLife, cacheTag } from "next/cache";
 import type { NotionBlock } from "notionic";
-import { fetchBlocks } from "notionic/fetch";
+import { fetchBlocks, fetchPage } from "notionic/fetch";
+import { introductionPageId } from "../introduction";
 import { showPreviews } from "../site";
 import { buildLibrary, resolvePreview } from "./library";
 import { parseEssay, parseSection } from "./parse";
@@ -33,6 +34,19 @@ export async function getLibrary(): Promise<Library> {
     sections.map(parseSection),
     resolvePreview(essays.map(parseEssay), showPreviews()),
   );
+}
+
+/** The Introduction page: its title and last edit from Notion, and its blocks. */
+export async function getIntroduction(): Promise<{
+  title: string;
+  lastEditedTime: string;
+  blocks: NotionBlock[];
+}> {
+  "use cache";
+  cacheTag("notion");
+  cacheLife("minutes");
+  const { page, blocks } = await fetchPage(client(), introductionPageId());
+  return { title: page.title, lastEditedTime: page.lastEditedTime, blocks };
 }
 
 export async function getBlocks(pageId: string): Promise<NotionBlock[]> {

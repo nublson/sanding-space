@@ -11,7 +11,7 @@ import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
 import { siteComponents } from "@/lib/content/renderer";
 import { demos } from "@/lib/demos";
-import { title } from "@/lib/site";
+import { pageMetadata, title } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -36,10 +36,12 @@ async function sectionMetadata(slug: string): Promise<Metadata> {
   const library = await getLibrary();
   const section = library.sections.find((s) => s.slug === slug);
   if (!section) return { title: { absolute: title("Not found") } };
-  return {
-    title: { absolute: title(section.name) },
+  return pageMetadata({
+    name: section.name,
     description: section.question || undefined,
-  };
+    path: `/sections/${section.slug}`,
+    ownImage: true,
+  });
 }
 
 // The page itself reads no URL data, so its shell is instant on navigation;
