@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { type ReactNode, ViewTransition } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
+import { RESOURCES } from "@/lib/content/resources";
 import type { LibrarySection } from "@/lib/content/types";
-import { INTRODUCTION } from "@/lib/introduction";
+import { ABOUT, INTRODUCTION } from "@/lib/standalone";
 import { cn } from "@/lib/utils";
 
 // Tags navigations started from the sidebar, so the shell can slide the
@@ -15,19 +16,27 @@ const SIDEBAR_NAV = ["sidebar-nav"];
 const row =
   "flex min-h-8 w-full items-center py-1 leading-6 max-md:min-h-7 max-md:leading-5 pointer-coarse:min-h-11";
 
+// The footer's pages, Resources above About.
+const FOOTER_PAGES = [RESOURCES, ABOUT];
+const footerLink =
+  "flex h-8 items-center text-base max-md:h-7 max-md:text-sm pointer-coarse:h-11";
+
 export function Sidebar({
   sections,
-  introductionCurrent,
+  currentPagePath,
   currentSectionSlug,
   currentEssaySlug,
-  footer,
+  footerAction,
 }: {
   sections: LibrarySection[];
-  introductionCurrent: boolean;
+  /** The fixed page open now (Introduction, Resources, About), by path. */
+  currentPagePath: string | null;
   currentSectionSlug: string | null;
   currentEssaySlug: string | null;
-  footer: ReactNode;
+  /** Sits on the footer's last line, beside About (the mute button). */
+  footerAction: ReactNode;
 }) {
+  const introductionCurrent = currentPagePath === INTRODUCTION.path;
   return (
     <nav
       aria-label="Sections"
@@ -151,7 +160,28 @@ export function Sidebar({
           })}
         </ul>
       </div>
-      <div className="shrink-0 py-3">{footer}</div>
+      <div className="flex shrink-0 items-end justify-between py-3">
+        <div className="flex flex-col">
+          {FOOTER_PAGES.map((page) => {
+            const current = page.path === currentPagePath;
+            return (
+              <Link
+                key={page.path}
+                href={page.path}
+                data-sound="page"
+                transitionTypes={SIDEBAR_NAV}
+                aria-current={current ? "page" : undefined}
+                // .link carries the resting ink and hover; the current page
+                // takes the foreground instead, like Introduction above.
+                className={cn(footerLink, current ? "text-foreground" : "link")}
+              >
+                {page.name}
+              </Link>
+            );
+          })}
+        </div>
+        {footerAction}
+      </div>
     </nav>
   );
 }

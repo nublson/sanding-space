@@ -6,13 +6,13 @@ let pathname = "/";
 vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
 vi.mock("@/components/sidebar/sidebar", () => ({
   Sidebar: (p: {
-    introductionCurrent: boolean;
+    currentPagePath: string | null;
     currentSectionSlug: string | null;
     currentEssaySlug: string | null;
   }) => (
     <div
       data-testid="sidebar"
-      data-introduction={String(p.introductionCurrent)}
+      data-page={p.currentPagePath ?? ""}
       data-section={p.currentSectionSlug ?? ""}
       data-essay={p.currentEssaySlug ?? ""}
     />
@@ -50,27 +50,39 @@ const sections = [
 describe("CurrentSidebar", () => {
   it("on /introduction, marks the Introduction and expands no section", () => {
     pathname = "/introduction";
-    render(<CurrentSidebar sections={sections} footer={null} />);
+    render(<CurrentSidebar sections={sections} footerAction={null} />);
     const el = screen.getByTestId("sidebar");
-    expect(el).toHaveAttribute("data-introduction", "true");
+    expect(el).toHaveAttribute("data-page", "/introduction");
     expect(el).toHaveAttribute("data-section", "");
     expect(el).toHaveAttribute("data-essay", "");
   });
 
   it("on an essay page, derives section and essay from the URL", () => {
     pathname = "/button-press";
-    render(<CurrentSidebar sections={sections} footer={null} />);
+    render(<CurrentSidebar sections={sections} footerAction={null} />);
     const el = screen.getByTestId("sidebar");
-    expect(el).toHaveAttribute("data-introduction", "false");
+    expect(el).toHaveAttribute("data-page", "");
     expect(el).toHaveAttribute("data-section", "interaction");
     expect(el).toHaveAttribute("data-essay", "button-press");
   });
 
   it("on a section page, derives the section from the URL", () => {
     pathname = "/sections/principles";
-    render(<CurrentSidebar sections={sections} footer={null} />);
+    render(<CurrentSidebar sections={sections} footerAction={null} />);
     const el = screen.getByTestId("sidebar");
     expect(el).toHaveAttribute("data-section", "principles");
     expect(el).toHaveAttribute("data-essay", "");
+  });
+
+  it.each([
+    "/resources",
+    "/about",
+    "/about/",
+  ])("on %s, marks that page and expands no section", (path) => {
+    pathname = path;
+    render(<CurrentSidebar sections={sections} footerAction={null} />);
+    const el = screen.getByTestId("sidebar");
+    expect(el).toHaveAttribute("data-page", path.replace(/\/$/, ""));
+    expect(el).toHaveAttribute("data-section", "");
   });
 });
