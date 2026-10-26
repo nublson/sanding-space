@@ -2,12 +2,14 @@
 
 import { PanelLeft } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
+  ViewTransition,
 } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
 import { INTRODUCTION } from "@/lib/introduction";
@@ -26,13 +28,39 @@ export function MobileShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  // True when the sidebar closed because a link navigated: the track skips
+  // its CSS slide and the route's view transition moves the content instead.
+  const [instant, setInstant] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const [shownPath, setShownPath] = useState(pathname);
+
+  // A navigation closes the sidebar in the render that brings the new page,
+  // so both land in one commit and one view transition: before (pushed, old
+  // page), after (full width, new page). Closing on click would commit ahead
+  // of the route, because navigation is async.
+  if (pathname !== shownPath) {
+    setShownPath(pathname);
+    if (open) {
+      setInstant(true);
+      setOpen(false);
+    }
+  }
 
   const close = useCallback((returnFocus: boolean) => {
+    setInstant(false);
     setOpen(false);
     if (returnFocus) toggleRef.current?.focus();
   }, []);
+
+  // A link to the page already shown navigates nowhere: close it here.
+  const closeIfCurrent = useCallback(
+    (link: HTMLAnchorElement | null) => {
+      if (link && new URL(link.href).pathname === pathname) close(false);
+    },
+    [pathname, close],
+  );
 
   // Move focus into the sidebar once it opens.
   useEffect(() => {
@@ -47,15 +75,14 @@ export function MobileShell({
     }
   }, [open]);
 
-  // Choosing a link closes the sidebar (and navigates).
   useEffect(() => {
     const el = sidebarRef.current;
     function onClick(event: MouseEvent) {
-      if ((event.target as Element).closest("a[href]")) close(false);
+      closeIfCurrent((event.target as Element).closest("a[href]"));
     }
     el?.addEventListener("click", onClick);
     return () => el?.removeEventListener("click", onClick);
-  }, [close]);
+  }, [closeIfCurrent]);
 
   useEffect(() => {
     if (!open) return;
@@ -77,7 +104,7 @@ export function MobileShell({
 
   return (
     <div className="overflow-x-clip">
-      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center bg-background px-2 md:hidden">
+      <header className="site-header fixed inset-x-0 top-0 z-20 flex h-14 items-center bg-background px-2 md:hidden">
         <button
           ref={toggleRef}
           type="button"
@@ -85,7 +112,10 @@ export function MobileShell({
           aria-controls={SIDEBAR_ID}
           aria-label="Toggle sidebar"
           data-sound={open ? "toggle-off" : "toggle-on"}
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => {
+            setInstant(false);
+            setOpen((value) => !value);
+          }}
           className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
         >
           <PanelLeft aria-hidden strokeWidth={1.5} className="size-4" />
@@ -94,7 +124,8 @@ export function MobileShell({
             scale: 18px mark, 14px medium on a 28px line. */}
         <Link
           href={INTRODUCTION.path}
-          onClick={() => close(false)}
+          transitionTypes={open ? ["sidebar-nav"] : undefined}
+          onClick={(event) => closeIfCurrent(event.currentTarget)}
           className="flex h-7 items-center gap-2 ps-1 text-sm leading-7 font-medium text-foreground pointer-coarse:h-11"
         >
           <ShavingMark size={18} />
@@ -104,6 +135,7 @@ export function MobileShell({
 
       <div
         data-open={open}
+        data-instant={instant}
         className="shell-track flex max-md:w-[calc(100%+13rem)] max-md:-translate-x-52 max-md:data-[open=true]:translate-x-0 md:mx-auto md:max-w-[1024px] md:gap-8 md:px-8"
       >
         <div
@@ -114,21 +146,31 @@ export function MobileShell({
         >
           {sidebar}
         </div>
-        <div className="relative min-w-0 flex-1">
-          <div data-content inert={open}>
-            {children}
+        {/* On a sidebar navigation the whole column is one transition group:
+            it slides from the pushed position to full width while the old page
+            crossfades into the new one. Other navigations use PageFade. The
+            solid background keeps the fading sidebar from showing through. */}
+        <ViewTransition
+          name="site-content"
+          update={{ "sidebar-nav": "shell-close", default: "none" }}
+          default="none"
+        >
+          <div className="relative min-w-0 flex-1 max-md:bg-background">
+            <div data-content inert={open}>
+              {children}
+            </div>
+            {open && (
+              <button
+                type="button"
+                data-testid="shell-scrim"
+                aria-label="Close sidebar"
+                tabIndex={-1}
+                onClick={() => close(false)}
+                className="absolute inset-0 z-10 cursor-default md:hidden"
+              />
+            )}
           </div>
-          {open && (
-            <button
-              type="button"
-              data-testid="shell-scrim"
-              aria-label="Close sidebar"
-              tabIndex={-1}
-              onClick={() => close(false)}
-              className="absolute inset-0 z-10 cursor-default md:hidden"
-            />
-          )}
-        </div>
+        </ViewTransition>
       </div>
     </div>
   );

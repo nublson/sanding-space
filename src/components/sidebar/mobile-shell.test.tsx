@@ -2,21 +2,36 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MobileShell } from "@/components/sidebar/mobile-shell";
 
+let pathname = "/introduction";
+vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
+
+beforeEach(() => {
+  pathname = "/introduction";
+});
+
+const shell = () => (
+  <MobileShell
+    sidebar={
+      <nav aria-label="Sections">
+        <a href="/sections/interaction">Interaction</a>
+        <a href="/introduction">Introduction</a>
+      </nav>
+    }
+  >
+    <p>Page content</p>
+  </MobileShell>
+);
+
 function setup() {
-  render(
-    <MobileShell
-      sidebar={
-        <nav aria-label="Sections">
-          <a href="/sections/interaction">Interaction</a>
-        </nav>
-      }
-    >
-      <p>Page content</p>
-    </MobileShell>,
-  );
+  const { rerender } = render(shell());
   return {
     toggle: screen.getByRole("button", { name: /sidebar/i }),
     content: () => screen.getByText("Page content").closest("[data-content]"),
+    track: () => document.querySelector(".shell-track"),
+    navigate: (to: string) => {
+      pathname = to;
+      rerender(shell());
+    },
   };
 }
 
@@ -53,15 +68,39 @@ describe("MobileShell", () => {
     expect(toggle).toHaveFocus();
   });
 
-  it("clicking a sidebar link closes it", async () => {
+  it("stays open until the new page arrives, then closes instantly so the route transition does the slide", async () => {
     const user = userEvent.setup();
-    const { toggle } = setup();
+    const { toggle, track, navigate } = setup();
     await user.click(toggle);
+    expect(track()).toHaveAttribute("data-instant", "false");
     await user.click(screen.getByRole("link", { name: "Interaction" }));
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    navigate("/sections/interaction");
     expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(track()).toHaveAttribute("data-instant", "true");
+    // Reopening with the toggle slides again.
+    await user.click(toggle);
+    expect(track()).toHaveAttribute("data-instant", "false");
   });
 
-  it("clicking the header home link closes it", async () => {
+  it("a link to the current page closes it with the slide", async () => {
+    const user = userEvent.setup();
+    const { toggle, track } = setup();
+    await user.click(toggle);
+    await user.click(screen.getByRole("link", { name: "Introduction" }));
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(track()).toHaveAttribute("data-instant", "false");
+  });
+
+  it("closing with the toggle keeps the slide", async () => {
+    const user = userEvent.setup();
+    const { toggle, track } = setup();
+    await user.click(toggle);
+    await user.click(toggle);
+    expect(track()).toHaveAttribute("data-instant", "false");
+  });
+
+  it("clicking the header home link on the home page closes it", async () => {
     const user = userEvent.setup();
     const { toggle } = setup();
     await user.click(toggle);

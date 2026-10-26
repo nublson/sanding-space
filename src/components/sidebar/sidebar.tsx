@@ -5,6 +5,10 @@ import type { LibrarySection } from "@/lib/content/types";
 import { INTRODUCTION } from "@/lib/introduction";
 import { cn } from "@/lib/utils";
 
+// Tags navigations started from the sidebar, so the shell can slide the
+// content closed instead of running the page crossfade (see MobileShell).
+const SIDEBAR_NAV = ["sidebar-nav"];
+
 // A minimum, not a fixed, height: long titles wrap and grow their row instead
 // of overflowing into the next one. One line stays 32px (py-1 + leading-6),
 // 28px below md where the type steps down to 14.
@@ -51,6 +55,7 @@ export function Sidebar({
         <Link
           href={INTRODUCTION.path}
           data-sound="page"
+          transitionTypes={SIDEBAR_NAV}
           aria-current={introductionCurrent ? "page" : undefined}
           className={cn(
             row,
@@ -68,6 +73,7 @@ export function Sidebar({
                 <Link
                   href={`/sections/${section.slug}`}
                   data-sound="page"
+                  transitionTypes={SIDEBAR_NAV}
                   aria-current={
                     current && !currentEssaySlug ? "page" : undefined
                   }
@@ -104,6 +110,7 @@ export function Sidebar({
                               <Link
                                 href={`/${essay.slug}`}
                                 data-sound="page"
+                                transitionTypes={SIDEBAR_NAV}
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
                                   row,
