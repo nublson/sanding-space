@@ -28,11 +28,16 @@ export function Sidebar({
       aria-label="Sections"
       className="flex h-full w-40 flex-col pt-[120px] md:pt-32"
     >
+      {/* Same 28px line box as the page title (SectionHeading), so the two
+          rows are built identically and share baseline and cap height in any
+          engine. The mark's ink sits ~1px inside its box: -ml-px puts its left
+          edge on the text column below, and its ink already spans cap height
+          to baseline. */}
       <Link
         href={INTRODUCTION.path}
-        className="mb-4 flex h-7 items-center gap-2 text-sm font-medium text-foreground max-md:hidden"
+        className="mb-4 flex h-7 items-center gap-2 text-sm leading-7 font-medium text-foreground max-md:hidden"
       >
-        <ShavingMark size={18} />
+        <ShavingMark size={18} className="-ml-px" />
         Sanding Space
       </Link>
       {/* Only the list scrolls; the footer stays pinned. px-1/-mx-1 keeps

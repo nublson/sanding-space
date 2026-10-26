@@ -34,4 +34,18 @@ describe("EssayCard", () => {
     expect(link).toHaveAttribute("href", "/button-press");
     expect(link).toHaveAttribute("data-sound", "page");
   });
+  it("glues the Soon badge to the title's last word", () => {
+    render(
+      <EssayCard
+        essay={essay({ status: "Soon", title: "Every State Is Designed" })}
+      />,
+    );
+    const badge = screen.getByText("Soon");
+    const glue = badge.parentElement as HTMLElement;
+    expect(glue).toHaveClass("whitespace-nowrap");
+    expect(glue).toHaveTextContent(/^DesignedSoon$/);
+    expect(screen.getByRole("heading")).toHaveTextContent(
+      "Every State Is DesignedSoon",
+    );
+  });
 });

@@ -48,9 +48,10 @@ describe("SectionBlock", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Interaction",
     );
-    expect(
-      screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
-    ).toEqual(["Featured", "Card"]);
+    const titles = screen.getAllByRole("heading", { level: 2 });
+    expect(titles).toHaveLength(2);
+    expect(titles[0]).toHaveTextContent("Featured");
+    expect(titles[1]).toHaveTextContent("Card");
   });
 
   it("shows the featured essay once, not again in the grid", () => {

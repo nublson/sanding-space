@@ -325,7 +325,7 @@ The earlier index (every section with its intro paragraph and cards) is replaced
 
 ### 9.3 Section page `/sections/<slug>`
 
-The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then a large live thumbnail of its first Published essay and the remaining essays in a 3-column card grid (`SectionBlock`).
+The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then its **first essay by `Order`** as a large card and the remaining essays in a 3-column card grid (`SectionBlock`) (decided). The large slot is not limited to `Published`: a `Soon` first essay shows a large empty stage with its badge and is not a link. On every card the "Soon" badge sits inline after the title's last word, on its baseline.
 
 ### 9.4 Essay `/<slug>`
 
