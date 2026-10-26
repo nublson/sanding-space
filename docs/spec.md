@@ -411,6 +411,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 **Sidebar** (structure in §9.1)
 - 160px wide, sticky, 32px top padding; 32px gap to the content.
 - Wordmark: shaving mark 20px + "Sanding Space", Inter 16 medium on a 32px line. Sidebar column 192px.
+- Mobile header (56px, fixed): the sidebar toggle (lucide `PanelLeft`, 16px, 1.5 stroke, in a 44px button), then the same lockup on the mobile scale: 18px mark + Inter 14 medium on a 28px line, linking to the Introduction. Nothing on the right.
 - Rows 32px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
 - Question: 14/20, `subtle-foreground`, under the current section.
 - Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 14px `foreground` bar on the guide line.

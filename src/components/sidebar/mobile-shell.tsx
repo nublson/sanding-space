@@ -15,7 +15,7 @@ import { INTRODUCTION } from "@/lib/introduction";
 const SIDEBAR_ID = "site-sidebar";
 
 /**
- * Below `md`: a fixed header (toggle + wordmark) and an off-canvas sidebar
+ * Below `md`: a fixed header (toggle, then the wordmark) and an off-canvas sidebar
  * that pushes the content right. At `md`+: the sidebar sticks beside content.
  */
 export function MobileShell({
@@ -77,7 +77,7 @@ export function MobileShell({
 
   return (
     <div className="overflow-x-clip">
-      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between bg-background px-2 md:hidden">
+      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center bg-background px-2 md:hidden">
         <button
           ref={toggleRef}
           type="button"
@@ -88,15 +88,17 @@ export function MobileShell({
           onClick={() => setOpen((value) => !value)}
           className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
         >
-          <PanelLeft aria-hidden className="size-5" />
+          <PanelLeft aria-hidden strokeWidth={1.5} className="size-4" />
         </button>
+        {/* The desktop wordmark, after the toggle (spec §9.5), on the mobile
+            scale: 18px mark, 14px medium on a 28px line. */}
         <Link
           href={INTRODUCTION.path}
           onClick={() => close(false)}
-          aria-label="Sanding Space"
-          className="flex size-11 items-center justify-center text-foreground"
+          className="flex h-7 items-center gap-2 ps-1 text-sm leading-7 font-medium text-foreground"
         >
-          <ShavingMark size={20} />
+          <ShavingMark size={18} />
+          Sanding Space
         </Link>
       </header>
 
