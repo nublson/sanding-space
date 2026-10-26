@@ -39,9 +39,9 @@
 
 body {
   font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: -0.006em;
+  font-size: 16px;
+  line-height: 26px;
+  letter-spacing: -0.008em;
   font-feature-settings: "cv11", "ss01";
 }
 
@@ -323,15 +323,18 @@ body {
 }
 
 /*
- * Reading text. The chrome (sidebar, cards, captions) stays at the 14px body
- * size; Notion bodies are long-form and read at 16px on a 26px line, which
- * keeps the 32rem measure at about 65 characters. A divider as the first
- * block is a Notion habit, not content, so it never opens a page with a gap.
+ * Reading text runs at the body size, 16px on a 26px line, which keeps the
+ * 32rem measure at about 65 characters. Body copy is muted; headings and
+ * bold carry the foreground ink, so structure reads at a glance (spec §11).
+ * A divider as the first block is a Notion habit, not content, so it never
+ * opens a page with a gap.
  */
 .notionic {
-  font-size: 16px;
+  color: var(--muted-foreground);
   line-height: 26px;
-  letter-spacing: -0.008em;
+}
+.notionic :is(h2, h3, h4, h5, strong, b) {
+  color: var(--foreground);
 }
 .notionic > hr:first-child {
   display: none;

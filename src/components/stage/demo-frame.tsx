@@ -6,7 +6,7 @@ export function SiteDemoFrame({ caption, context, children }: DemoFrameProps) {
     <figure className="m-0">
       <DemoStage size="hero">{children}</DemoStage>
       {caption.length > 0 && (
-        <figcaption className="mt-2.5 text-center text-[13px] leading-5 text-subtle-foreground">
+        <figcaption className="mt-2.5 text-center text-sm/5 text-subtle-foreground">
           <RichText text={caption} context={context} />
         </figcaption>
       )}

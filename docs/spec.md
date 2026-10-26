@@ -386,7 +386,7 @@ Goal: a focused, refined space that feels alive. The interface answers every pre
 
 Fonts via `next/font/google`: **Inter** (`--font-sans`, normal + italic), **Newsreader** (`--font-heading`, `opsz` axis), **Geist Mono** (`--font-mono`).
 
-Body (chrome: sidebar, cards, captions): `font-size: 14px; line-height: 22px; letter-spacing: -0.006em; font-feature-settings: "cv11", "ss01"`. Reading text (Notion bodies on every page): 16px / 26px, letter-spacing -0.008em, so the 32rem measure holds about 65 characters; body headings Inter 500 at 22/28, 18/26 and 16/26; the essay summary is a lede at 18/28 (decided).
+Body: `font-size: 16px; line-height: 26px; letter-spacing: -0.008em; font-feature-settings: "cv11", "ss01"`, chrome and reading text alike, so the 32rem measure holds about 65 characters. Body headings Inter 500 at 22/28, 18/26 and 16/26 in `foreground` over muted copy; the essay summary is a lede at 18/28. External links in Notion text carry the destination's favicon (14px, via `/api/favicon`) before the text (decided).
 
 Dark tokens (site):
 
@@ -410,20 +410,20 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 
 **Sidebar** (structure in §9.1)
 - 160px wide, sticky, 32px top padding; 32px gap to the content.
-- Wordmark: shaving mark 18px + "Sanding Space", Inter 14 medium.
-- Rows 28px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
-- Question: 12/16, `subtle-foreground`, under the current section.
-- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 12px `foreground` bar on the guide line.
-- Footer: 1px `border` top, About link (`.link`) and a 28px mute button (lucide `Volume2` / `VolumeX`).
+- Wordmark: shaving mark 20px + "Sanding Space", Inter 16 medium on a 32px line. Sidebar column 192px.
+- Rows 32px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
+- Question: 14/20, `subtle-foreground`, under the current section.
+- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 14px `foreground` bar on the guide line.
+- Footer: 1px `border` top, About link (`.link`) and a 32px mute button (lucide `Volume2` / `VolumeX`).
 - Scrollbars are hidden site-wide. The list between wordmark and footer is the only part of the sidebar that scrolls, with a 2.5rem scroll fade on whichever edge still has content (craft.gustavofior.com/scroll-fades). Below md the list starts under the 56px header and carries the 64px rest offset as padding, so items can scroll up to the header and dissolve. Code blocks and tables in Notion bodies use the same fade horizontally.
 
-**Headings**: top-level page titles (section pages, Introduction, About) use the sidebar wordmark's type, Inter 14 medium on a 28px line, so title and wordmark share baseline, cap height and center across the columns, as on devouringdetails.com/system (decided). Essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`. Content and sidebar both start 128px from the top on desktop and 64px below the 56px header on mobile.
+**Headings**: top-level page titles (section pages, Introduction, About) use the sidebar wordmark's type, Inter 16 medium on a 32px line, so title and wordmark share baseline, cap height and center across the columns, as on devouringdetails.com/system (decided). Essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 14px `subtle-foreground`. Content and sidebar both start 128px from the top on desktop and 64px below the 56px header on mobile.
 
 **Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 14px (0.875em of the reading size) on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
 
 **Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Large stage 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
 
-**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 14 medium `foreground`, summary 13/20 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, no badge; no hover, press, sound or pointer cursor.
+**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 16 medium `foreground`, summary 14/22 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, no badge; no hover, press, sound or pointer cursor.
 
 ### 11.4 Sound
 
@@ -482,7 +482,7 @@ Lighthouse 100 on essay and demo pages, plus:
 - Every text token passes AA against its background (§11.2); Soon text uses `subtle-foreground`, never a dimmer value.
 - Skip link; landmarks `<nav aria-label="Sections">` and `<main id="main-content">`; `aria-current="page"` on the current essay.
 - Mobile sidebar toggle: `aria-expanded` + `aria-controls`; page content `inert` while open; Escape closes and focus returns to the toggle.
-- Hit areas ≥ 28px on fine pointers, ≥ 44px on touch.
+- Hit areas ≥ 32px on fine pointers, ≥ 44px on touch.
 - Focus rings are instant, never animated.
 
 ### 11.8 Quality gates

@@ -130,7 +130,7 @@ async function EssayContent({ params }: Props) {
         <Link
           href={`/sections/${section.slug}`}
           data-sound="page"
-          className="link w-fit text-[13px] leading-5 underline decoration-from-font underline-offset-4"
+          className="link w-fit text-sm/5 underline decoration-from-font underline-offset-4"
         >
           {section.name}
         </Link>

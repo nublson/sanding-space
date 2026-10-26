@@ -5,7 +5,7 @@ import type { LibrarySection } from "@/lib/content/types";
 
 /**
  * The title of every top-level page (sections, the Introduction, About). Same
- * type and line box as the sidebar wordmark (14px medium on a 28px line), so
+ * type and line box as the sidebar wordmark (16px medium on a 32px line), so
  * the two share baseline, cap height and center across the columns.
  */
 export function SectionHeading({
@@ -22,7 +22,7 @@ export function SectionHeading({
     <Heading
       id={id}
       data-section={id}
-      className="text-sm leading-7 font-medium text-foreground"
+      className="text-base leading-8 font-medium text-foreground"
     >
       {children}
     </Heading>

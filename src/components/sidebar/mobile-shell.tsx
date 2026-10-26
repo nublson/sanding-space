@@ -102,13 +102,13 @@ export function MobileShell({
 
       <div
         data-open={open}
-        className="shell-track flex max-md:w-[calc(100%+11rem)] max-md:-translate-x-44 max-md:data-[open=true]:translate-x-0 md:mx-auto md:max-w-[1024px] md:gap-8 md:px-8"
+        className="shell-track flex max-md:w-[calc(100%+13rem)] max-md:-translate-x-52 max-md:data-[open=true]:translate-x-0 md:mx-auto md:max-w-[1024px] md:gap-8 md:px-8"
       >
         <div
           ref={sidebarRef}
           id={SIDEBAR_ID}
           data-open={open}
-          className="shell-sidebar sticky top-0 h-dvh w-44 shrink-0 self-start max-md:ps-4 md:w-40"
+          className="shell-sidebar sticky top-0 h-dvh w-52 shrink-0 self-start max-md:ps-4 md:w-48"
         >
           {sidebar}
         </div>

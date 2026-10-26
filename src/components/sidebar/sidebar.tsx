@@ -6,9 +6,9 @@ import { INTRODUCTION } from "@/lib/introduction";
 import { cn } from "@/lib/utils";
 
 // A minimum, not a fixed, height: long titles wrap and grow their row instead
-// of overflowing into the next one. One line stays 28px (py-1 + leading-5).
+// of overflowing into the next one. One line stays 32px (py-1 + leading-6).
 const row =
-  "flex min-h-7 w-full items-center py-1 leading-5 pointer-coarse:min-h-11";
+  "flex min-h-8 w-full items-center py-1 leading-6 pointer-coarse:min-h-11";
 
 export function Sidebar({
   sections,
@@ -26,18 +26,18 @@ export function Sidebar({
   return (
     <nav
       aria-label="Sections"
-      className="flex h-full w-40 flex-col pt-14 md:pt-32"
+      className="flex h-full w-48 flex-col pt-14 md:pt-32"
     >
-      {/* Same 28px line box as the page title (SectionHeading), so the two
+      {/* Same 32px line box as the page title (SectionHeading), so the two
           rows are built identically and share baseline and cap height in any
           engine. The mark's ink sits ~1px inside its box: -ms-px puts its start
           edge on the text column below, and its ink already spans cap height
           to baseline. */}
       <Link
         href={INTRODUCTION.path}
-        className="mb-4 flex h-7 items-center gap-2 text-sm leading-7 font-medium text-foreground max-md:hidden"
+        className="mb-4 flex h-8 items-center gap-2 text-base leading-8 font-medium text-foreground max-md:hidden"
       >
-        <ShavingMark size={18} className="-ms-px" />
+        <ShavingMark size={20} className="-ms-px" />
         Sanding Space
       </Link>
       {/* Only the list scrolls; the footer stays pinned. Below md the list
@@ -53,7 +53,7 @@ export function Sidebar({
           aria-current={introductionCurrent ? "page" : undefined}
           className={cn(
             row,
-            "mb-4 text-sm",
+            "mb-4 text-base",
             introductionCurrent ? "text-foreground" : "text-subtle-foreground",
           )}
         >
@@ -72,7 +72,7 @@ export function Sidebar({
                   }
                   className={cn(
                     row,
-                    "text-sm",
+                    "text-base",
                     current ? "text-foreground" : "text-subtle-foreground",
                   )}
                 >
@@ -90,7 +90,7 @@ export function Sidebar({
                     aria-hidden={!current}
                   >
                     {current && (
-                      <p className="pb-1 text-xs/4 text-subtle-foreground">
+                      <p className="pb-1 text-sm/5 text-subtle-foreground">
                         {section.question}
                       </p>
                     )}
@@ -106,7 +106,7 @@ export function Sidebar({
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
                                   row,
-                                  "relative ps-3 text-sm",
+                                  "relative ps-3 text-base",
                                   active
                                     ? "text-foreground"
                                     : "text-muted-foreground",
@@ -116,7 +116,7 @@ export function Sidebar({
                                   <ViewTransition name="sidebar-marker">
                                     <span
                                       aria-hidden="true"
-                                      className="absolute top-1/2 start-[-1.5px] h-3 w-0.5 -translate-y-1/2 bg-foreground"
+                                      className="absolute top-1/2 start-[-1.5px] h-3.5 w-0.5 -translate-y-1/2 bg-foreground"
                                     />
                                   </ViewTransition>
                                 )}
@@ -126,7 +126,7 @@ export function Sidebar({
                               <span
                                 className={cn(
                                   row,
-                                  "ps-3 text-sm text-subtle-foreground",
+                                  "ps-3 text-base text-subtle-foreground",
                                 )}
                               >
                                 {essay.title}

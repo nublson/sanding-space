@@ -55,7 +55,7 @@ export function MuteButton() {
       // A toggle keeps one name; aria-pressed carries the state.
       aria-label="Mute sound"
       onClick={toggle}
-      className="relative size-7 pointer-coarse:size-11 transition-[scale,background-color,color] duration-160 ease-(--ease-out) active:scale-[0.96] active:translate-y-0"
+      className="relative size-8 pointer-coarse:size-11 transition-[scale,background-color,color] duration-160 ease-(--ease-out) active:scale-[0.96] active:translate-y-0"
     >
       <Volume2
         aria-hidden
