@@ -124,6 +124,8 @@ Tools and references the site keeps coming back to, shown on `/resources` (§9.6
 
 Current categories, top to bottom: My Purls, Learning, Inspiration. Do not hardcode them; read them from the Category property.
 
+The code finds each column by the name above, or else by the first column of that type, so a renamed column still parses (`parseResource` in `src/lib/content/parse.ts`). A row shows only with a name, a URL and a Category that is one of the options; a category shows only when it has at least one such row.
+
 The references block at the end of each essay (the resources an essay draws from) is out of the first milestone.
 
 ---

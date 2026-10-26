@@ -1,9 +1,19 @@
-import type { PageObjectResponse } from "@notionhq/client";
+import type {
+  DataSourceObjectResponse,
+  PageObjectResponse,
+} from "@notionhq/client";
 import { normalizePageId } from "notionic";
 import { describe, expect, it } from "vitest";
 import essayFixture from "./__fixtures__/essay-page.json";
+import resourceFixture from "./__fixtures__/resource-page.json";
+import resourcesSchemaFixture from "./__fixtures__/resources-data-source.json";
 import sectionFixture from "./__fixtures__/section-page.json";
-import { parseEssay, parseSection } from "./parse";
+import {
+  parseEssay,
+  parseResource,
+  parseResourcesSchema,
+  parseSection,
+} from "./parse";
 
 const section = sectionFixture as unknown as PageObjectResponse;
 const essay = essayFixture as unknown as PageObjectResponse;
@@ -64,5 +74,73 @@ describe("parseEssay status", () => {
     >;
     props.Status = { ...props.Status, status: { name: "Preview" } };
     expect(parseEssay(page).status).toBe("Preview");
+  });
+});
+
+describe("parseResource", () => {
+  const resource = resourceFixture as unknown as PageObjectResponse;
+
+  it("parses a resource row", () => {
+    expect(parseResource(resource)).toEqual({
+      id: normalizePageId(resource.id),
+      name: "Craft",
+      url: "https://craft.gustavofior.com",
+      description: "Gustavo Fior's craft notes.",
+      category: "Inspiration",
+      order: 1,
+    });
+  });
+
+  it("finds the columns by type when they are named differently", () => {
+    const page = structuredClone(resourceFixture) as unknown as {
+      properties: Record<string, Record<string, unknown>>;
+    };
+    const { Name, URL, Description, Category, Order } = page.properties;
+    page.properties = {
+      Title: Name,
+      Link: URL,
+      Blurb: Description,
+      Group: Category,
+      Rank: Order,
+    };
+    const parsed = parseResource(page as unknown as PageObjectResponse);
+    expect(parsed.name).toBe("Craft");
+    expect(parsed.url).toBe("https://craft.gustavofior.com");
+    expect(parsed.description).toBe("Gustavo Fior's craft notes.");
+    expect(parsed.category).toBe("Inspiration");
+    expect(parsed.order).toBe(1);
+  });
+
+  it("handles an empty URL, category and order", () => {
+    const page = structuredClone(resourceFixture) as unknown as {
+      properties: Record<string, Record<string, unknown>>;
+    };
+    page.properties.URL.url = null;
+    page.properties.Category.select = null;
+    page.properties.Order.number = null;
+    const parsed = parseResource(page as unknown as PageObjectResponse);
+    expect(parsed.url).toBe("");
+    expect(parsed.category).toBeNull();
+    expect(parsed.order).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe("parseResourcesSchema", () => {
+  const schema = resourcesSchemaFixture as unknown as DataSourceObjectResponse;
+
+  it("reads the intro from the description and the categories in option order", () => {
+    expect(parseResourcesSchema(schema)).toEqual({
+      intro: "Tools and references I keep coming back to.",
+      categories: ["My Purls", "Learning", "Inspiration"],
+    });
+  });
+
+  it("copes with no description and no select column", () => {
+    expect(
+      parseResourcesSchema({
+        description: [],
+        properties: { Name: schema.properties.Name },
+      }),
+    ).toEqual({ intro: "", categories: [] });
   });
 });

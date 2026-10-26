@@ -1,0 +1,81 @@
+{
+  "object": "data_source",
+  "id": "3756f20a-f849-489e-8571-51858d7b8cbc",
+  "title": [
+    {
+      "type": "text",
+      "text": { "content": "Resources", "link": null },
+      "plain_text": "Resources"
+    }
+  ],
+  "description": [
+    {
+      "type": "text",
+      "text": { "content": "Tools and references ", "link": null },
+      "plain_text": "Tools and references "
+    },
+    {
+      "type": "text",
+      "text": { "content": "I keep coming back to.", "link": null },
+      "plain_text": "I keep coming back to."
+    }
+  ],
+  "properties": {
+    "Name": {
+      "id": "title",
+      "name": "Name",
+      "description": null,
+      "type": "title",
+      "title": {}
+    },
+    "URL": {
+      "id": "a",
+      "name": "URL",
+      "description": null,
+      "type": "url",
+      "url": {}
+    },
+    "Description": {
+      "id": "b",
+      "name": "Description",
+      "description": null,
+      "type": "rich_text",
+      "rich_text": {}
+    },
+    "Category": {
+      "id": "c",
+      "name": "Category",
+      "description": null,
+      "type": "select",
+      "select": {
+        "options": [
+          {
+            "id": "opt-1",
+            "name": "My Purls",
+            "color": "default",
+            "description": null
+          },
+          {
+            "id": "opt-2",
+            "name": "Learning",
+            "color": "default",
+            "description": null
+          },
+          {
+            "id": "opt-3",
+            "name": "Inspiration",
+            "color": "default",
+            "description": null
+          }
+        ]
+      }
+    },
+    "Order": {
+      "id": "d",
+      "name": "Order",
+      "description": null,
+      "type": "number",
+      "number": { "format": "number" }
+    }
+  }
+}

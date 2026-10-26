@@ -1,6 +1,9 @@
-import type { PageObjectResponse } from "@notionhq/client";
+import type {
+  DataSourceObjectResponse,
+  PageObjectResponse,
+} from "@notionhq/client";
 import { normalizePageId } from "notionic";
-import type { Essay, EssayStatus, Section } from "./types";
+import type { Essay, EssayStatus, ResourceEntry, Section } from "./types";
 
 type Props = PageObjectResponse["properties"];
 type Prop = Props[string];
@@ -71,5 +74,61 @@ export function parseEssay(page: PageObjectResponse): Essay {
       prop(p, "Updated", "last_edited_time")?.last_edited_time ??
       page.last_edited_time,
     relatedIds: relation(p, "Related"),
+  };
+}
+
+/**
+ * The property of a type, by its usual name or else the first one of that
+ * type, so a renamed column (the title column above all, which Notion names
+ * freely) still parses. Only for databases with one column per type.
+ */
+function propOfType<T extends Prop["type"]>(
+  props: Props,
+  name: string,
+  type: T,
+): Of<T> | null {
+  return (
+    prop(props, name, type) ??
+    (Object.values(props).find((p) => p.type === type) as Of<T> | undefined) ??
+    null
+  );
+}
+
+/** A row of the Resources database (§3.4). */
+export function parseResource(page: PageObjectResponse): ResourceEntry {
+  const p = page.properties;
+  return {
+    id: normalizePageId(page.id),
+    name: plain(propOfType(p, "Name", "title")?.title).trim(),
+    url: (propOfType(p, "URL", "url")?.url ?? "").trim(),
+    description: plain(
+      propOfType(p, "Description", "rich_text")?.rich_text,
+    ).trim(),
+    category: propOfType(p, "Category", "select")?.select?.name ?? null,
+    order: propOfType(p, "Order", "number")?.number ?? Number.POSITIVE_INFINITY,
+  };
+}
+
+export type ResourcesSchema = {
+  /** The database description: the page's one-line intro. */
+  intro: string;
+  /** The Category options in their Notion order: the page's category order. */
+  categories: string[];
+};
+
+/** The Resources database itself: its description and its Category options. */
+export function parseResourcesSchema(
+  dataSource: Pick<DataSourceObjectResponse, "description" | "properties">,
+): ResourcesSchema {
+  const configs = Object.values(dataSource.properties);
+  const category =
+    configs.find((c) => c.name === "Category" && c.type === "select") ??
+    configs.find((c) => c.type === "select");
+  return {
+    intro: plain(dataSource.description).trim(),
+    categories:
+      category?.type === "select"
+        ? category.select.options.map((o) => o.name)
+        : [],
   };
 }

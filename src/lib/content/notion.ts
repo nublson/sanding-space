@@ -1,4 +1,4 @@
-import { Client } from "@notionhq/client";
+import { Client, isFullDataSource } from "@notionhq/client";
 import { cacheLife, cacheTag } from "next/cache";
 import type { NotionBlock } from "notionic";
 import { fetchBlocks, fetchPage } from "notionic/fetch";
@@ -10,8 +10,14 @@ import {
   standalonePageId,
 } from "../standalone";
 import { buildLibrary, resolvePreview } from "./library";
-import { parseEssay, parseSection } from "./parse";
+import {
+  parseEssay,
+  parseResource,
+  parseResourcesSchema,
+  parseSection,
+} from "./parse";
 import { queryAll } from "./query";
+import { buildResources, type Resources } from "./resources";
 import type { Library } from "./types";
 
 export { queryAll } from "./query";
@@ -38,6 +44,26 @@ export async function getLibrary(): Promise<Library> {
   return buildLibrary(
     sections.map(parseSection),
     resolvePreview(essays.map(parseEssay), showPreviews()),
+  );
+}
+
+/** The Resources page: the database's description and Category options, and its rows. */
+export async function getResources(): Promise<Resources> {
+  "use cache";
+  cacheTag("notion");
+  cacheLife("minutes");
+  const notion = client();
+  const id = env("NOTION_RESOURCES_DATA_SOURCE_ID");
+  const [dataSource, rows] = await Promise.all([
+    notion.dataSources.retrieve({ data_source_id: id }),
+    queryAll(notion, id),
+  ]);
+  if (!isFullDataSource(dataSource)) {
+    throw new Error("Resources data source is not fully readable");
+  }
+  return buildResources(
+    parseResourcesSchema(dataSource),
+    rows.map(parseResource),
   );
 }
 
