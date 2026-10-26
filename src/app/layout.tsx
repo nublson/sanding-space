@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter, Newsreader } from "next/font/google";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -85,6 +86,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <JsonLd data={websiteJsonLd} />
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
