@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAbout, getIntroduction, getLibrary } from "@/lib/content/notion";
+import { RESOURCES } from "@/lib/content/resources";
 import type { Library } from "@/lib/content/types";
 import { demoMeta } from "@/lib/demo-meta";
 import { INTRODUCTION } from "@/lib/introduction";
@@ -34,6 +35,11 @@ export function sitemapEntries(
       lastModified: aboutUpdated ? new Date(aboutUpdated) : undefined,
       priority: 0.3,
       changeFrequency: "yearly",
+    },
+    {
+      url: absoluteUrl(RESOURCES.path),
+      priority: 0.5,
+      changeFrequency: "monthly",
     },
     ...library.sections.map((section) => ({
       url: absoluteUrl(`/sections/${section.slug}`),

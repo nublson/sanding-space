@@ -36,6 +36,7 @@ Read the whole document before writing code. Decisions marked **(decided)** are 
 NOTION_TOKEN=                       # Notion integration token with access to the Sanding Space teamspace
 NOTION_SECTIONS_DATA_SOURCE_ID=f38f8100-846a-4076-953e-296370a910d2
 NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
+NOTION_RESOURCES_DATA_SOURCE_ID=3756f20a-f849-489e-8571-51858d7b8cbc
 NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
 NOTION_ABOUT_PAGE_ID=
 NEXT_PUBLIC_SITE_URL=https://sanding.space
@@ -47,12 +48,13 @@ The Notion integration must be connected to the **Library** page (or the whole t
 
 ## 3. Notion content model (already created)
 
-Both databases live under a page called **Library** in the Sanding Space teamspace. Use **data source IDs** (Notion API 2025-09-03+) when querying.
+The databases live under a page called **Library** in the Sanding Space teamspace. Use **data source IDs** (Notion API 2025-09-03+) when querying.
 
 | Database | Database ID | Data source ID |
 |---|---|---|
 | Sections | `2fd8c999c699433485fde2b2fdea1ac4` | `f38f8100-846a-4076-953e-296370a910d2` |
 | Essays | `aa48ccb1566c4a75b6912f62717ac4e1` | `92208a07-e0f7-4a67-94d6-a220d3529348` |
+| Resources | | `3756f20a-f849-489e-8571-51858d7b8cbc` |
 
 ### 3.1 Sections
 
@@ -107,6 +109,23 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 
 A section is shown only if `Visible = true` **and** it has at least one `Published` or `Soon` essay (decided). Empty visible sections are hidden everywhere (index, sidebar, `/sections/<slug>` returns 404).
 
+### 3.4 Resources
+
+Tools and references the site keeps coming back to, shown on `/resources` (§9.6).
+
+| Property | Type | Notes |
+|---|---|---|
+| Name | title | Display name |
+| URL | url | Where the row links to (external, new tab); its host's favicon is the row icon |
+| Description | text | One line, after the name |
+| Category | select | The group the row sits under. **The options' order in Notion is the category order on the page** (drag the options inside the property to reorder); there is no separate number (decided) |
+| Order | number | Order within its category (ascending) |
+| *Database description* | | The page's one-line intro (decided) |
+
+Current categories, top to bottom: My Purls, Learning, Inspiration. Do not hardcode them; read them from the Category property.
+
+The references block at the end of each essay (the resources an essay draws from) is out of the first milestone.
+
 ---
 
 ## 4. Routes and URLs
@@ -117,6 +136,7 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 | Introduction | `/introduction` | Default page: a standalone Notion page (§9.2). Sidebar label and path fixed in code, page id from env, heading from the page (decided) |
 | Essay | `/<slug>` | Flat URL (decided). Section shown in UI/breadcrumb only, so moving an essay between sections never breaks a link |
 | Section | `/sections/<slug>` | Section intro + its essays |
+| Resources | `/resources` | Tools and references by category, from the Resources database (§3.4, §9.6). Linked from the sidebar footer, above About |
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
 | Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays and sections have their own, the root one is the fallback |
 | Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
@@ -125,7 +145,7 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 
 ### Reserved slugs (decided)
 
-Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add any new top-level route to this list.
+Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `resources`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add any new top-level route to this list.
 
 ### Linking between Notion pages
 
@@ -316,7 +336,7 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 - Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
 - The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
 - The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
-- Footer pinned to the bottom: **About** link and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
+- Footer pinned to the bottom: **Resources** and **About** links (Resources above About) and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
 - Current item from the URL: on an essay page, the essay's section and the essay; on `/sections/<slug>`, that section; on `/introduction`, the Introduction item with no section expanded.
 - Desktop: always visible, sticky beside the content.
 
@@ -344,6 +364,10 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 - The sidebar is the same component (sections, Question, essays, About + mute footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
 - While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
 - The essay hero demo runs edge to edge; the card grid drops to 2 columns.
+
+### 9.6 Resources `/resources`
+
+Laid out like a section page (reference: craft.gustavofior.com/resources): the **Resources** heading, the one-line intro from the database description, then each category in the order of the Category property's options as a heading over a list, one row per resource by `Order`. A row is the destination's favicon, the name (foreground), a middle dot and the description (muted); the whole row is the link, opening in a new tab. Label ("Resources") and path are fixed in code (`src/lib/content/resources.ts`); everything else comes from the database (§3.4).
 
 ---
 

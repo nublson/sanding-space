@@ -37,10 +37,11 @@ test("sitemap lists fixed pages, sections, published essays and live demos", () 
   expect(urls).toEqual([
     "/introduction",
     "/about",
+    "/resources",
     "/sections/interaction",
     "/button-press",
     "/demos/live",
   ]);
-  const sectionEntry = sitemapEntries(library)[2];
+  const sectionEntry = sitemapEntries(library)[3];
   expect(sectionEntry.lastModified).toEqual(new Date("2026-02-01"));
 });

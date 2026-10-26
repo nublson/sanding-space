@@ -27,3 +27,18 @@ export type Library = {
   sections: LibrarySection[];
   bySlug: Map<string, { essay: Essay; section: LibrarySection }>;
 };
+
+/** One row of the Resources page: an external link with a one-line description. */
+export type Resource = {
+  id: string;
+  name: string;
+  url: string;
+  description: string;
+  order: number;
+};
+/** A Category option of the Resources database, with its resources by Order. */
+export type ResourceCategory = {
+  id: string;
+  name: string;
+  resources: Resource[];
+};
