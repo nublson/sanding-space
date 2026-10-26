@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { type ReactNode, Suspense } from "react";
+import { NavMarker } from "@/components/nav-marker";
 import { CurrentSidebar } from "@/components/sidebar/current-sidebar";
 import { MobileShell } from "@/components/sidebar/mobile-shell";
 import { Sidebar } from "@/components/sidebar/sidebar";
@@ -30,6 +31,7 @@ export default async function SiteLayout({
   return (
     <SoundRoot>
       <SkipLink />
+      <NavMarker />
       <MobileShell
         sidebar={
           <Suspense

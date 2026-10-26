@@ -464,6 +464,10 @@ body {
 .shell-track {
   transition: translate 400ms var(--ease-push);
 }
+/* Closed by a link: no CSS slide, the route's view transition moves the content. */
+.shell-track[data-instant="true"] {
+  transition: none;
+}
 @media (min-width: 768px) {
   .shell-track {
     transition: none;
@@ -513,6 +517,14 @@ body {
     animation: none;
   }
 }
+/*
+ * The entrance plays on first load only. After it, the route's view transition
+ * is a page's only entrance: a CSS entrance under it would start at opacity 0
+ * and make the transition's "new" snapshot blank (see NavMarker).
+ */
+:root[data-nav="client"] .article-layout > * {
+  animation: none;
+}
 
 /* Route change: crossfade of the main column, opacity only, 200 ms. */
 ::view-transition-old(.page-fade) {
@@ -530,6 +542,47 @@ body {
   to {
     opacity: 0;
   }
+}
+/*
+ * Sidebar navigation: the content column slides from the pushed position to
+ * full width on the push curve, while the old page fades into the new one
+ * inside it. The sidebar fades out underneath with the root. The slide is on
+ * the snapshots, not the group: Safari doesn't animate the group's move here.
+ * 13rem is the push distance (the sidebar's w-52).
+ */
+::view-transition-group(.shell-close) {
+  animation: none;
+}
+::view-transition-old(.shell-close) {
+  animation:
+    400ms var(--ease-push) both shell-slide,
+    200ms var(--ease-out) both page-fade-out;
+}
+/* No delay: the two fades overlap, so the column never shows blank. */
+::view-transition-new(.shell-close) {
+  animation:
+    400ms var(--ease-push) both shell-slide,
+    200ms var(--ease-out) both page-fade-in;
+}
+@keyframes shell-slide {
+  from {
+    transform: translateX(13rem);
+  }
+}
+/*
+ * The mobile header is the same before and after a route change. Left in the
+ * root snapshot it would crossfade with itself, which dims it mid-transition
+ * in Safari; as its own group it stays put.
+ */
+.site-header {
+  view-transition-name: site-header;
+}
+::view-transition-group(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition-old(site-header) {
+  display: none;
 }
 ::view-transition {
   pointer-events: none;
