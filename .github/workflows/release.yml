@@ -1,0 +1,110 @@
+name: Release
+
+# Manual release: merge develop into main, then validate the production build
+# from main. The commit status posted at the end is the deploy gate Vercel waits
+# on before promoting the main deployment.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  merge-develop:
+    name: Merge develop into main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch latest changes
+        run: |
+          git fetch origin main
+          git fetch origin develop
+
+      - name: Checkout main branch
+        run: git checkout main
+
+      - name: Merge develop into main
+        run: git merge origin/develop --no-edit
+        env:
+          GIT_MERGE_AUTOEDIT: no
+
+      - name: Push merge to main
+        run: git push origin main
+
+  validate-build:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    needs: merge-develop
+    permissions:
+      contents: read
+      statuses: write
+    # Production rules: VERCEL_ENV=production hides Preview essays, exactly as
+    # the live site will.
+    env:
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      NOTION_SECTIONS_DATA_SOURCE_ID: f38f8100-846a-4076-953e-296370a910d2
+      NOTION_ESSAYS_DATA_SOURCE_ID: 92208a07-e0f7-4a67-94d6-a220d3529348
+      NEXT_PUBLIC_SITE_URL: https://sanding.space
+      VERCEL_ENV: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Require the Notion token
+        run: |
+          if [ -z "$NOTION_TOKEN" ]; then
+            echo "::error::The NOTION_TOKEN repository secret is not set. Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Lint, type check and test
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+
+      - name: Build application (content checks + next build)
+        run: pnpm build
+
+      - name: Publish deploy gate status for Vercel
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(git rev-parse HEAD)
+          if [ "${{ job.status }}" = "success" ]; then
+            STATE=success
+          else
+            STATE=failure
+          fi
+          gh api --method POST "repos/${{ github.repository }}/statuses/${SHA}" \
+            -f "state=${STATE}" \
+            -f context="release/build-validation" \
+            -f description="Release workflow Build Validation"
