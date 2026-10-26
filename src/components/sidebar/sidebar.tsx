@@ -24,10 +24,13 @@ export function Sidebar({
   footer: ReactNode;
 }) {
   return (
-    <nav aria-label="Sections" className="flex h-full w-40 flex-col pt-8">
+    <nav
+      aria-label="Sections"
+      className="flex h-full w-40 flex-col pt-[120px] md:pt-32"
+    >
       <Link
         href={INTRODUCTION.path}
-        className="mb-4 flex h-7 items-center gap-2 text-sm font-medium text-foreground pointer-coarse:h-11"
+        className="mb-4 flex h-7 items-center gap-2 text-sm font-medium text-foreground max-md:hidden"
       >
         <ShavingMark size={18} />
         Sanding Space
@@ -125,7 +128,7 @@ export function Sidebar({
           );
         })}
       </ul>
-      <div className="border-t border-border py-3">{footer}</div>
+      <div className="py-3">{footer}</div>
     </nav>
   );
 }

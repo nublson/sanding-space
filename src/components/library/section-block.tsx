@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { EssayCard } from "@/components/library/essay-card";
+import { EssayCard, type TitleLevel } from "@/components/library/essay-card";
 import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { featuredEssay } from "@/lib/content/library";
 import type { LibrarySection } from "@/lib/content/types";
@@ -36,6 +36,8 @@ export function SectionBlock({
   intro: ReactNode;
   headingLevel?: 1 | 2 | 3;
 }) {
+  const titleLevel = (headingLevel + 1) as TitleLevel;
+  const FeaturedTitle = `h${titleLevel}` as const;
   const featured = featuredEssay(section);
   const rest = section.essays.filter((e) => e !== featured);
 
@@ -58,9 +60,9 @@ export function SectionBlock({
             preview
           />
           <div className="mt-3 px-0.5">
-            <h3 className="text-sm font-medium text-foreground">
+            <FeaturedTitle className="text-sm font-medium text-foreground">
               {featured.title}
-            </h3>
+            </FeaturedTitle>
             {featured.summary && (
               <p className="mt-0.5 text-[13px] leading-5 text-subtle-foreground">
                 {featured.summary}
@@ -71,7 +73,7 @@ export function SectionBlock({
       )}
       <div className="grid grid-cols-3 gap-x-6 gap-y-8 max-sm:grid-cols-2">
         {rest.map((essay) => (
-          <EssayCard key={essay.id} essay={essay} />
+          <EssayCard key={essay.id} essay={essay} titleLevel={titleLevel} />
         ))}
       </div>
     </section>

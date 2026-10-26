@@ -50,7 +50,7 @@ export default async function SiteLayout({
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto w-full max-w-[672px] px-4 pt-[88px] pb-24 outline-none md:px-0 md:pt-8"
+          className="mx-auto w-full max-w-[672px] px-4 pt-[120px] pb-24 outline-none md:px-0 md:pt-32"
         >
           {children}
         </main>

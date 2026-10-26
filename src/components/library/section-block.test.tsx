@@ -34,6 +34,25 @@ const section = (essays: Essay[]): LibrarySection => ({
 });
 
 describe("SectionBlock", () => {
+  it("puts essay titles one heading level below the section heading", () => {
+    render(
+      <SectionBlock
+        section={section([
+          essay({ id: "a", slug: "a", title: "Featured" }),
+          essay({ id: "b", slug: "b", title: "Card", status: "Soon" }),
+        ])}
+        intro={null}
+        headingLevel={1}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Interaction",
+    );
+    expect(
+      screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
+    ).toEqual(["Featured", "Card"]);
+  });
+
   it("shows the featured essay once, not again in the grid", () => {
     render(
       <SectionBlock
