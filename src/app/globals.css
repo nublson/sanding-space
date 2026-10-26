@@ -346,33 +346,26 @@ body {
 }
 
 /*
- * Notion body headings sit below the 16px page title, which shares the
- * wordmark's type: Inter 500 at 15, 14 and 13px, told apart from the body
- * by weight, the foreground ink and the space above them. Two pixels down
- * below md, never under 12.
+ * Notion body headings share the page title's size: Inter 500 at 16/24 for
+ * h2 and h3 (14/20 below md), one step down for h4 and h5. They are told
+ * apart from the body by weight, the foreground ink and the space above.
  */
-.notionic > :is(div:has(> h2), details:has(> summary > h2)) {
-  font-size: 15px;
+.notionic > :is(div:has(> :is(h2, h3)), details:has(> summary > :is(h2, h3))) {
+  font-size: 16px;
   line-height: 24px;
 }
-.notionic > :is(div:has(> h3), details:has(> summary > h3)) {
+.notionic > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
   font-size: 14px;
   line-height: 22px;
 }
-.notionic > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
-  font-size: 13px;
-  line-height: 20px;
-}
 @media (max-width: 767.98px) {
-  .notionic > :is(div:has(> h2), details:has(> summary > h2)) {
-    font-size: 13px;
+  .notionic
+    > :is(div:has(> :is(h2, h3)), details:has(> summary > :is(h2, h3))) {
+    font-size: 14px;
     line-height: 20px;
   }
   .notionic
-    > :is(
-      div:has(> :is(h3, h4, h5)),
-      details:has(> summary > :is(h3, h4, h5))
-    ) {
+    > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
     font-size: 12px;
     line-height: 18px;
   }
