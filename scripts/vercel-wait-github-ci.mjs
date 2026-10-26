@@ -5,19 +5,21 @@
  * Exit 1+ -> continue with the Vercel build.
  *
  * Modes:
- * - Open PR preview: wait until all GitHub Actions check suites on the PR head pass.
+ * - Open PR preview: wait until all GitHub Actions check suites on the deployed
+ *   commit pass (the commit itself, never the PR's current head, so a later
+ *   push can never approve an older deployment).
  * - main (no PR): wait until commit status `release/build-validation` is set by
  *   the Release workflow Build Validation job (see .github/workflows/release.yml).
  * - develop: proceed immediately.
  * - Anything else (feature branches without a PR): skip the build.
  *
  * Requires env GITHUB_WAIT_TOKEN on Vercel (classic PAT: repo scope, or
- * fine-grained: Contents read + Checks read + Commit statuses read, plus
- * Pull requests read to resolve the PR head; without it the deployment's
- * own commit is used). Use Preview + Production as needed.
+ * fine-grained: Contents read + Checks read + Commit statuses read). Use
+ * Preview + Production as needed. Without the token every build is allowed,
+ * with a warning, so a project can adopt the script before the token exists.
  *
- * Any unexpected error is logged and the build is allowed (exit 1): a gate
- * that fails closed would block every preview on a GitHub hiccup.
+ * With a token, any error reading GitHub cancels the deployment (exit 0):
+ * a gate that cannot verify the checks must not let the build through.
  */
 
 const RELEASE_STATUS_CONTEXT = "release/build-validation";
@@ -88,20 +90,6 @@ async function githubJson(path, { allow404 = false } = {}) {
     );
   }
   return res.json();
-}
-
-async function resolvePrHeadSha() {
-  try {
-    const pr = await githubJson(`/repos/${owner}/${repo}/pulls/${prId}`);
-    return pr.head?.sha ?? commitSha;
-  } catch (error) {
-    // A token without "Pull requests: read" gets a 403 here. The deployment
-    // was created from the PR head, so its commit is the one to wait on.
-    console.warn(
-      `[vercel-wait-github-ci] Could not read PR #${prId} (${error.message.split("\\n")[0].slice(0, 120)}); using the deployment commit.`,
-    );
-    return commitSha;
-  }
 }
 
 function isBadConclusion(c) {
@@ -206,14 +194,13 @@ async function waitForReleaseGate(sha) {
 
 try {
   if (mode === "pr") {
-    const sha = await resolvePrHeadSha();
-    await waitForPrChecks(sha);
+    await waitForPrChecks(commitSha);
   } else {
     await waitForReleaseGate(commitSha);
   }
 } catch (error) {
-  console.warn(
-    `[vercel-wait-github-ci] ${error.message.split("\\n")[0].slice(0, 200)}; allowing build.`,
+  console.error(
+    `[vercel-wait-github-ci] Could not verify GitHub checks (${error.message.split("\n")[0].slice(0, 200)}); canceling deployment.`,
   );
-  exit(1);
+  exit(0);
 }

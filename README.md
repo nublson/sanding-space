@@ -76,12 +76,12 @@ Every demo has a permanent standalone URL: `https://sanding.space/demos/<name>`.
 
 Vercel builds only when it makes sense. `vercel.json` runs `scripts/vercel-wait-github-ci.mjs` as the ignored-build step:
 
-- A branch with an open pull request builds a preview once every GitHub Actions check on the PR head has passed; a failed check cancels the deployment.
+- A branch with an open pull request builds a preview once every GitHub Actions check on the deployed commit has passed; a failed check cancels the deployment.
 - `develop` builds a preview straight away.
 - `main` builds production only after the Release workflow posts the `release/build-validation` commit status.
 - Any other branch without a pull request is skipped.
 
-The script needs `GITHUB_WAIT_TOKEN` in the Vercel project (Preview and Production): a fine-grained GitHub token with Contents, Checks, Commit statuses and Pull requests read access on this repository. Without the token, or on any GitHub error, the script lets the build through and says so in the build log.
+The script needs `GITHUB_WAIT_TOKEN` in the Vercel project (Preview and Production): a fine-grained GitHub token with Contents, Checks and Commit statuses read access on this repository. Without the token the script lets every build through and says so in the build log; with a token, any error reading GitHub cancels the deployment, so a misconfigured token shows up as canceled previews rather than ungated builds.
 
 Frame params:
 

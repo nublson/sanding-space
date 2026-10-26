@@ -227,7 +227,8 @@ body {
  * drive the mask; scroll-linked animations grow the start fade over the
  * first 3rem of scroll and shrink the end fade over the last 3rem, so at
  * either end nothing looks cut off. A container that does not scroll gets no
- * fade at all. Without scroll-driven animations both ends fade statically.
+ * fade at all. Without scroll-driven animations there is no fade: a static
+ * one would dim edge text the reader can never scroll out of it.
  * Scrollbars are hidden site-wide (base layer), so the mask never fades one.
  *
  * .scroll-fade is the vertical recipe (the sidebar list). The horizontal one
@@ -249,8 +250,8 @@ body {
 .notionic pre,
 .notionic [role="region"] {
   --fade-size: 2.5rem;
-  --fade-start: var(--fade-size);
-  --fade-end: var(--fade-size);
+  --fade-start: 0px;
+  --fade-end: 0px;
 }
 .scroll-fade {
   mask-image: linear-gradient(
@@ -282,8 +283,6 @@ body {
   .scroll-fade-x,
   .notionic pre,
   .notionic [role="region"] {
-    --fade-start: 0px;
-    --fade-end: 0px;
     animation:
       scroll-fade-start linear both,
       scroll-fade-end linear both;

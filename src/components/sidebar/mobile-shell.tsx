@@ -95,7 +95,7 @@ export function MobileShell({
         <Link
           href={INTRODUCTION.path}
           onClick={() => close(false)}
-          className="flex h-7 items-center gap-2 ps-1 text-sm leading-7 font-medium text-foreground"
+          className="flex h-7 items-center gap-2 ps-1 text-sm leading-7 font-medium text-foreground pointer-coarse:h-11"
         >
           <ShavingMark size={18} />
           Sanding Space

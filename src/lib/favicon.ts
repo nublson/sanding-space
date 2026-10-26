@@ -1,7 +1,7 @@
 /**
  * Favicons for external links. The icon is served by our own /api/favicon
- * route, which fetches the site's icon server-side, so readers never request
- * a third party and the CDN caches each host's icon.
+ * route, which fetches it server-side through a trusted icon service, so
+ * readers never request a third party and the CDN caches each host's icon.
  */
 const HOST = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,63}$/i;
 
