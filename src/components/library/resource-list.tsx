@@ -63,7 +63,7 @@ function ResourceRow({ resource }: { resource: Resource }) {
           />
         )}
       </span>
-      <span className="text-base/6 text-subtle-foreground max-md:text-sm/5">
+      <span className="text-base/6 text-muted-foreground max-md:text-sm/5">
         <span className="font-medium text-foreground">{resource.name}</span>
         {/* Real spaces around the dot, so the accessible name reads
             "Name Description" and the dot is only visual. */}
