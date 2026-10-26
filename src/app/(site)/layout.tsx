@@ -19,7 +19,7 @@ export default async function SiteLayout({
       <Link
         href="/about"
         data-sound="page"
-        className="link flex h-8 items-center text-base pointer-coarse:h-11"
+        className="link flex h-8 items-center text-base max-md:h-7 max-md:text-sm pointer-coarse:h-11"
       >
         About
       </Link>

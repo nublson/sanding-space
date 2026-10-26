@@ -386,7 +386,7 @@ Goal: a focused, refined space that feels alive. The interface answers every pre
 
 Fonts via `next/font/google`: **Inter** (`--font-sans`, normal + italic), **Newsreader** (`--font-heading`, `opsz` axis), **Geist Mono** (`--font-mono`).
 
-Body: `font-size: 16px; line-height: 26px; letter-spacing: -0.008em; font-feature-settings: "cv11", "ss01"`, chrome and reading text alike. Text fills the 672px column (about 85 characters per line), so paragraphs and stages share one right edge (decided). Body headings Inter 500 at 22/28, 18/26 and 16/26 in `foreground` over muted copy; the essay summary is a lede at 18/28. External links in Notion text carry the destination's favicon (14px, via `/api/favicon`) before the text (decided).
+Body: `font-size: 16px; line-height: 26px; letter-spacing: -0.008em; font-feature-settings: "cv11", "ss01"`, chrome and reading text alike. Text fills the 672px column (about 85 characters per line), so paragraphs and stages share one right edge (decided). Notion body headings sit below the 16px page title: Inter 500 at 15/24, 14/22 and 13/20 in `foreground` over muted copy; the essay summary is a lede at 18/28. **Below `md` every size steps down two pixels**: body 14/22 (tracking -0.006em), page titles 14 on a 28px line, sidebar rows 28px (44 on touch), question 12/16, card titles 14 with 13/20 summaries, eyebrow and captions 13, lede 16/26, essay title 28/34, body headings 13/20 and 12/18, inline code 0.875em of the body (decided). External links in Notion text carry the destination's favicon (14px, via `/api/favicon`) before the text (decided).
 
 Dark tokens (site):
 

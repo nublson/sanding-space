@@ -10,7 +10,7 @@ const textBlock = (soon: boolean, essay: Essay, level: TitleLevel) => {
   return (
     <div className="mt-2.5 px-0.5">
       <Title
-        className={`text-base font-medium ${soon ? "text-subtle-foreground" : "text-foreground"}`}
+        className={`text-base font-medium max-md:text-sm ${soon ? "text-subtle-foreground" : "text-foreground"}`}
       >
         {essay.title}
         {/* Sighted readers get the muted text and the empty stage; this
@@ -18,7 +18,7 @@ const textBlock = (soon: boolean, essay: Essay, level: TitleLevel) => {
         {soon && <span className="sr-only">{" (coming soon)"}</span>}
       </Title>
       {essay.summary && (
-        <p className="mt-0.5 text-sm/[22px] text-subtle-foreground">
+        <p className="mt-0.5 text-sm/[22px] text-subtle-foreground max-md:text-[13px]/5">
           {essay.summary}
         </p>
       )}

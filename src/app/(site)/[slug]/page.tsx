@@ -130,15 +130,15 @@ async function EssayContent({ params }: Props) {
         <Link
           href={`/sections/${section.slug}`}
           data-sound="page"
-          className="link w-fit text-sm/5 underline decoration-from-font underline-offset-4"
+          className="link w-fit text-sm/5 underline decoration-from-font underline-offset-4 max-md:text-[13px]"
         >
           {section.name}
         </Link>
-        <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground">
+        <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground max-md:text-[28px]/[34px]">
           {essay.title}
         </h1>
         {essay.summary && (
-          <p className="text-lg/7 text-pretty text-muted-foreground">
+          <p className="text-lg/7 text-pretty text-muted-foreground max-md:text-base/[26px]">
             {essay.summary}
           </p>
         )}

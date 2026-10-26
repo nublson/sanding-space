@@ -22,7 +22,7 @@ export function SectionHeading({
     <Heading
       id={id}
       data-section={id}
-      className="text-base leading-8 font-medium text-foreground"
+      className="text-base leading-8 font-medium text-foreground max-md:text-sm max-md:leading-7"
     >
       {children}
     </Heading>

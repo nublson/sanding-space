@@ -44,6 +44,14 @@ body {
   letter-spacing: -0.008em;
   font-feature-settings: "cv11", "ss01";
 }
+/* Below md every size steps down two pixels: body 14/22, chrome 14. */
+@media (max-width: 767.98px) {
+  body {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: -0.006em;
+  }
+}
 
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -321,33 +329,53 @@ body {
   color: var(--muted-foreground);
   line-height: 26px;
 }
+@media (max-width: 767.98px) {
+  .notionic {
+    line-height: 22px;
+  }
+}
 .notionic :is(h2, h3, h4, h5, strong, b) {
   color: var(--foreground);
 }
 .notionic > hr:first-child {
   display: none;
 }
-/* Inline code at 0.875em of the reading size, on the card surface. */
+/* Inline code at 0.875em of the body, so it follows the mobile step. */
 .notionic :not(pre) > code {
-  font-size: 14px;
+  font-size: 0.875em;
 }
 
 /*
- * Notion body headings on the site's scale: Inter medium stepping down from
- * 22px over the 16px reading text. The 14px page title above them is a
- * label-style line that shares the wordmark's type, by decision.
+ * Notion body headings sit below the 16px page title, which shares the
+ * wordmark's type: Inter 500 at 15, 14 and 13px, told apart from the body
+ * by weight, the foreground ink and the space above them. Two pixels down
+ * below md, never under 12.
  */
 .notionic > :is(div:has(> h2), details:has(> summary > h2)) {
-  font-size: 22px;
-  line-height: 28px;
+  font-size: 15px;
+  line-height: 24px;
 }
 .notionic > :is(div:has(> h3), details:has(> summary > h3)) {
-  font-size: 18px;
-  line-height: 26px;
+  font-size: 14px;
+  line-height: 22px;
 }
 .notionic > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
-  font-size: 16px;
-  line-height: 26px;
+  font-size: 13px;
+  line-height: 20px;
+}
+@media (max-width: 767.98px) {
+  .notionic > :is(div:has(> h2), details:has(> summary > h2)) {
+    font-size: 13px;
+    line-height: 20px;
+  }
+  .notionic
+    > :is(
+      div:has(> :is(h3, h4, h5)),
+      details:has(> summary > :is(h3, h4, h5))
+    ) {
+    font-size: 12px;
+    line-height: 18px;
+  }
 }
 .notionic
   > :is(div, details):has(
