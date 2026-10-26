@@ -2,6 +2,7 @@
   "name": "sanding-space",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@12.4.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +10,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "check:content": "tsx --env-file-if-exists=.env.local scripts/check-content.ts",
     "prebuild": "pnpm check:content"
   },
