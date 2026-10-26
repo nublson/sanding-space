@@ -35,100 +35,110 @@ export function Sidebar({
         <ShavingMark size={18} />
         Sanding Space
       </Link>
-      <Link
-        href={INTRODUCTION.path}
-        data-sound="page"
-        aria-current={introductionCurrent ? "page" : undefined}
-        className={cn(
-          row,
-          "mb-4 text-sm",
-          introductionCurrent ? "text-foreground" : "text-subtle-foreground",
-        )}
-      >
-        {INTRODUCTION.name}
-      </Link>
-      <ul className="flex flex-1 flex-col">
-        {sections.map((section) => {
-          const current = section.slug === currentSectionSlug;
-          return (
-            <li key={section.id}>
-              <Link
-                href={`/sections/${section.slug}`}
-                data-sound="page"
-                aria-current={current && !currentEssaySlug ? "page" : undefined}
-                className={cn(
-                  row,
-                  "text-sm",
-                  current ? "text-foreground" : "text-subtle-foreground",
-                )}
-              >
-                {section.name}
-              </Link>
-              <div
-                className={cn(
-                  "grid transition-[grid-template-rows] duration-200 ease-(--ease-out)",
-                  current ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-                )}
-              >
-                <div
-                  className="overflow-hidden"
-                  inert={!current}
-                  aria-hidden={!current}
-                >
-                  {current && (
-                    <p className="pb-1 text-xs/4 text-subtle-foreground">
-                      {section.question}
-                    </p>
+      {/* Only the list scrolls; the footer stays pinned. px-1/-mx-1 keeps
+          focus rings from being clipped by the scroll container. */}
+      <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-6">
+        <Link
+          href={INTRODUCTION.path}
+          data-sound="page"
+          aria-current={introductionCurrent ? "page" : undefined}
+          className={cn(
+            row,
+            "mb-4 text-sm",
+            introductionCurrent ? "text-foreground" : "text-subtle-foreground",
+          )}
+        >
+          {INTRODUCTION.name}
+        </Link>
+        <ul className="flex flex-col">
+          {sections.map((section) => {
+            const current = section.slug === currentSectionSlug;
+            return (
+              <li key={section.id}>
+                <Link
+                  href={`/sections/${section.slug}`}
+                  data-sound="page"
+                  aria-current={
+                    current && !currentEssaySlug ? "page" : undefined
+                  }
+                  className={cn(
+                    row,
+                    "text-sm",
+                    current ? "text-foreground" : "text-subtle-foreground",
                   )}
-                  <ul className="border-l border-border">
-                    {section.essays.map((essay) => {
-                      const active = essay.slug === currentEssaySlug;
-                      return (
-                        <li key={essay.id}>
-                          {essay.status === "Published" ? (
-                            <Link
-                              href={`/${essay.slug}`}
-                              data-sound="page"
-                              aria-current={active ? "page" : undefined}
-                              className={cn(
-                                row,
-                                "relative pl-3 text-sm",
-                                active
-                                  ? "text-foreground"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {active && (
-                                <ViewTransition name="sidebar-marker">
-                                  <span
-                                    aria-hidden="true"
-                                    className="absolute top-1/2 left-[-1.5px] h-3 w-0.5 -translate-y-1/2 bg-foreground"
-                                  />
-                                </ViewTransition>
-                              )}
-                              {essay.title}
-                            </Link>
-                          ) : (
-                            <span
-                              className={cn(
-                                row,
-                                "pl-3 text-sm text-subtle-foreground",
-                              )}
-                            >
-                              {essay.title}
-                            </span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                >
+                  {section.name}
+                </Link>
+                <div
+                  className={cn(
+                    "grid transition-[grid-template-rows] duration-200 ease-(--ease-out)",
+                    current ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                  )}
+                >
+                  <div
+                    className="overflow-hidden"
+                    inert={!current}
+                    aria-hidden={!current}
+                  >
+                    {current && (
+                      <p className="pb-1 text-xs/4 text-subtle-foreground">
+                        {section.question}
+                      </p>
+                    )}
+                    <ul className="border-l border-border">
+                      {section.essays.map((essay) => {
+                        const active = essay.slug === currentEssaySlug;
+                        return (
+                          <li key={essay.id}>
+                            {essay.status === "Published" ? (
+                              <Link
+                                href={`/${essay.slug}`}
+                                data-sound="page"
+                                aria-current={active ? "page" : undefined}
+                                className={cn(
+                                  row,
+                                  "relative pl-3 text-sm",
+                                  active
+                                    ? "text-foreground"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {active && (
+                                  <ViewTransition name="sidebar-marker">
+                                    <span
+                                      aria-hidden="true"
+                                      className="absolute top-1/2 left-[-1.5px] h-3 w-0.5 -translate-y-1/2 bg-foreground"
+                                    />
+                                  </ViewTransition>
+                                )}
+                                {essay.title}
+                              </Link>
+                            ) : (
+                              <span
+                                className={cn(
+                                  row,
+                                  "pl-3 text-sm text-subtle-foreground",
+                                )}
+                              >
+                                {essay.title}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      <div className="py-3">{footer}</div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      {/* The fade marks depth when the list scrolls under the footer; over an
+          empty background it is invisible. */}
+      <div className="relative shrink-0 py-3 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-6 before:bg-linear-to-t before:from-background before:to-transparent">
+        {footer}
+      </div>
     </nav>
   );
 }

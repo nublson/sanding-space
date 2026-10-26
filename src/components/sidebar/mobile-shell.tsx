@@ -73,7 +73,7 @@ export function MobileShell({
 
   return (
     <div className="overflow-x-clip">
-      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center gap-1 bg-background px-2 md:hidden">
+      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between bg-background px-2 md:hidden">
         <button
           ref={toggleRef}
           type="button"
@@ -104,7 +104,7 @@ export function MobileShell({
           ref={sidebarRef}
           id={SIDEBAR_ID}
           data-open={open}
-          className="shell-sidebar sticky top-0 h-dvh w-44 shrink-0 self-start overflow-y-auto max-md:pl-4 md:w-40"
+          className="shell-sidebar sticky top-0 h-dvh w-44 shrink-0 self-start max-md:pl-4 md:w-40"
         >
           {sidebar}
         </div>
