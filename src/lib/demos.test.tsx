@@ -78,8 +78,12 @@ describe("deriveDemos", () => {
     render(<Old name="old" params={{ a: "1" }} />);
     expect(screen.getByText('stub:old:{"a":"1"}')).toBeInTheDocument();
   });
-  it("derives the real registry", () => {
-    expect(Object.keys(deriveDemos(registry))).toEqual(Object.keys(demoMeta));
+  it("derives the real registry, canonical names and aliases", () => {
+    const expected = Object.entries(demoMeta).flatMap(([name, meta]) => [
+      name,
+      ...(meta.aliases ?? []),
+    ]);
+    expect(Object.keys(deriveDemos(registry)).sort()).toEqual(expected.sort());
   });
 });
 
