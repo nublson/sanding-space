@@ -42,11 +42,11 @@ export function Sidebar({
       </Link>
       {/* Only the list scrolls; the footer stays pinned. Below md the list
           begins under the fixed header and its padding (64px plus the 4px ring
-          slack) puts the
+          slack; 6px less on touch, where rows grow from 32 to 44px) puts the
           Introduction on the page title's line at rest, so items can travel up
           to the header and dissolve in the scroll fade. The 1px negative
           margins plus padding keep focus rings from being clipped on desktop. */}
-      <div className="scroll-fade -mx-1 -mt-1 min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-6 max-md:pt-17">
+      <div className="scroll-fade -mx-1 -mt-1 min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-6 max-md:pt-17 max-md:pointer-coarse:pt-[62px]">
         <Link
           href={INTRODUCTION.path}
           data-sound="page"
