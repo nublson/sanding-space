@@ -3,10 +3,16 @@ import userEvent from "@testing-library/user-event";
 import { MobileShell } from "@/components/sidebar/mobile-shell";
 
 let pathname = "/introduction";
-vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
+const prefetch = vi.fn();
+const router = { prefetch };
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname,
+  useRouter: () => router,
+}));
 
 beforeEach(() => {
   pathname = "/introduction";
+  prefetch.mockClear();
 });
 
 const shell = () => (
@@ -36,6 +42,16 @@ function setup() {
 }
 
 describe("MobileShell", () => {
+  it("prefetches the sidebar's other routes when it opens, not before", async () => {
+    const user = userEvent.setup();
+    const { toggle } = setup();
+    expect(prefetch).not.toHaveBeenCalled();
+    await user.click(toggle);
+    expect(prefetch).toHaveBeenCalledWith("/sections/interaction");
+    // The current page needs no prefetch.
+    expect(prefetch).not.toHaveBeenCalledWith("/introduction");
+  });
+
   it("starts closed with aria-expanded=false and aria-controls pointing at the sidebar", () => {
     const { toggle, content } = setup();
     expect(toggle).toHaveAttribute("aria-expanded", "false");
