@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const library = await getLibrary();
   const section = library.sections.find((s) => s.slug === slug);
-  if (!section) return {};
+  if (!section) return { title: { absolute: title("Not found") } };
   return {
     title: { absolute: title(section.name) },
     description: section.question || undefined,

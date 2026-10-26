@@ -37,8 +37,12 @@ export function MobileShell({
   // Move focus into the sidebar once it opens.
   useEffect(() => {
     if (open) {
-      sidebarRef.current
-        ?.querySelector<HTMLElement>("a[href], button")
+      // The first focusable that is actually rendered: the wordmark link is
+      // hidden below md, and focus() on a display:none element does nothing.
+      const focusables =
+        sidebarRef.current?.querySelectorAll<HTMLElement>("a[href], button");
+      Array.from(focusables ?? [])
+        .find((el) => el.checkVisibility?.() ?? true)
         ?.focus({ preventScroll: true });
     }
   }, [open]);
@@ -104,7 +108,7 @@ export function MobileShell({
           ref={sidebarRef}
           id={SIDEBAR_ID}
           data-open={open}
-          className="shell-sidebar sticky top-0 h-dvh w-44 shrink-0 self-start max-md:pl-4 md:w-40"
+          className="shell-sidebar sticky top-0 h-dvh w-44 shrink-0 self-start max-md:ps-4 md:w-40"
         >
           {sidebar}
         </div>

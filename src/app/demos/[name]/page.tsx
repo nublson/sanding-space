@@ -85,7 +85,9 @@ export function Frame({
             className="flex items-center gap-1 self-end px-3 pb-3 text-xs text-subtle-foreground"
           >
             <ShavingMark size={12} />
-            Sanding Space ↗
+            Sanding Space
+            <span aria-hidden="true">↗</span>
+            <span className="sr-only">(opens in a new tab)</span>
           </a>
         )}
       </ResizeReporter>

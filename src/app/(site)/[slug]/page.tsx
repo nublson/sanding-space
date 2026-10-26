@@ -25,7 +25,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const entry = findPublishedEssay(await getLibrary(), slug);
-  if (!entry) return {};
+  // The not-found boundary renders under this route, so its title lives here.
+  if (!entry) return { title: { absolute: title("Not found") } };
   const url = `${SITE_URL}/${entry.essay.slug}`;
   return {
     title: { absolute: title(entry.essay.title) },
@@ -53,7 +54,7 @@ export default async function EssayPage({ params }: Props) {
           <Link
             href={`/sections/${section.slug}`}
             data-sound="page"
-            className="link w-fit text-[13px] leading-5"
+            className="link w-fit text-[13px] leading-5 underline decoration-from-font underline-offset-4"
           >
             {section.name}
           </Link>
@@ -61,7 +62,9 @@ export default async function EssayPage({ params }: Props) {
             {essay.title}
           </h1>
           {essay.summary && (
-            <p className="text-pretty text-muted-foreground">{essay.summary}</p>
+            <p className="measure text-pretty text-muted-foreground">
+              {essay.summary}
+            </p>
           )}
         </header>
         <div className="max-sm:-mx-4">

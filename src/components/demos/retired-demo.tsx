@@ -11,6 +11,7 @@ export function RetiredDemo({ essay }: { essay?: string }) {
         className="text-muted-foreground underline underline-offset-4"
       >
         {essay ? "Read the essay" : "Visit Sanding Space"}
+        <span className="sr-only"> (opens in a new tab)</span>
       </Link>
     </div>
   );

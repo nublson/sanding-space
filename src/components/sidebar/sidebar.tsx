@@ -30,19 +30,20 @@ export function Sidebar({
     >
       {/* Same 28px line box as the page title (SectionHeading), so the two
           rows are built identically and share baseline and cap height in any
-          engine. The mark's ink sits ~1px inside its box: -ml-px puts its left
+          engine. The mark's ink sits ~1px inside its box: -ms-px puts its start
           edge on the text column below, and its ink already spans cap height
           to baseline. */}
       <Link
         href={INTRODUCTION.path}
         className="mb-4 flex h-7 items-center gap-2 text-sm leading-7 font-medium text-foreground max-md:hidden"
       >
-        <ShavingMark size={18} className="-ml-px" />
+        <ShavingMark size={18} className="-ms-px" />
         Sanding Space
       </Link>
-      {/* Only the list scrolls; the footer stays pinned. px-1/-mx-1 keeps
-          focus rings from being clipped by the scroll container. */}
-      <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-6">
+      {/* Only the list scrolls; the footer stays pinned. The 1px negative
+          margins plus padding keep focus rings from being clipped by the
+          scroll container on every side. */}
+      <div className="-mx-1 -mt-1 min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-6">
         <Link
           href={INTRODUCTION.path}
           data-sound="page"
@@ -102,7 +103,7 @@ export function Sidebar({
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
                                   row,
-                                  "relative pl-3 text-sm",
+                                  "relative ps-3 text-sm",
                                   active
                                     ? "text-foreground"
                                     : "text-muted-foreground",
@@ -112,7 +113,7 @@ export function Sidebar({
                                   <ViewTransition name="sidebar-marker">
                                     <span
                                       aria-hidden="true"
-                                      className="absolute top-1/2 left-[-1.5px] h-3 w-0.5 -translate-y-1/2 bg-foreground"
+                                      className="absolute top-1/2 start-[-1.5px] h-3 w-0.5 -translate-y-1/2 bg-foreground"
                                     />
                                   </ViewTransition>
                                 )}
@@ -122,7 +123,7 @@ export function Sidebar({
                               <span
                                 className={cn(
                                   row,
-                                  "pl-3 text-sm text-subtle-foreground",
+                                  "ps-3 text-sm text-subtle-foreground",
                                 )}
                               >
                                 {essay.title}

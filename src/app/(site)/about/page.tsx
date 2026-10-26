@@ -15,7 +15,7 @@ export default function AboutPage() {
         <SectionHeading id="about" level={1}>
           About
         </SectionHeading>
-        <p className="text-pretty text-muted-foreground">
+        <p className="measure text-pretty text-muted-foreground">
           Sanding Space is a library of short essays about design engineering
           and product engineering. Every essay contains live, interactive demos,
           and every demo has its own permanent URL, so it can be embedded
