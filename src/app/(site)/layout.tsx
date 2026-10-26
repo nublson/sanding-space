@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { type ReactNode, Suspense } from "react";
+import { CurrentSidebar } from "@/components/sidebar/current-sidebar";
 import { MobileShell } from "@/components/sidebar/mobile-shell";
-import { ScrollSpy } from "@/components/sidebar/scroll-spy";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { SkipLink } from "@/components/skip-link";
 import { MuteButton } from "@/components/sound/mute-button";
@@ -36,13 +36,14 @@ export default async function SiteLayout({
             fallback={
               <Sidebar
                 sections={library.sections}
+                introductionCurrent={false}
                 currentSectionSlug={null}
                 currentEssaySlug={null}
                 footer={footer}
               />
             }
           >
-            <ScrollSpy sections={library.sections} footer={footer} />
+            <CurrentSidebar sections={library.sections} footer={footer} />
           </Suspense>
         }
       >

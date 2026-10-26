@@ -111,7 +111,8 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 
 | What | URL | Notes |
 |---|---|---|
-| Index | `/` | All visible sections, in Order, each listing its essays (cards with live cover demo) |
+| Home | `/` | Redirects (307, temporary) to `/introduction` (decided) |
+| Introduction | `/introduction` | Default page: a standalone Notion page (§9.2). Name and path fixed in code (decided) |
 | Essay | `/<slug>` | Flat URL (decided). Section shown in UI/breadcrumb only, so moving an essay between sections never breaks a link |
 | Section | `/sections/<slug>` | Section intro + its essays |
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
@@ -121,7 +122,7 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 
 ### Reserved slugs (decided)
 
-Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add any new top-level route to this list.
+Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add any new top-level route to this list.
 
 ### Linking between Notion pages
 
@@ -307,28 +308,24 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 
 ### 9.1 Sidebar (one component, all sizes)
 
-- Top: the wordmark (shaving mark + **Sanding Space**, §10), linking to `/`.
+- Top: the wordmark (shaving mark + **Sanding Space**, §10), linking to `/introduction`.
+- Then the fixed **Introduction** item (`/introduction`), marked current on that page (decided).
 - Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
 - The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
 - The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
 - Footer pinned to the bottom: **About** link and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
-- Current section: on an essay page, the essay's section; on `/sections/<slug>`, that section; on the index, the section currently on screen (scroll-spy), with no essay marked.
+- Current item from the URL: on an essay page, the essay's section and the essay; on `/sections/<slug>`, that section; on `/introduction`, the Introduction item with no section expanded.
 - Desktop: always visible, sticky beside the content.
 
-### 9.2 Index `/`
+### 9.2 Introduction `/introduction` (decided)
 
-For each visible section, in `Order`, stacked and separated by a hairline:
+The default page: `/` redirects here (temporary 307, so the home page can change later). Its name ("Introduction") and path are fixed in code (`src/lib/introduction.ts`), along with the Notion page id of a standalone page (not part of the Sections or Essays databases). The page shows "Introduction" as a small eyebrow, the Notion page's title as the heading, then its body rendered with notionic. Links in essays to that Notion page resolve to `/introduction`.
 
-1. Section **name** as the heading (no Question here; the sidebar shows it).
-2. The **first paragraph** of the section's Notion page body (the intro), linking on to `/sections/<slug>` for the rest.
-3. A **large live thumbnail** of the section's first `Published` essay (lowest `Order`), rendering that essay's `Cover demo`, with title and `Summary` below. `Soon` essays never take this slot.
-4. The section's remaining essays as **cards in a 3-column grid**: small live thumbnail (`Cover demo`), title, `Summary`. `Soon` cards keep their place with an empty stage, muted text and a "Soon" badge.
-
-Live thumbnails mount their demo only when scrolled into view.
+The earlier index (every section with its intro paragraph and cards) is replaced by this page; sections are reached from the sidebar.
 
 ### 9.3 Section page `/sections/<slug>`
 
-The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then the same large thumbnail + card grid as on the index. Index and section page share one component for the essay block.
+The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then a large live thumbnail of its first Published essay and the remaining essays in a 3-column card grid (`SectionBlock`).
 
 ### 9.4 Essay `/<slug>`
 

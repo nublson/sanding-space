@@ -34,21 +34,22 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 
 | URL | What |
 |---|---|
-| `/` | Index: visible sections in order, each with its essays |
+| `/` | Redirects (307) to `/introduction` |
+| `/introduction` | Introduction: default page, a standalone Notion page; name, path and page id fixed in `src/lib/introduction.ts` |
 | `/<slug>` | Essay (flat URL; section only appears in the UI) |
 | `/sections/<slug>` | Section intro + its essays |
 | `/demos/<name>` | Standalone embeddable demo (permanent URL) |
 | `/api/oembed` | oEmbed endpoint |
 | `/embed.js` | Auto-height helper script |
 
-Reserved essay slugs: `demos`, `sections`, `api`, `about`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add every new top-level route to this list (here and in the build checks).
+Reserved essay slugs: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add every new top-level route to this list (here and in the build checks).
 
 ## Interface layout
 
 Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not decided yet.
 
-- **Sidebar** (same component on every size): wordmark, sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + mute button in the footer. On the index it follows scroll.
-- **Index**: per section, name + first paragraph of its intro, a large live thumbnail of its first Published essay, the rest in a 3-column card grid. **Section page**: full intro + same essay block.
+- **Sidebar** (same component on every size): wordmark (links to `/introduction`), the fixed **Introduction** item, then sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), About + mute button in the footer. The current item comes from the URL.
+- **Introduction** (`/introduction`, the default page): eyebrow "Introduction", the Notion page title as heading, then its body. **Section page**: full intro, a large live thumbnail of its first Published essay, the rest in a 3-column card grid.
 - **Essay**: section eyebrow, title, large demo stage with caption, then the body.
 - **Mobile**: same header with a sidebar toggle before the logo; the sidebar pushes the content right (no overlay).
 - Demo frame is **stage + caption only**; Replay / Copy link / Embed / Open are deferred.

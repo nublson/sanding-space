@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
+import { INTRODUCTION } from "@/lib/introduction";
 
 const SIDEBAR_ID = "site-sidebar";
 
@@ -86,7 +87,7 @@ export function MobileShell({
           <PanelLeft aria-hidden className="size-5" />
         </button>
         <Link
-          href="/"
+          href={INTRODUCTION.path}
           onClick={() => close(false)}
           className="flex h-11 items-center gap-2 text-sm font-medium text-foreground"
         >

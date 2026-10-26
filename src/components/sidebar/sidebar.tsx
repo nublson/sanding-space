@@ -2,17 +2,20 @@ import Link from "next/link";
 import { type ReactNode, ViewTransition } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
 import type { LibrarySection } from "@/lib/content/types";
+import { INTRODUCTION } from "@/lib/introduction";
 import { cn } from "@/lib/utils";
 
 const row = "flex h-7 w-full items-center pointer-coarse:h-11";
 
 export function Sidebar({
   sections,
+  introductionCurrent,
   currentSectionSlug,
   currentEssaySlug,
   footer,
 }: {
   sections: LibrarySection[];
+  introductionCurrent: boolean;
   currentSectionSlug: string | null;
   currentEssaySlug: string | null;
   footer: ReactNode;
@@ -20,11 +23,23 @@ export function Sidebar({
   return (
     <nav aria-label="Sections" className="flex h-full w-40 flex-col pt-8">
       <Link
-        href="/"
+        href={INTRODUCTION.path}
         className="mb-4 flex h-7 items-center gap-2 text-sm font-medium text-foreground pointer-coarse:h-11"
       >
         <ShavingMark size={18} />
         Sanding Space
+      </Link>
+      <Link
+        href={INTRODUCTION.path}
+        data-sound="page"
+        aria-current={introductionCurrent ? "page" : undefined}
+        className={cn(
+          row,
+          "mb-4 text-sm",
+          introductionCurrent ? "text-foreground" : "text-subtle-foreground",
+        )}
+      >
+        {INTRODUCTION.name}
       </Link>
       <ul className="flex flex-1 flex-col">
         {sections.map((section) => {

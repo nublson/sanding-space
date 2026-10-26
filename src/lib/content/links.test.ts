@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { INTRODUCTION } from "../introduction";
 import { buildLibrary } from "./library";
 import { pageHref } from "./links";
 import type { Essay } from "./types";
@@ -42,5 +43,8 @@ describe("pageHref", () => {
     expect(href("s")).toBeNull();
     expect(href("s1")).toBe("/sections/interaction");
     expect(href("zzz")).toBeNull();
+  });
+  it("links the Introduction page to its fixed path", () => {
+    expect(href(INTRODUCTION.pageId)).toBe("/introduction");
   });
 });

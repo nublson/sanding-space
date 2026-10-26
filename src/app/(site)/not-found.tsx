@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { INTRODUCTION } from "@/lib/introduction";
 
 export default function NotFound() {
   return (
@@ -9,8 +10,8 @@ export default function NotFound() {
       <p className="text-muted-foreground">
         That page isn&rsquo;t here, or it isn&rsquo;t published yet.
       </p>
-      <Link href="/" className="link w-fit text-[13px]">
-        Back to the library
+      <Link href={INTRODUCTION.path} className="link w-fit text-[13px]">
+        Back to the introduction
       </Link>
     </div>
   );

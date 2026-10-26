@@ -4,7 +4,7 @@
 
 Essays are written in Notion and rendered with [notionic](https://notionic.dev). Demos are React components in this repo. The full build brief is in [docs/spec.md](docs/spec.md).
 
-Pages: the index (`/`), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), and standalone demos (`/demos/<name>`).
+Pages: the Introduction (`/introduction`, where `/` redirects), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), and standalone demos (`/demos/<name>`).
 
 Stack: Next.js (App Router), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, notionic, Motion, pnpm, Biome.
 
