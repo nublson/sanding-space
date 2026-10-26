@@ -3,6 +3,7 @@ export const RESERVED_SLUGS: readonly string[] = [
   "sections",
   "api",
   "about",
+  "resources",
   "introduction",
   "rss",
   "og",

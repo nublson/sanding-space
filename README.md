@@ -4,7 +4,7 @@
 
 Essays are written in Notion and rendered with [notionic](https://notionic.dev). Demos are React components in this repo. The full build brief is in [docs/spec.md](docs/spec.md).
 
-Pages: the Introduction (`/introduction`, where `/` redirects), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), and standalone demos (`/demos/<name>`).
+Pages: the Introduction (`/introduction`, where `/` redirects), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), a Resources page (`/resources`), and standalone demos (`/demos/<name>`).
 
 Stack: Next.js (App Router), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, notionic, Motion, pnpm, Biome.
 
@@ -22,6 +22,7 @@ Fill in `.env.local`:
 | `NOTION_TOKEN` | Notion integration secret |
 | `NOTION_SECTIONS_DATA_SOURCE_ID` | Sections data source (query by data source ID) |
 | `NOTION_ESSAYS_DATA_SOURCE_ID` | Essays data source |
+| `NOTION_RESOURCES_DATA_SOURCE_ID` | Resources data source (the `/resources` page) |
 | `NOTION_INTRODUCTION_PAGE_ID` | The standalone Notion page behind `/introduction` |
 | `NOTION_ABOUT_PAGE_ID` | The standalone Notion page behind `/about` (the colophon) |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin, `https://sanding.space` in production |
