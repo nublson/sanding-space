@@ -6,57 +6,82 @@ import {
 } from "@/components/brand/icon-tile";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { loadGoogleFont } from "./fonts";
+import { type Bounds, pressPoint, surfaceFrame } from "./surface-frame";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
 // The site's achromatic tokens in sRGB hex (Satori reads no OKLCH):
-// foreground oklch(0.946), muted oklch(0.7), subtle oklch(0.64),
-// card oklch(0.218), border oklch(0.248).
-const MUTED = "#9e9e9e";
+// foreground oklch(0.946), subtle oklch(0.64).
 const SUBTLE = "#8c8c8c";
-const CARD = "#1a1a1a";
-const BORDER = "#212121";
 
 const PAD = 72;
-const STAGE = 380;
-const GAP = 56;
-const COLUMN = OG_SIZE.width - PAD * 2 - STAGE - GAP;
-
-/** Keep a description to one breath; the column has room for two lines. */
-function clip(text: string, max = 110): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max).replace(/\s+\S*$/, "");
-  return `${cut}…`;
-}
+/** The demo at 2.1×: a 571-unit stage, with dots that read at feed size. */
+const SCALE = 2.1;
+/** Where a press may land: clear of the title column and the lockup. */
+const PRESS_BOUNDS: Bounds = { x: [760, 1010], y: [170, 330] };
+/** The title column, bottom-left. */
+const COLUMN = 660;
 
 /** Title size from length, so a long title still fits the column in three lines. */
 function titleSize(title: string, serif: boolean): number {
   const n = title.length;
-  const base = n <= 18 ? 84 : n <= 30 ? 68 : n <= 44 ? 58 : 48;
-  return serif ? base + 4 : base;
+  const base = n <= 18 ? 80 : n <= 30 ? 66 : n <= 44 ? 56 : 46;
+  return serif ? Math.round(base * 1.06) : base;
+}
+
+/** The field as one <svg>, which Satori rasterises in a single pass. */
+function Field({ pressKey }: { pressKey: string }) {
+  const { width, height } = OG_SIZE;
+  const dots = surfaceFrame(
+    width,
+    height,
+    SCALE,
+    pressPoint(pressKey, PRESS_BOUNDS),
+  );
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label="The Surface demo, pressed"
+    >
+      {dots.map((p) => (
+        <circle
+          key={`${p.x},${p.y}`}
+          cx={p.x.toFixed(1)}
+          cy={p.y.toFixed(1)}
+          r={((1.6 + p.d * 1.4) * SCALE).toFixed(2)}
+          fill={ICON_FOREGROUND}
+          fillOpacity={(0.3 + p.d * 0.65).toFixed(2)}
+        />
+      ))}
+    </svg>
+  );
 }
 
 /**
- * One card for every page, laid out like the site: a demo stage on the right
- * (the mark stands in until a demo screenshot can), the title and description
- * centred on the left, the wordmark and the domain in the corners. Essays set
- * the title in Newsreader like the page; everything else uses Inter.
+ * One card for every page: a frozen frame of the Surface demo, pressed where
+ * the page's key says, with the wordmark top-left, the eyebrow and title
+ * bottom-left and the domain bottom-right. Essays set the title in Newsreader
+ * like the page; everything else uses Inter. The description stays in the
+ * meta tags; the card carries the context in its eyebrow.
  */
 export async function ogImage({
   eyebrow,
   title,
-  description,
   serif = false,
+  pressKey,
 }: {
   eyebrow?: string;
   title: string;
-  description?: string;
   serif?: boolean;
+  /** Seeds the press point: the page's slug or name, so each card is its own. */
+  pressKey: string;
 }) {
-  const body = clip(description ?? "");
   const domain = SITE_URL.replace(/^https?:\/\//, "");
-  const text = `${SITE_NAME}${domain}${eyebrow ?? ""}${title}${body}`;
+  const text = `${SITE_NAME}${domain}${eyebrow ?? ""}${title}`;
   const [inter, interMedium, newsreader] = await Promise.all([
     loadGoogleFont("Inter", 400, text),
     loadGoogleFont("Inter", 500, text),
@@ -70,25 +95,42 @@ export async function ogImage({
         height: "100%",
         display: "flex",
         position: "relative",
-        background: `radial-gradient(1100px 700px at 0% 0%, #171717 0%, ${ICON_BACKGROUND} 60%)`,
+        background: ICON_BACKGROUND,
         color: ICON_FOREGROUND,
         fontFamily: "Inter",
       }}
     >
+      <div style={{ position: "absolute", top: 0, left: 0, display: "flex" }}>
+        <Field pressKey={pressKey} />
+      </div>
+
+      {/* Fades the field under the text, so the title reads at feed size. */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: OG_SIZE.width,
+          height: OG_SIZE.height,
+          display: "flex",
+          background: `linear-gradient(100deg, ${ICON_BACKGROUND} 0%, rgba(17,17,17,0.9) 36%, rgba(17,17,17,0) 60%)`,
+        }}
+      />
+
       {/* Wordmark, top-left, as in the sidebar. */}
       <div
         style={{
           position: "absolute",
-          top: PAD - 8,
+          top: PAD - 6,
           left: PAD,
           display: "flex",
           alignItems: "center",
-          gap: 14,
+          gap: 12,
         }}
       >
         <svg
-          width={32}
-          height={32}
+          width={30}
+          height={30}
           viewBox="0 0 48 48"
           role="img"
           aria-label={SITE_NAME}
@@ -102,46 +144,31 @@ export async function ogImage({
           />
         </svg>
         <div
-          style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.01em" }}
+          style={{ fontSize: 26, fontWeight: 500, letterSpacing: "-0.01em" }}
         >
           {SITE_NAME}
         </div>
       </div>
 
-      {/* Domain, bottom-left. */}
+      {/* Eyebrow and title, bottom-left. */}
       <div
         style={{
           position: "absolute",
-          bottom: PAD - 12,
           left: PAD,
-          fontSize: 24,
-          color: SUBTLE,
-        }}
-      >
-        {domain}
-      </div>
-
-      {/* Text column, vertically centred. */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: PAD,
+          bottom: PAD - 4,
           width: COLUMN,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          gap: 18,
+          gap: 20,
         }}
       >
         {eyebrow && (
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {/* The current-essay bar from the sidebar guide line. */}
             <div
-              style={{ width: 3, height: 22, background: ICON_FOREGROUND }}
+              style={{ width: 3, height: 20, background: ICON_FOREGROUND }}
             />
-            <div style={{ fontSize: 24, fontWeight: 500, color: SUBTLE }}>
+            <div style={{ fontSize: 22, fontWeight: 500, color: SUBTLE }}>
               {eyebrow}
             </div>
           </div>
@@ -149,7 +176,7 @@ export async function ogImage({
         <div
           style={{
             fontSize: titleSize(title, serif),
-            lineHeight: 1.08,
+            lineHeight: 1.06,
             fontFamily: serif ? "Newsreader" : "Inter",
             fontWeight: serif ? 400 : 500,
             letterSpacing: serif ? "-0.015em" : "-0.025em",
@@ -158,52 +185,19 @@ export async function ogImage({
         >
           {title}
         </div>
-        {body && (
-          <div
-            style={{
-              fontSize: 27,
-              lineHeight: 1.4,
-              color: MUTED,
-              textWrap: "pretty",
-            }}
-          >
-            {body}
-          </div>
-        )}
       </div>
 
-      {/* The demo stage: the site's card surface with the mark on it. */}
+      {/* Domain, bottom-right. */}
       <div
         style={{
           position: "absolute",
-          top: (OG_SIZE.height - STAGE) / 2,
           right: PAD,
-          width: STAGE,
-          height: STAGE,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: CARD,
-          border: `1px solid ${BORDER}`,
-          borderRadius: 28,
-          boxShadow: "0 0 0 1px rgba(255,255,255,0.03) inset",
+          bottom: PAD - 8,
+          fontSize: 22,
+          color: SUBTLE,
         }}
       >
-        <svg
-          width={236}
-          height={236}
-          viewBox="0 0 48 48"
-          role="img"
-          aria-label="The shaving mark"
-        >
-          <path
-            d={MARK_PATH}
-            fill="none"
-            stroke={ICON_FOREGROUND}
-            strokeWidth={5}
-            strokeLinecap="round"
-          />
-        </svg>
+        {domain}
       </div>
     </div>,
     {

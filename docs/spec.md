@@ -247,7 +247,7 @@ Without the script, the iframe uses the inline height (from the registry `height
 
 - Each demo gets an OG image at `/demos/[name]/opengraph-image`.
 - Preferred: a real screenshot of the demo captured with Playwright in CI on each deploy and stored as a static asset; fall back to a generated image (title + Sanding Space wordmark) when no screenshot exists.
-- Essay OG images are typographic: section, title (Newsreader) and summary on the silicon-carbide card. The cover demo screenshot waits for a screenshot pipeline (deferred).
+- Every OG card is a frozen frame of the Surface demo (`src/lib/og/surface-frame.ts`, the demo's own physics at 2.1×): one press, placed by a hash of the page's slug or name so each card has its own crater, with the wordmark top-left, eyebrow and title bottom-left (Newsreader for essays) and the domain bottom-right. The description stays in the meta tags. The cover demo screenshot waits for a screenshot pipeline (deferred).
 
 ### 6.9 Demo frame inside essays
 
