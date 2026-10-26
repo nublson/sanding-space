@@ -1,0 +1,49 @@
+{
+  "object": "page",
+  "id": "3756f20a-f849-489e-8571-51858d7b8cbd",
+  "created_time": "2026-10-01T00:00:00.000Z",
+  "last_edited_time": "2026-10-20T00:00:00.000Z",
+  "parent": {
+    "type": "data_source_id",
+    "data_source_id": "3756f20a-f849-489e-8571-51858d7b8cbc",
+    "database_id": "3756f20a-f849-489e-8571-51858d7b8cba"
+  },
+  "archived": false,
+  "in_trash": false,
+  "properties": {
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": { "content": "Craft", "link": null },
+          "plain_text": "Craft"
+        }
+      ]
+    },
+    "URL": {
+      "id": "a",
+      "type": "url",
+      "url": "https://craft.gustavofior.com"
+    },
+    "Description": {
+      "id": "b",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "Gustavo Fior's craft notes.", "link": null },
+          "plain_text": "Gustavo Fior's craft notes."
+        }
+      ]
+    },
+    "Category": {
+      "id": "c",
+      "type": "select",
+      "select": { "id": "opt-3", "name": "Inspiration", "color": "default" }
+    },
+    "Order": { "id": "d", "type": "number", "number": 1 }
+  },
+  "url": "https://www.notion.so/3756f20af849489e857151858d7b8cbd"
+}
