@@ -5,7 +5,10 @@ import type { LibrarySection } from "@/lib/content/types";
 import { INTRODUCTION } from "@/lib/introduction";
 import { cn } from "@/lib/utils";
 
-const row = "flex h-7 w-full items-center pointer-coarse:h-11";
+// A minimum, not a fixed, height: long titles wrap and grow their row instead
+// of overflowing into the next one. One line stays 28px (py-1 + leading-5).
+const row =
+  "flex min-h-7 w-full items-center py-1 leading-5 pointer-coarse:min-h-11";
 
 export function Sidebar({
   sections,
