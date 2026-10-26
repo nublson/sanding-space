@@ -42,7 +42,7 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 | `/api/oembed` | oEmbed endpoint |
 | `/embed.js` | Auto-height helper script |
 
-Reserved essay slugs: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add every new top-level route to this list (here and in the build checks).
+Reserved essay slugs: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `apple-icon`. Add every new top-level route to this list (here and in the build checks).
 
 ## Interface layout
 

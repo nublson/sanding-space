@@ -10,4 +10,8 @@ export const RESERVED_SLUGS: readonly string[] = [
   "sitemap.xml",
   "robots.txt",
   "opengraph-image",
+  "favicon.ico",
+  "icon0.svg",
+  "icon1",
+  "apple-icon",
 ];

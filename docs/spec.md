@@ -122,7 +122,7 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 
 ### Reserved slugs (decided)
 
-Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add any new top-level route to this list.
+Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `apple-icon`. Add any new top-level route to this list.
 
 ### Linking between Notion pages
 

@@ -1,0 +1,5 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <title>Sanding Space</title>
+  <rect width="48" height="48" rx="10" fill="#111111"/>
+  <path d="M8 34C6 18 26 6 37 15C46 23 38 37 27 35C19 33 20 22 28 23" transform="translate(2.75 4.03) scale(0.85)" fill="none" stroke="#ededed" stroke-width="6" stroke-linecap="round"/>
+</svg>
