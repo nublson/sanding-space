@@ -177,7 +177,7 @@ export const registry = {
   "button-press-scale": {
     component: ButtonPressScale,
     title: "Button press, scale",
-    essay: "button-press",        // canonical essay slug for the "Read the essay" link
+    essay: "button-press",        // optional: canonical essay slug for the "Read the essay" link; omit while the demo has no essay (links go to `/`)
     height: 320,                  // fallback iframe height before auto-height runs
     aliases: ["button-scale"],    // old names, 308-redirect to the current name
   },
@@ -273,7 +273,7 @@ Run in CI before deploy; fail the build on any error:
 4. Section slugs are unique.
 5. Every non-Draft essay has exactly one Section, and that section exists.
 6. Demo names and aliases don't collide with each other.
-7. Every registry `essay` value points to an existing, non-Draft essay slug (warn, don't fail, if it points to a `Soon` essay).
+7. Every registry `essay` value, when set, points to an existing, non-Draft essay slug (warn, don't fail, if it points to a `Soon` or `Preview` essay). Demos without an `essay` are skipped.
 
 ---
 

@@ -1,21 +1,12 @@
 import { act, render, screen } from "@testing-library/react";
 import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 
-vi.mock("@/lib/demos", async (orig) => {
-  const real = await orig<typeof import("@/lib/demos")>();
-  const registry = {
-    ...real.registry,
-    "button-press-scale": {
-      ...real.registry["button-press-scale"],
-      aliases: ["old-name"],
-    },
-  };
-  return {
-    ...real,
-    demos: real.deriveDemos(registry),
-    resolveDemo: (n: string) => real.resolveDemoIn(registry, n),
-  };
-});
+vi.mock("@/lib/demo-meta", async (orig) =>
+  (await import("@/test/fake-demos")).mockDemoMeta(orig),
+);
+vi.mock("@/components/demos/lazy-demo", async () =>
+  (await import("@/test/fake-demos")).mockLazyDemo(),
+);
 
 let fire: () => void = () => {};
 beforeEach(() => {
@@ -30,9 +21,7 @@ beforeEach(() => {
 
 describe("LiveThumbnail", () => {
   it("renders the demo only once in view", async () => {
-    render(
-      <LiveThumbnail demo="button-press-scale" essaySlug="x" size="card" />,
-    );
+    render(<LiveThumbnail demo="test-demo" essaySlug="x" size="card" />);
     expect(screen.queryByRole("button")).toBeNull();
     act(() => fire());
     expect(

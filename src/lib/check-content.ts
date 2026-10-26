@@ -96,6 +96,7 @@ export function checkContent(input: CheckInput): CheckResult {
   // 7. registry essay points to a real non-Draft essay
   const bySlug = new Map(essays.filter((e) => e.slug).map((e) => [e.slug, e]));
   for (const [name, d] of Object.entries(demos)) {
+    if (!d.essay) continue; // a demo may ship before its essay
     const target = bySlug.get(d.essay);
     if (!target || target.status === "Draft")
       errors.push(
