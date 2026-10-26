@@ -26,7 +26,7 @@ export function Sidebar({
   return (
     <nav
       aria-label="Sections"
-      className="flex h-full w-40 flex-col pt-[120px] md:pt-32"
+      className="flex h-full w-40 flex-col pt-14 md:pt-32"
     >
       {/* Same 28px line box as the page title (SectionHeading), so the two
           rows are built identically and share baseline and cap height in any
@@ -40,10 +40,13 @@ export function Sidebar({
         <ShavingMark size={18} className="-ms-px" />
         Sanding Space
       </Link>
-      {/* Only the list scrolls; the footer stays pinned. The 1px negative
-          margins plus padding keep focus rings from being clipped by the
-          scroll container on every side. */}
-      <div className="-mx-1 -mt-1 min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-6">
+      {/* Only the list scrolls; the footer stays pinned. Below md the list
+          begins under the fixed header and its padding (64px plus the 4px ring
+          slack) puts the
+          Introduction on the page title's line at rest, so items can travel up
+          to the header and dissolve in the scroll fade. The 1px negative
+          margins plus padding keep focus rings from being clipped on desktop. */}
+      <div className="scroll-fade -mx-1 -mt-1 min-h-0 flex-1 overflow-y-auto px-1 pt-1 pb-6 max-md:pt-17">
         <Link
           href={INTRODUCTION.path}
           data-sound="page"
@@ -140,11 +143,7 @@ export function Sidebar({
           })}
         </ul>
       </div>
-      {/* The fade marks depth when the list scrolls under the footer; over an
-          empty background it is invisible. */}
-      <div className="relative shrink-0 py-3 before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-6 before:bg-linear-to-t before:from-background before:to-transparent">
-        {footer}
-      </div>
+      <div className="shrink-0 py-3">{footer}</div>
     </nav>
   );
 }

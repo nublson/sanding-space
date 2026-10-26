@@ -137,6 +137,15 @@ body {
     @apply font-sans;
   }
 
+  /* No scrollbars anywhere: the chrome stays quiet and scroll fades mark
+     overflow where it matters. */
+  * {
+    scrollbar-width: none;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
   :focus-visible {
     @apply rounded-sm outline-2 outline-offset-2 outline-ring;
   }
@@ -202,6 +211,102 @@ body {
 
 .link {
   @apply text-subtle-foreground transition-colors duration-150 ease-(--ease-out) hover:text-foreground;
+}
+
+/*
+ * Scroll fades (craft.gustavofior.com/scroll-fades): a mask on the scroll
+ * container fades the edge that still has content to scroll. Two lengths
+ * drive the mask; scroll-linked animations grow the start fade over the
+ * first 3rem of scroll and shrink the end fade over the last 3rem, so at
+ * either end nothing looks cut off. A container that does not scroll gets no
+ * fade at all. Without scroll-driven animations both ends fade statically.
+ * Scrollbars are hidden site-wide (base layer), so the mask never fades one.
+ *
+ * .scroll-fade is the vertical recipe (the sidebar list). The horizontal one
+ * covers every sideways scroller in a Notion body: code blocks (the pre
+ * scrolls inside the figure that draws the surface) and table regions.
+ */
+@property --fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+.scroll-fade,
+.scroll-fade-x,
+.notionic pre,
+.notionic [role="region"] {
+  --fade-size: 2.5rem;
+  --fade-start: var(--fade-size);
+  --fade-end: var(--fade-size);
+}
+.scroll-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--fade-start),
+    black calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+.scroll-fade-x,
+.notionic pre,
+.notionic [role="region"] {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--fade-start),
+    black calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+/* A mask clips everything outside the border box, so a focus ring drawn
+   outside the table region would vanish. Draw it inside, as the pre does. */
+.notionic [role="region"] {
+  outline-offset: -2px;
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-fade,
+  .scroll-fade-x,
+  .notionic pre,
+  .notionic [role="region"] {
+    --fade-start: 0px;
+    --fade-end: 0px;
+    animation:
+      scroll-fade-start linear both,
+      scroll-fade-end linear both;
+    animation-range:
+      0 3rem,
+      calc(100% - 3rem) 100%;
+  }
+  .scroll-fade {
+    animation-timeline: scroll(self block);
+  }
+  .scroll-fade-x,
+  .notionic pre,
+  .notionic [role="region"] {
+    animation-timeline: scroll(self inline);
+  }
+  @keyframes scroll-fade-start {
+    from {
+      --fade-start: 0px;
+    }
+    to {
+      --fade-start: var(--fade-size);
+    }
+  }
+  @keyframes scroll-fade-end {
+    from {
+      --fade-end: var(--fade-size);
+    }
+    to {
+      --fade-end: 0px;
+    }
+  }
 }
 
 /*

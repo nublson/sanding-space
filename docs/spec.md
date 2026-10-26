@@ -410,6 +410,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 - Question: 12/16, `subtle-foreground`, under the current section.
 - Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 12px `foreground` bar on the guide line.
 - Footer: 1px `border` top, About link (`.link`) and a 28px mute button (lucide `Volume2` / `VolumeX`).
+- Scrollbars are hidden site-wide. The list between wordmark and footer is the only part of the sidebar that scrolls, with a 2.5rem scroll fade on whichever edge still has content (craft.gustavofior.com/scroll-fades). Below md the list starts under the 56px header and carries the 64px rest offset as padding, so items can scroll up to the header and dissolve. Code blocks and tables in Notion bodies use the same fade horizontally.
 
 **Headings**: top-level page titles (section pages, Introduction, About) use the sidebar wordmark's type, Inter 14 medium on a 28px line, so title and wordmark share baseline, cap height and center across the columns, as on devouringdetails.com/system (decided). Essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`. Content and sidebar both start 128px from the top on desktop and 64px below the 56px header on mobile.
 
@@ -437,7 +438,7 @@ Rules:
 - **One sound per gesture**: a navigating link plays `page`, never `tap` + `page`. Keyboard activation (Enter/Space) plays the same sound as a click.
 - **Silent**: hover, focus, scroll, page load, Soon items.
 - Throttle: the same sound can't restart within 60 ms.
-- **Mute** button in the sidebar footer: sets master volume to 0 via `setMasterVolume`, persisted in `localStorage`, `aria-pressed`, accessible name "Mute sound" / "Unmute sound".
+- **Mute** button in the sidebar footer: sets master volume to 0 via `setMasterVolume`, persisted in `localStorage`, `aria-pressed`, accessible name "Mute sound" (constant; `aria-pressed` carries the state).
 - Reduced motion does not mute. Sound never carries information that is not also visible.
 - Demos may define their own sounds and must respect the site mute.
 
@@ -456,7 +457,7 @@ Approach: CSS first (portfolio patterns) plus React `<ViewTransition>` for route
 | Press: small buttons | scale 0.94 | 160 ms | per §11.4 |
 | Link hover | `subtle` → `foreground`; arrows nudge | 150 ms | none |
 | Card hover (fine pointer) | `card` fill appears | 150 ms | none |
-| Mute toggle | icon crossfade + scale 0.6 → 1 | 150 ms | `toggle-off` / `toggle-on` |
+| Mute toggle | icon crossfade: opacity, scale 0.25 → 1, blur 4px → 0 | 150 ms | `toggle-off` / `toggle-on` |
 | Mobile sidebar push | content `translateX`, spring-like CSS `linear()` curve | ~400 ms | `toggle-on` / `toggle-off` |
 | Live thumbnail mounts | `stream-in` fade | 200 ms | none |
 
