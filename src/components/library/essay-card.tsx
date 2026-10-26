@@ -7,29 +7,15 @@ export type TitleLevel = 2 | 3 | 4;
 
 const textBlock = (soon: boolean, essay: Essay, level: TitleLevel) => {
   const Title = `h${level}` as const;
-  // The badge is glued to the title's last word (nowrap), so it always follows
-  // that word on its baseline and never drops onto a line of its own.
-  const cut = essay.title.lastIndexOf(" ");
-  const head = cut === -1 ? "" : essay.title.slice(0, cut + 1);
-  const last = essay.title.slice(cut + 1);
   return (
     <div className="mt-2.5 px-0.5">
       <Title
         className={`text-sm font-medium ${soon ? "text-subtle-foreground" : "text-foreground"}`}
       >
-        {soon ? (
-          <>
-            {head}
-            <span className="whitespace-nowrap">
-              {last}
-              <span className="ml-2 inline-block rounded-md border border-border px-1.5 align-baseline text-[11px] leading-4 font-normal">
-                Soon
-              </span>
-            </span>
-          </>
-        ) : (
-          essay.title
-        )}
+        {essay.title}
+        {/* Sighted readers get the muted text and the empty stage; this
+            keeps the status for screen readers. */}
+        {soon && <span className="sr-only">{" (coming soon)"}</span>}
       </Title>
       {essay.summary && (
         <p className="mt-0.5 text-[13px] leading-5 text-subtle-foreground">

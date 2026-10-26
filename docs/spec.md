@@ -99,7 +99,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 ### 3.3 Status rules (decided)
 
 - `Published`: essay page is live, listed normally.
-- `Soon`: listed in the index and sidebar with a "Soon" treatment (muted / badge, not clickable), no essay page (404 or not generated).
+- `Soon`: listed in the index and sidebar with a "Soon" treatment (muted, not clickable), no essay page (404 or not generated).
 - `Preview`: behaves exactly like `Published` locally, in `next dev` and on Vercel preview deployments, and like `Draft` in production (`VERCEL_ENV=production`). Used to review an essay before publishing it (decided).
 - `Draft`: invisible on the site. Optionally viewable via Next.js draft mode for previewing.
 
@@ -325,7 +325,7 @@ The earlier index (every section with its intro paragraph and cards) is replaced
 
 ### 9.3 Section page `/sections/<slug>`
 
-The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then its **first essay by `Order`** as a large card and the remaining essays in a 3-column card grid (`SectionBlock`) (decided). The large slot is not limited to `Published`: a `Soon` first essay shows a large empty stage with its badge and is not a link. On every card the "Soon" badge sits inline after the title's last word, on its baseline.
+The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then its **first essay by `Order`** as a large card and the remaining essays in a 3-column card grid (`SectionBlock`) (decided). The large slot is not limited to `Published`: a `Soon` first essay shows a large empty stage and is not a link. A Soon card carries no badge: the empty stage and the muted title and summary say it, and the title ends with a screen-reader-only "(coming soon)" (decided).
 
 ### 9.4 Essay `/<slug>`
 
@@ -417,7 +417,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 
 **Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Large stage 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
 
-**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 14 medium `foreground`, summary 13/20 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, an outlined "Soon" badge (11/16, 1px `border`, 6px radius); no hover, press, sound or pointer cursor.
+**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 14 medium `foreground`, summary 13/20 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, no badge; no hover, press, sound or pointer cursor.
 
 ### 11.4 Sound
 
