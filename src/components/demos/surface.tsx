@@ -77,7 +77,9 @@ export default function Surface(_: DemoProps) {
       (canvas as HTMLCanvasElement).height = Math.round(height * dpr);
       field = createField(width, height);
       readColor();
-      draw();
+      // The loop may have idled under a resting pointer; the fresh grid
+      // needs a frame to take its push again.
+      wake();
     }
 
     function draw() {
@@ -230,8 +232,10 @@ export default function Surface(_: DemoProps) {
         cursor.x = Math.min(width, Math.max(0, cursor.x + move[0]));
         cursor.y = Math.min(height, Math.max(0, cursor.y + move[1]));
         moveTo(cursor.x, cursor.y);
-      } else if ((e.key === " " || e.key === "Enter") && !e.repeat) {
+      } else if (e.key === " " || e.key === "Enter") {
+        // Every repeat, or holding Space scrolls the page behind the field.
         e.preventDefault();
+        if (e.repeat) return;
         const cursor = keyCursor();
         moveTo(cursor.x, cursor.y);
         input.down = true;
