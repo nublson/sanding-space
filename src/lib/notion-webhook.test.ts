@@ -15,6 +15,15 @@ const event = JSON.stringify({
 });
 
 describe("verifyNotionSignature", () => {
+  it("matches a signature computed outside this code", () => {
+    // openssl dgst -sha256 -hmac 'test-verification-token' over the exact body.
+    const body = '{"type":"page.locked","entity":{"id":"abc","type":"page"}}';
+    const digest =
+      "aafa847b90cedbe89e75b76f036e96a6779c637b87c9eea319dcc788d9860705";
+    expect(signNotionWebhook(body, token)).toBe(`sha256=${digest}`);
+    expect(verifyNotionSignature(body, `sha256=${digest}`, token)).toBe(true);
+  });
+
   it("accepts the HMAC-SHA256 of the raw body keyed by the verification token", () => {
     const header = signNotionWebhook(event, token);
     expect(header).toMatch(/^sha256=[0-9a-f]{64}$/);
