@@ -1,13 +1,4 @@
-import { type NotionBlock, plainText } from "notionic";
-
-export function firstParagraph(blocks: NotionBlock[]): NotionBlock[] {
-  const hit = blocks.find(
-    (b) =>
-      b.type === "paragraph" &&
-      plainText(b.paragraph.rich_text).trim().length > 0,
-  );
-  return hit ? [hit] : [];
-}
+import type { NotionBlock } from "notionic";
 
 export function withoutDatabases(blocks: NotionBlock[]): NotionBlock[] {
   return blocks.filter((b) => {

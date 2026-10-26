@@ -11,19 +11,6 @@
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-newsreader);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -52,10 +39,18 @@
 
 body {
   font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: -0.006em;
+  font-size: 16px;
+  line-height: 26px;
+  letter-spacing: -0.008em;
   font-feature-settings: "cv11", "ss01";
+}
+/* Below md every size steps down two pixels: body 14/22, chrome 14. */
+@media (max-width: 767.98px) {
+  body {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: -0.006em;
+  }
 }
 
 :root {
@@ -65,6 +60,7 @@ body {
 
 /* Light tokens: demo embeds only (?theme=light). The site is dark only. */
 .light {
+  color-scheme: light;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.205 0 0);
   --card: oklch(0.955 0 0);
@@ -85,22 +81,10 @@ body {
   --input: oklch(0.922 0 0);
   --ring: oklch(0.556 0 0); /* focus ring, 4.5:1 on background */
   --image-outline: oklch(0 0 0 / 0.1);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.6 0 0);
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.178 0 0);
   --foreground: oklch(0.946 0 0);
   --card: oklch(0.218 0 0);
@@ -121,24 +105,12 @@ body {
   --input: oklch(0.27 0 0);
   --ring: oklch(0.7 0 0);
   --image-outline: oklch(1 0 0 / 0.1);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 /* Embeds with theme=system: dark by default, light tokens on light hosts. */
 @media (prefers-color-scheme: light) {
   .theme-system {
+    color-scheme: light;
     --background: oklch(0.985 0 0);
     --foreground: oklch(0.205 0 0);
     --card: oklch(0.955 0 0);
@@ -171,6 +143,15 @@ body {
   }
   html {
     @apply font-sans;
+  }
+
+  /* No scrollbars anywhere: the chrome stays quiet and scroll fades mark
+     overflow where it matters. */
+  * {
+    scrollbar-width: none;
+  }
+  ::-webkit-scrollbar {
+    display: none;
   }
 
   :focus-visible {
@@ -209,7 +190,7 @@ body {
 
 .skip-link:focus-visible {
   position: fixed;
-  left: 1rem;
+  inset-inline-start: 1rem;
   top: 1rem;
   z-index: 9999;
   width: max-content;
@@ -238,6 +219,158 @@ body {
 
 .link {
   @apply text-subtle-foreground transition-colors duration-150 ease-(--ease-out) hover:text-foreground;
+}
+
+/*
+ * Scroll fades (craft.gustavofior.com/scroll-fades): a mask on the scroll
+ * container fades the edge that still has content to scroll. Two lengths
+ * drive the mask; scroll-linked animations grow the start fade over the
+ * first 3rem of scroll and shrink the end fade over the last 3rem, so at
+ * either end nothing looks cut off. A container that does not scroll gets no
+ * fade at all. Without scroll-driven animations there is no fade: a static
+ * one would dim edge text the reader can never scroll out of it.
+ * Scrollbars are hidden site-wide (base layer), so the mask never fades one.
+ *
+ * .scroll-fade is the vertical recipe (the sidebar list). The horizontal one
+ * covers every sideways scroller in a Notion body: code blocks (the pre
+ * scrolls inside the figure that draws the surface) and table regions.
+ */
+@property --fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+.scroll-fade,
+.scroll-fade-x,
+.notionic pre,
+.notionic [role="region"] {
+  --fade-size: 2.5rem;
+  --fade-start: 0px;
+  --fade-end: 0px;
+}
+.scroll-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--fade-start),
+    black calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+.scroll-fade-x,
+.notionic pre,
+.notionic [role="region"] {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--fade-start),
+    black calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+/* A mask clips everything outside the border box, so a focus ring drawn
+   outside the table region would vanish. Draw it inside, as the pre does. */
+.notionic [role="region"] {
+  outline-offset: -2px;
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-fade,
+  .scroll-fade-x,
+  .notionic pre,
+  .notionic [role="region"] {
+    animation:
+      scroll-fade-start linear both,
+      scroll-fade-end linear both;
+    animation-range:
+      0 3rem,
+      calc(100% - 3rem) 100%;
+  }
+  .scroll-fade {
+    animation-timeline: scroll(self block);
+  }
+  .scroll-fade-x,
+  .notionic pre,
+  .notionic [role="region"] {
+    animation-timeline: scroll(self inline);
+  }
+  @keyframes scroll-fade-start {
+    from {
+      --fade-start: 0px;
+    }
+    to {
+      --fade-start: var(--fade-size);
+    }
+  }
+  @keyframes scroll-fade-end {
+    from {
+      --fade-end: var(--fade-size);
+    }
+    to {
+      --fade-end: 0px;
+    }
+  }
+}
+
+/*
+ * Reading text runs at the body size, 16px on a 26px line, across the full
+ * 672px column (about 85 characters), so text and stages share one right
+ * edge. Body copy is muted; headings and
+ * bold carry the foreground ink, so structure reads at a glance (spec §11).
+ */
+.notionic {
+  color: var(--muted-foreground);
+  line-height: 26px;
+}
+@media (max-width: 767.98px) {
+  .notionic {
+    line-height: 22px;
+  }
+}
+.notionic :is(h2, h3, h4, h5, strong, b) {
+  color: var(--foreground);
+}
+/* Inline code at 0.875em of the body, so it follows the mobile step. */
+.notionic :not(pre) > code {
+  font-size: 0.875em;
+}
+
+/*
+ * Notion body headings share the page title's size: Inter 500 at 16/24 for
+ * h2 and h3 (14/20 below md), one step down for h4 and h5. They are told
+ * apart from the body by weight, the foreground ink and the space above.
+ */
+.notionic > :is(div:has(> :is(h2, h3)), details:has(> summary > :is(h2, h3))) {
+  font-size: 16px;
+  line-height: 24px;
+}
+.notionic > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
+  font-size: 14px;
+  line-height: 22px;
+}
+@media (max-width: 767.98px) {
+  .notionic
+    > :is(div:has(> :is(h2, h3)), details:has(> summary > :is(h2, h3))) {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .notionic
+    > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
+    font-size: 12px;
+    line-height: 18px;
+  }
+}
+.notionic
+  > :is(div, details):has(
+    > :is(h2, h3, h4, h5),
+    > summary > :is(h2, h3, h4, h5)
+  ) {
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 /* Entrance: page blocks rise in. CSS only, so it runs without JS. */
@@ -334,6 +467,13 @@ body {
 @media (min-width: 768px) {
   .shell-track {
     transition: none;
+  }
+}
+
+/* Anchored headings land below the fixed 56px mobile header. */
+@media (max-width: 767.98px) {
+  html {
+    scroll-padding-top: 3.5rem;
   }
 }
 

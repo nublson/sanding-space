@@ -1,9 +1,33 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { EssayCard } from "@/components/library/essay-card";
-import { LiveThumbnail } from "@/components/stage/live-thumbnail";
+import { EssayCard, type TitleLevel } from "@/components/library/essay-card";
 import { featuredEssay } from "@/lib/content/library";
 import type { LibrarySection } from "@/lib/content/types";
+
+/**
+ * The title of every top-level page (sections, the Introduction, About). Same
+ * type and line box as the sidebar wordmark (16px medium on a 32px line), so
+ * the two share baseline, cap height and center across the columns.
+ */
+export function SectionHeading({
+  id,
+  level = 2,
+  children,
+}: {
+  id: string;
+  level?: 1 | 2 | 3;
+  children: ReactNode;
+}) {
+  const Heading = `h${level}` as const;
+  return (
+    <Heading
+      id={id}
+      data-section={id}
+      className="text-base leading-8 font-medium text-foreground max-md:text-sm max-md:leading-7"
+    >
+      {children}
+    </Heading>
+  );
+}
 
 export function SectionBlock({
   section,
@@ -14,47 +38,22 @@ export function SectionBlock({
   intro: ReactNode;
   headingLevel?: 1 | 2 | 3;
 }) {
-  const Heading = `h${headingLevel}` as const;
+  const titleLevel = (headingLevel + 1) as TitleLevel;
   const featured = featuredEssay(section);
   const rest = section.essays.filter((e) => e !== featured);
 
   return (
     <section className="flex flex-col gap-6">
-      <Heading
-        id={section.slug}
-        data-section={section.slug}
-        className="font-heading text-[22px] leading-7 tracking-[-0.01em] text-foreground"
-      >
+      <SectionHeading id={section.slug} level={headingLevel}>
         {section.name}
-      </Heading>
+      </SectionHeading>
       {intro}
       {featured && (
-        <Link
-          href={`/${featured.slug}`}
-          data-sound="page"
-          className="press -m-2 block rounded-[18px] p-2 pointer-fine:hover:bg-card"
-        >
-          <LiveThumbnail
-            demo={featured.coverDemo}
-            essaySlug={featured.slug}
-            size="hero"
-            preview
-          />
-          <div className="mt-3 px-0.5">
-            <h3 className="text-sm font-medium text-foreground">
-              {featured.title}
-            </h3>
-            {featured.summary && (
-              <p className="mt-0.5 text-[13px] leading-5 text-subtle-foreground">
-                {featured.summary}
-              </p>
-            )}
-          </div>
-        </Link>
+        <EssayCard essay={featured} size="hero" titleLevel={titleLevel} />
       )}
       <div className="grid grid-cols-3 gap-x-6 gap-y-8 max-sm:grid-cols-2">
         {rest.map((essay) => (
-          <EssayCard key={essay.id} essay={essay} />
+          <EssayCard key={essay.id} essay={essay} titleLevel={titleLevel} />
         ))}
       </div>
     </section>

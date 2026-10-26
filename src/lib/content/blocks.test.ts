@@ -1,26 +1,12 @@
 import type { NotionBlock } from "notionic";
-import { demoEmbeds, firstParagraph, withoutDatabases } from "./blocks";
+import { demoEmbeds, withoutDatabases } from "./blocks";
 
 const b = (o: Record<string, unknown>) => o as unknown as NotionBlock;
 const text = (t: string) => (t ? [{ plain_text: t }] : []);
 const para = (t: string) =>
   b({ type: "paragraph", paragraph: { rich_text: text(t) } });
-const heading = (t: string) =>
-  b({ type: "heading_2", heading_2: { rich_text: text(t) } });
 const embed = (url: string) =>
   b({ type: "embed", embed: { url, caption: [] } });
-
-describe("firstParagraph", () => {
-  it("skips an empty paragraph and a heading", () => {
-    const first = para("Hello");
-    expect(
-      firstParagraph([heading("H"), para(""), first, para("Two")]),
-    ).toEqual([first]);
-  });
-  it("returns [] when there is none", () => {
-    expect(firstParagraph([heading("H")])).toEqual([]);
-  });
-});
 
 describe("withoutDatabases", () => {
   it("removes child_database, database links and unsupported blocks", () => {

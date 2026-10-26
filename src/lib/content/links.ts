@@ -1,7 +1,10 @@
+import { STANDALONE_PAGES, standalonePageId } from "../standalone";
 import type { Library } from "./types";
 
 export function pageHref(library: Library): (pageId: string) => string | null {
-  const hrefs = new Map<string, string | null>();
+  const hrefs = new Map<string, string | null>(
+    STANDALONE_PAGES.map((page) => [standalonePageId(page), page.path]),
+  );
   for (const section of library.sections) {
     hrefs.set(section.id, `/sections/${section.slug}`);
     for (const essay of section.essays) {

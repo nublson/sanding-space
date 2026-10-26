@@ -73,7 +73,7 @@ describe("MuteButton", () => {
     vi.useRealTimers();
   });
 
-  it("toggles aria-pressed and accessible name", async () => {
+  it("toggles aria-pressed and keeps its name", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<MuteButton />);
@@ -85,7 +85,7 @@ describe("MuteButton", () => {
       vi.advanceTimersByTime(200);
     });
     expect(setMuted).toHaveBeenCalledWith(true);
-    const pressed = screen.getByRole("button", { name: "Unmute sound" });
+    const pressed = screen.getByRole("button", { name: "Mute sound" });
     expect(pressed).toHaveAttribute("aria-pressed", "true");
     await user.click(pressed);
     expect(setMuted).toHaveBeenLastCalledWith(false);

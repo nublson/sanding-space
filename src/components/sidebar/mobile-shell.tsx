@@ -10,11 +10,12 @@ import {
   useState,
 } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
+import { INTRODUCTION } from "@/lib/introduction";
 
 const SIDEBAR_ID = "site-sidebar";
 
 /**
- * Below `md`: a fixed header (toggle + wordmark) and an off-canvas sidebar
+ * Below `md`: a fixed header (toggle, then the wordmark) and an off-canvas sidebar
  * that pushes the content right. At `md`+: the sidebar sticks beside content.
  */
 export function MobileShell({
@@ -36,8 +37,12 @@ export function MobileShell({
   // Move focus into the sidebar once it opens.
   useEffect(() => {
     if (open) {
-      sidebarRef.current
-        ?.querySelector<HTMLElement>("a[href], button")
+      // The first focusable that is actually rendered: the wordmark link is
+      // hidden below md, and focus() on a display:none element does nothing.
+      const focusables =
+        sidebarRef.current?.querySelectorAll<HTMLElement>("a[href], button");
+      Array.from(focusables ?? [])
+        .find((el) => el.checkVisibility?.() ?? true)
         ?.focus({ preventScroll: true });
     }
   }, [open]);
@@ -72,7 +77,7 @@ export function MobileShell({
 
   return (
     <div className="overflow-x-clip">
-      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center gap-1 border-b border-border bg-background px-2 md:hidden">
+      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center bg-background px-2 md:hidden">
         <button
           ref={toggleRef}
           type="button"
@@ -83,12 +88,14 @@ export function MobileShell({
           onClick={() => setOpen((value) => !value)}
           className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
         >
-          <PanelLeft aria-hidden className="size-5" />
+          <PanelLeft aria-hidden strokeWidth={1.5} className="size-4" />
         </button>
+        {/* The desktop wordmark, after the toggle (spec §9.5), on the mobile
+            scale: 18px mark, 14px medium on a 28px line. */}
         <Link
-          href="/"
+          href={INTRODUCTION.path}
           onClick={() => close(false)}
-          className="flex h-11 items-center gap-2 text-sm font-medium text-foreground"
+          className="flex h-7 items-center gap-2 ps-1 text-sm leading-7 font-medium text-foreground pointer-coarse:h-11"
         >
           <ShavingMark size={18} />
           Sanding Space
@@ -97,13 +104,13 @@ export function MobileShell({
 
       <div
         data-open={open}
-        className="shell-track flex max-md:w-[calc(100%+11rem)] max-md:-translate-x-44 max-md:data-[open=true]:translate-x-0 md:mx-auto md:max-w-[1024px] md:gap-8 md:px-8"
+        className="shell-track flex max-md:w-[calc(100%+13rem)] max-md:-translate-x-52 max-md:data-[open=true]:translate-x-0 md:mx-auto md:max-w-[1024px] md:gap-8 md:px-8"
       >
         <div
           ref={sidebarRef}
           id={SIDEBAR_ID}
           data-open={open}
-          className="shell-sidebar sticky top-0 h-dvh w-44 shrink-0 self-start overflow-y-auto max-md:pt-6 max-md:pl-4 md:w-40"
+          className="shell-sidebar sticky top-0 h-dvh w-52 shrink-0 self-start max-md:ps-4 md:w-48"
         >
           {sidebar}
         </div>

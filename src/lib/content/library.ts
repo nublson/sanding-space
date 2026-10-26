@@ -29,7 +29,7 @@ export function buildLibrary(sections: Section[], essays: Essay[]): Library {
 }
 
 export function featuredEssay(section: LibrarySection): Essay | null {
-  return section.essays.find((e) => e.status === "Published") ?? null;
+  return section.essays[0] ?? null; // first by Order, Soon included
 }
 
 export function findPublishedEssay(library: Library, slug: string) {

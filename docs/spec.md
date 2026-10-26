@@ -36,6 +36,8 @@ Read the whole document before writing code. Decisions marked **(decided)** are 
 NOTION_TOKEN=                       # Notion integration token with access to the Sanding Space teamspace
 NOTION_SECTIONS_DATA_SOURCE_ID=f38f8100-846a-4076-953e-296370a910d2
 NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
+NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
+NOTION_ABOUT_PAGE_ID=
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 
@@ -99,7 +101,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 ### 3.3 Status rules (decided)
 
 - `Published`: essay page is live, listed normally.
-- `Soon`: listed in the index and sidebar with a "Soon" treatment (muted / badge, not clickable), no essay page (404 or not generated).
+- `Soon`: listed in the index and sidebar with a "Soon" treatment (muted, not clickable), no essay page (404 or not generated).
 - `Preview`: behaves exactly like `Published` locally, in `next dev` and on Vercel preview deployments, and like `Draft` in production (`VERCEL_ENV=production`). Used to review an essay before publishing it (decided).
 - `Draft`: invisible on the site. Optionally viewable via Next.js draft mode for previewing.
 
@@ -111,17 +113,19 @@ A section is shown only if `Visible = true` **and** it has at least one `Publish
 
 | What | URL | Notes |
 |---|---|---|
-| Index | `/` | All visible sections, in Order, each listing its essays (cards with live cover demo) |
+| Home | `/` | Redirects (307, temporary) to `/introduction` (decided) |
+| Introduction | `/introduction` | Default page: a standalone Notion page (§9.2). Sidebar label and path fixed in code, page id from env, heading from the page (decided) |
 | Essay | `/<slug>` | Flat URL (decided). Section shown in UI/breadcrumb only, so moving an essay between sections never breaks a link |
 | Section | `/sections/<slug>` | Section intro + its essays |
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
-| Demo OG image | `/demos/<name>/opengraph-image` | |
+| Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays and sections have their own, the root one is the fallback |
+| Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
 | oEmbed | `/api/oembed` | |
 | Embed helper | `/embed.js` | Auto-height script |
 
 ### Reserved slugs (decided)
 
-Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`. Add any new top-level route to this list.
+Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add any new top-level route to this list.
 
 ### Linking between Notion pages
 
@@ -243,7 +247,7 @@ Without the script, the iframe uses the inline height (from the registry `height
 
 - Each demo gets an OG image at `/demos/[name]/opengraph-image`.
 - Preferred: a real screenshot of the demo captured with Playwright in CI on each deploy and stored as a static asset; fall back to a generated image (title + Sanding Space wordmark) when no screenshot exists.
-- Essay OG images use the cover demo screenshot plus the title.
+- Essay OG images are typographic: section, title (Newsreader) and summary on the silicon-carbide card. The cover demo screenshot waits for a screenshot pipeline (deferred).
 
 ### 6.9 Demo frame inside essays
 
@@ -307,28 +311,26 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 
 ### 9.1 Sidebar (one component, all sizes)
 
-- Top: the wordmark (shaving mark + **Sanding Space**, §10), linking to `/`.
+- Top: the wordmark (shaving mark + **Sanding Space**, §10), linking to `/introduction`.
+- Then the fixed **Introduction** item (`/introduction`), marked current on that page (decided).
 - Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
 - The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
 - The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
 - Footer pinned to the bottom: **About** link and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
-- Current section: on an essay page, the essay's section; on `/sections/<slug>`, that section; on the index, the section currently on screen (scroll-spy), with no essay marked.
+- Current item from the URL: on an essay page, the essay's section and the essay; on `/sections/<slug>`, that section; on `/introduction`, the Introduction item with no section expanded.
 - Desktop: always visible, sticky beside the content.
 
-### 9.2 Index `/`
+### 9.2 Introduction `/introduction` (decided)
 
-For each visible section, in `Order`, stacked and separated by a hairline:
+The default page: `/` redirects here (temporary 307, so the home page can change later). Its sidebar label ("Introduction") and path are fixed in code (`src/lib/standalone.ts`); the Notion page id of a standalone page (not part of the Sections or Essays databases) comes from `NOTION_INTRODUCTION_PAGE_ID`. It is laid out exactly like a section page: the Notion page's title as the heading, then the page body rendered with notionic; the document title is the Notion title too. Links in essays to that Notion page resolve to `/introduction`.
 
-1. Section **name** as the heading (no Question here; the sidebar shows it).
-2. The **first paragraph** of the section's Notion page body (the intro), linking on to `/sections/<slug>` for the rest.
-3. A **large live thumbnail** of the section's first `Published` essay (lowest `Order`), rendering that essay's `Cover demo`, with title and `Summary` below. `Soon` essays never take this slot.
-4. The section's remaining essays as **cards in a 3-column grid**: small live thumbnail (`Cover demo`), title, `Summary`. `Soon` cards keep their place with an empty stage, muted text and a "Soon" badge.
+The earlier index (every section with its intro paragraph and cards) is replaced by this page; sections are reached from the sidebar.
 
-Live thumbnails mount their demo only when scrolled into view.
+**About** (`/about`, linked from the sidebar footer) is the colophon: who makes the site, how it is built, what readers may do with the demos, where to find the author. Same mechanism as the Introduction: a standalone Notion page named by `NOTION_ABOUT_PAGE_ID`, heading and document title from the page (decided).
 
 ### 9.3 Section page `/sections/<slug>`
 
-The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then the same large thumbnail + card grid as on the index. Index and section page share one component for the essay block.
+The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then its **first essay by `Order`** as a large card and the remaining essays in a 3-column card grid (`SectionBlock`) (decided). The large slot is not limited to `Published`: a `Soon` first essay shows a large empty stage and is not a link. A Soon card carries no badge: the empty stage and the muted title and summary say it, and the title ends with a screen-reader-only "(coming soon)" (decided).
 
 ### 9.4 Essay `/<slug>`
 
@@ -384,7 +386,7 @@ Goal: a focused, refined space that feels alive. The interface answers every pre
 
 Fonts via `next/font/google`: **Inter** (`--font-sans`, normal + italic), **Newsreader** (`--font-heading`, `opsz` axis), **Geist Mono** (`--font-mono`).
 
-Body: `font-size: 14px; line-height: 22px; letter-spacing: -0.006em; font-feature-settings: "cv11", "ss01"`.
+Body: `font-size: 16px; line-height: 26px; letter-spacing: -0.008em; font-feature-settings: "cv11", "ss01"`, chrome and reading text alike. Text fills the 672px column (about 85 characters per line), so paragraphs and stages share one right edge (decided). Notion body headings h2 and h3 share the page title's size, Inter 500 at 16/24, h4 and h5 at 14/22, all in `foreground` over muted copy; the essay summary is a lede at 18/28. **Below `md` every size steps down two pixels**: body 14/22 (tracking -0.006em), page titles 14 on a 28px line, sidebar rows 28px (44 on touch), question 12/16, card titles 14 with 13/20 summaries, eyebrow and captions 13, lede 16/26, essay title 28/34, body headings 14/20 and 12/18, inline code 0.875em of the body (decided). External links in Notion text carry the destination's favicon (14px, via `/api/favicon`, which proxies Google's favicon service and serves raster images only, sandboxed) before the text (decided).
 
 Dark tokens (site):
 
@@ -408,19 +410,21 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 
 **Sidebar** (structure in §9.1)
 - 160px wide, sticky, 32px top padding; 32px gap to the content.
-- Wordmark: shaving mark 18px + "Sanding Space", Inter 14 medium.
-- Rows 28px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
-- Question: 12/16, `subtle-foreground`, under the current section.
-- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 12px `foreground` bar on the guide line.
-- Footer: 1px `border` top, About link (`.link`) and a 28px mute button (lucide `Volume2` / `VolumeX`).
+- Wordmark: shaving mark 20px + "Sanding Space", Inter 16 medium on a 32px line. Sidebar column 192px.
+- Mobile header (56px, fixed): the sidebar toggle (lucide `PanelLeft`, 16px, 1.5 stroke, in a 44px button), then the same lockup on the mobile scale: 18px mark + Inter 14 medium on a 28px line, linking to the Introduction. Nothing on the right.
+- Rows 32px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
+- Question: 14/20, `subtle-foreground`, under the current section.
+- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 14px `foreground` bar on the guide line.
+- Footer: 1px `border` top, About link (`.link`) and a 32px mute button (lucide `Volume2` / `VolumeX`).
+- Scrollbars are hidden site-wide. The list between wordmark and footer is the only part of the sidebar that scrolls, with a 2.5rem scroll fade on whichever edge still has content (craft.gustavofior.com/scroll-fades). Below md the list starts under the 56px header and carries the 64px rest offset as padding, so items can scroll up to the header and dissolve. Code blocks and tables in Notion bodies use the same fade horizontally.
 
-**Headings**: section heading Newsreader 22/28, tracking -0.01em; essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`.
+**Headings**: top-level page titles (section pages, Introduction, About) use the sidebar wordmark's type, Inter 16 medium on a 32px line, so title and wordmark share baseline, cap height and center across the columns, as on devouringdetails.com/system (decided). Essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 14px `subtle-foreground`. Content and sidebar both start 128px from the top on desktop and 64px below the 56px header on mobile.
 
-**Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 12.5px on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
+**Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 14px (0.875em of the reading size) on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
 
 **Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Large stage 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
 
-**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 14 medium `foreground`, summary 13/20 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, an outlined "Soon" badge (11/16, 1px `border`, 6px radius); no hover, press, sound or pointer cursor.
+**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 16 medium `foreground`, summary 14/22 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, no badge; no hover, press, sound or pointer cursor.
 
 ### 11.4 Sound
 
@@ -440,7 +444,7 @@ Rules:
 - **One sound per gesture**: a navigating link plays `page`, never `tap` + `page`. Keyboard activation (Enter/Space) plays the same sound as a click.
 - **Silent**: hover, focus, scroll, page load, Soon items.
 - Throttle: the same sound can't restart within 60 ms.
-- **Mute** button in the sidebar footer: sets master volume to 0 via `setMasterVolume`, persisted in `localStorage`, `aria-pressed`, accessible name "Mute sound" / "Unmute sound".
+- **Mute** button in the sidebar footer: sets master volume to 0 via `setMasterVolume`, persisted in `localStorage`, `aria-pressed`, accessible name "Mute sound" (constant; `aria-pressed` carries the state).
 - Reduced motion does not mute. Sound never carries information that is not also visible.
 - Demos may define their own sounds and must respect the site mute.
 
@@ -459,7 +463,7 @@ Approach: CSS first (portfolio patterns) plus React `<ViewTransition>` for route
 | Press: small buttons | scale 0.94 | 160 ms | per §11.4 |
 | Link hover | `subtle` → `foreground`; arrows nudge | 150 ms | none |
 | Card hover (fine pointer) | `card` fill appears | 150 ms | none |
-| Mute toggle | icon crossfade + scale 0.6 → 1 | 150 ms | `toggle-off` / `toggle-on` |
+| Mute toggle | icon crossfade: opacity, scale 0.25 → 1, blur 4px → 0 | 150 ms | `toggle-off` / `toggle-on` |
 | Mobile sidebar push | content `translateX`, spring-like CSS `linear()` curve | ~400 ms | `toggle-on` / `toggle-off` |
 | Live thumbnail mounts | `stream-in` fade | 200 ms | none |
 
@@ -479,7 +483,7 @@ Lighthouse 100 on essay and demo pages, plus:
 - Every text token passes AA against its background (§11.2); Soon text uses `subtle-foreground`, never a dimmer value.
 - Skip link; landmarks `<nav aria-label="Sections">` and `<main id="main-content">`; `aria-current="page"` on the current essay.
 - Mobile sidebar toggle: `aria-expanded` + `aria-controls`; page content `inert` while open; Escape closes and focus returns to the toggle.
-- Hit areas ≥ 28px on fine pointers, ≥ 44px on touch.
+- Hit areas ≥ 32px on fine pointers, ≥ 44px on touch.
 - Focus rings are instant, never animated.
 
 ### 11.8 Quality gates

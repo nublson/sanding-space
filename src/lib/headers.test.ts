@@ -15,3 +15,12 @@ describe("frame headers", () => {
         expect(h.key.toLowerCase()).not.toBe("x-frame-options");
   });
 });
+
+test("the home page redirects to the introduction, temporarily", async () => {
+  const redirects = (await nextConfig.redirects?.()) ?? [];
+  expect(redirects).toContainEqual({
+    source: "/",
+    destination: "/introduction",
+    permanent: false,
+  });
+});

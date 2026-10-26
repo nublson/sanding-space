@@ -50,10 +50,12 @@ const sections: LibrarySection[] = [
 const setup = (
   section: string | null = "interaction",
   essaySlug: string | null = null,
+  introductionCurrent = false,
 ) =>
   render(
     <Sidebar
       sections={sections}
+      introductionCurrent={introductionCurrent}
       currentSectionSlug={section}
       currentEssaySlug={essaySlug}
       footer={<a href="/about">About</a>}
@@ -93,11 +95,35 @@ describe("Sidebar", () => {
     );
   });
 
-  it("wordmark links home", () => {
+  it("wordmark links to the introduction", () => {
     setup();
     expect(screen.getByRole("link", { name: "Sanding Space" })).toHaveAttribute(
       "href",
-      "/",
+      "/introduction",
     );
+  });
+
+  it("lists Introduction before the sections", () => {
+    setup();
+    const links = screen.getAllByRole("link").map((l) => l.textContent);
+    expect(links.indexOf("Introduction")).toBeLessThan(
+      links.indexOf("Principles"),
+    );
+    expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute(
+      "href",
+      "/introduction",
+    );
+  });
+
+  it("marks Introduction as the current page", () => {
+    setup(null, null, true);
+    expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    setup();
+    expect(
+      screen.getAllByRole("link", { name: "Introduction" })[1],
+    ).not.toHaveAttribute("aria-current");
   });
 });

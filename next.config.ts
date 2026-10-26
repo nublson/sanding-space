@@ -9,7 +9,12 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   async redirects() {
-    return aliasRedirects();
+    // "/" opens the Introduction. Temporary, so the home page can change later
+    // without browsers holding on to a cached permanent redirect.
+    return [
+      { source: "/", destination: "/introduction", permanent: false },
+      ...aliasRedirects(),
+    ];
   },
   async headers() {
     return [

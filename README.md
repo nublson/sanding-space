@@ -4,7 +4,7 @@
 
 Essays are written in Notion and rendered with [notionic](https://notionic.dev). Demos are React components in this repo. The full build brief is in [docs/spec.md](docs/spec.md).
 
-Pages: the index (`/`), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), and standalone demos (`/demos/<name>`).
+Pages: the Introduction (`/introduction`, where `/` redirects), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), and standalone demos (`/demos/<name>`).
 
 Stack: Next.js (App Router), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, notionic, Motion, pnpm, Biome.
 
@@ -22,6 +22,8 @@ Fill in `.env.local`:
 | `NOTION_TOKEN` | Notion integration secret |
 | `NOTION_SECTIONS_DATA_SOURCE_ID` | Sections data source (query by data source ID) |
 | `NOTION_ESSAYS_DATA_SOURCE_ID` | Essays data source |
+| `NOTION_INTRODUCTION_PAGE_ID` | The standalone Notion page behind `/introduction` |
+| `NOTION_ABOUT_PAGE_ID` | The standalone Notion page behind `/about` (the colophon) |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin, `https://sanding.space` in production |
 | `REVALIDATE_SECRET` | Bearer secret for `POST /api/revalidate` |
 
@@ -69,6 +71,17 @@ Every demo has a permanent standalone URL: `https://sanding.space/demos/<name>`.
 ```
 
 `embed.js` resizes iframes marked `data-sanding` to the demo's height. The demo never reports less than its registry `height`, and taller content grows the iframe. Without the script, the inline height is used. `embed.js` only accepts messages from `https://sanding.space` (plus the page's own origin when it runs on `localhost`), so auto-height doesn't work for iframes pointing at preview deployments.
+
+## Deployment
+
+Vercel builds only when it makes sense. `vercel.json` runs `scripts/vercel-wait-github-ci.mjs` as the ignored-build step:
+
+- A branch with an open pull request builds a preview once every GitHub Actions check on the deployed commit has passed; a failed check cancels the deployment.
+- `develop` builds a preview straight away.
+- `main` builds production only after the Release workflow posts the `release/build-validation` commit status.
+- Any other branch without a pull request is skipped.
+
+The script needs `GITHUB_WAIT_TOKEN` in the Vercel project (Preview and Production): a fine-grained GitHub token with Contents, Checks and Commit statuses read access on this repository. Without the token the script lets every build through and says so in the build log; with a token, any error reading GitHub cancels the deployment, so a misconfigured token shows up as canceled previews rather than ungated builds.
 
 Frame params:
 
