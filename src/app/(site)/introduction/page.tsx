@@ -37,6 +37,7 @@ export default async function IntroductionPage() {
               demos={demos}
               pageHref={pageHref(library)}
               components={siteComponents}
+              linkFavicons
             />
           </div>
         </section>

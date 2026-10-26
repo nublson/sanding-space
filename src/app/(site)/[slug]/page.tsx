@@ -156,6 +156,7 @@ async function EssayContent({ params }: Props) {
           demos={demos}
           pageHref={pageHref(library)}
           components={siteComponents}
+          linkFavicons
         />
       </div>
     </article>
