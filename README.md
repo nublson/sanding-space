@@ -26,6 +26,7 @@ Fill in `.env.local`:
 | `NOTION_ABOUT_PAGE_ID` | The standalone Notion page behind `/about` (the colophon) |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin, `https://sanding.space` in production |
 | `REVALIDATE_SECRET` | Bearer secret for `POST /api/revalidate` |
+| `NOTION_WEBHOOK_SECRET` | The `verification_token` Notion sends when the webhook is registered; signs every event to `POST /api/notion-webhook` |
 
 In Notion, create an internal integration and connect it to the Library page, so it can read the Sections and Essays databases.
 
@@ -105,7 +106,23 @@ GET https://sanding.space/api/oembed?url=https://sanding.space/demos/<name>&maxw
 
 ## Revalidation
 
-Content is cached under the `notion` tag. After editing in Notion, refresh it:
+Content is cached under the `notion` tag for a few minutes. A Notion webhook refreshes it as soon as the library changes; the manual endpoint remains as a fallback.
+
+### Notion webhook
+
+`POST /api/notion-webhook` receives Notion's events. It answers the one-time verification handshake, checks the `X-Notion-Signature` header (HMAC-SHA256 of the raw body, keyed by the verification token) on every later event, and revalidates the `notion` tag for page, data source and database events. Comment events are acknowledged and ignored. A missing secret answers `503`, a bad signature `401`, an unrecognised body `400`.
+
+To register it:
+
+1. Deploy the route first, with `NOTION_WEBHOOK_SECRET` still unset.
+2. In [Notion integrations](https://www.notion.so/profile/integrations), open the site's integration, go to the **Webhooks** tab and create a subscription with the URL `https://sanding.space/api/notion-webhook`. Subscribe at least to `page.content_updated`, `page.properties_updated`, `page.created`, `page.deleted`, `page.moved`, `page.undeleted`, `data_source.content_updated` and `data_source.schema_updated`.
+3. Notion POSTs a `verification_token` once. The route logs it in the production function logs on Vercel as `[notion-webhook] verification token received: …`. If it did not arrive, use **Resend token** in Notion.
+4. Paste the token into Notion (**Verify** at the bottom of the Webhooks tab) and set `NOTION_WEBHOOK_SECRET` to the same value in the Vercel project, then redeploy. Until the variable is set, events are rejected with `503` and Notion retries them with backoff for about a day.
+5. Edit a page in the library and check the function logs for a `200`. `page.content_updated` events are batched, so they can land a minute or so after the edit; `page.locked` is immediate and handy for a quick test.
+
+The webhook only subscribes to pages the integration can see, so new pages still need the integration connected to the Library page.
+
+### Manual refresh
 
 ```bash
 curl -X POST https://sanding.space/api/revalidate \
