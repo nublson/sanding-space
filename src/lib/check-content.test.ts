@@ -173,6 +173,17 @@ describe("checkContent", () => {
     );
     expect(draft.errors).toHaveLength(1);
   });
+  it("7: skips demos without an essay", () => {
+    const r = checkContent(
+      base({
+        essays: [],
+        embedsByEssay: {},
+        demos: { press: { title: "Press", height: 200 } },
+      }),
+    );
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toEqual([]);
+  });
   it("7: warns only when essay is Preview", () => {
     const r = checkContent(
       base({ essays: [essay({ status: "Preview" })], embedsByEssay: {} }),

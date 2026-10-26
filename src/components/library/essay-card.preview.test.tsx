@@ -3,6 +3,13 @@ import { EssayCard } from "@/components/library/essay-card";
 import { SectionBlock } from "@/components/library/section-block";
 import type { Essay } from "@/lib/content/types";
 
+vi.mock("@/lib/demo-meta", async (orig) =>
+  (await import("@/test/fake-demos")).mockDemoMeta(orig),
+);
+vi.mock("@/components/demos/lazy-demo", async () =>
+  (await import("@/test/fake-demos")).mockLazyDemo(),
+);
+
 // Unlike essay-card.test.tsx, the real LiveThumbnail renders here.
 let fire: () => void = () => {};
 beforeEach(() => {
@@ -23,7 +30,7 @@ const essay = (o: Partial<Essay>): Essay => ({
   status: "Published",
   order: 1,
   sectionId: "s",
-  coverDemo: "button-press-scale",
+  coverDemo: "test-demo",
   tags: [],
   published: null,
   updated: "2026-01-01",
