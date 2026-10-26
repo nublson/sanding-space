@@ -1,5 +1,13 @@
 import type { ReactNode } from "react";
-import { EssayCard, type TitleLevel } from "@/components/library/essay-card";
+import {
+  EssayCard,
+  EssayCardSkeleton,
+  type TitleLevel,
+} from "@/components/library/essay-card";
+import {
+  type SkeletonLineSpec,
+  SkeletonLines,
+} from "@/components/skeleton-line";
 import { featuredEssay } from "@/lib/content/library";
 import type { LibrarySection } from "@/lib/content/types";
 
@@ -26,6 +34,63 @@ export function SectionHeading({
     >
       {children}
     </Heading>
+  );
+}
+
+// A typical intro (measured on the live sections): two paragraphs of four
+// lines, six and seven on a phone, with the Notion paragraph gap. Phone-only
+// lines sit before the short last line, so each paragraph still ends short.
+const INTRO: SkeletonLineSpec[][] = [
+  [
+    { width: "100%" },
+    { width: "96%" },
+    { width: "98%" },
+    { width: "95%", mobile: true },
+    { width: "99%", mobile: true },
+    { width: "62%" },
+  ],
+  [
+    { width: "100%" },
+    { width: "94%" },
+    { width: "97%" },
+    { width: "98%", mobile: true },
+    { width: "93%", mobile: true },
+    { width: "96%", mobile: true },
+    { width: "71%" },
+  ],
+];
+
+/**
+ * SectionBlock's layout while its data streams in: the title line, the intro,
+ * the featured card and one row of the grid, on the same gaps, so the content
+ * replaces it without moving.
+ */
+export function SectionBlockSkeleton() {
+  return (
+    <div data-skeleton aria-hidden="true" className="flex flex-col gap-6">
+      <SkeletonLines
+        lines={[{ width: "7rem" }]}
+        lineClassName="h-8 max-md:h-7"
+      />
+      <div className="flex flex-col gap-4">
+        {INTRO.map((lines, i) => (
+          <SkeletonLines
+            // biome-ignore lint/suspicious/noArrayIndexKey: static list
+            key={i}
+            lines={lines}
+            lineClassName="h-[26px] max-md:h-[22px]"
+          />
+        ))}
+      </div>
+      <EssayCardSkeleton size="hero" />
+      <div className="grid grid-cols-3 gap-x-6 gap-y-8 max-sm:grid-cols-2">
+        <EssayCardSkeleton size="card" />
+        <EssayCardSkeleton size="card" />
+        <div className="max-sm:hidden">
+          <EssayCardSkeleton size="card" />
+        </div>
+      </div>
+    </div>
   );
 }
 
