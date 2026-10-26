@@ -322,8 +322,6 @@ body {
  * 672px column (about 85 characters), so text and stages share one right
  * edge. Body copy is muted; headings and
  * bold carry the foreground ink, so structure reads at a glance (spec §11).
- * A divider as the first block is a Notion habit, not content, so it never
- * opens a page with a gap.
  */
 .notionic {
   color: var(--muted-foreground);
@@ -336,9 +334,6 @@ body {
 }
 .notionic :is(h2, h3, h4, h5, strong, b) {
   color: var(--foreground);
-}
-.notionic > hr:first-child {
-  display: none;
 }
 /* Inline code at 0.875em of the body, so it follows the mobile step. */
 .notionic :not(pre) > code {
