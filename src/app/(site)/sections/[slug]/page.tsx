@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { NotionRenderer } from "notionic";
+import { Suspense } from "react";
 import { SectionBlock } from "@/components/library/section-block";
 import { PageFade } from "@/components/page-fade";
+import { DemoStage } from "@/components/stage/demo-stage";
 import { withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
@@ -19,8 +22,17 @@ export async function generateStaticParams() {
   return params.length > 0 ? params : [{ slug: "__none" }];
 }
 
+// Runtime data (params) is read here and passed in; the data work is cached
+// per slug, so metadata joins the prerendered shell instead of deferring.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  return sectionMetadata(slug);
+}
+
+async function sectionMetadata(slug: string): Promise<Metadata> {
+  "use cache";
+  cacheTag("notion");
+  cacheLife("minutes");
   const library = await getLibrary();
   const section = library.sections.find((s) => s.slug === slug);
   if (!section) return { title: { absolute: title("Not found") } };
@@ -30,7 +42,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function SectionPage({ params }: Props) {
+// The page itself reads no URL data, so its shell is instant on navigation;
+// everything that depends on the slug streams into the skeleton below.
+export default function SectionPage({ params }: Props) {
+  return (
+    <PageFade>
+      <Suspense fallback={<SectionSkeleton />}>
+        <SectionContent params={params} />
+      </Suspense>
+    </PageFade>
+  );
+}
+
+async function SectionContent({ params }: Props) {
   const { slug } = await params;
   const library = await getLibrary();
   const section = library.sections.find((s) => s.slug === slug);
@@ -38,23 +62,32 @@ export default async function SectionPage({ params }: Props) {
   const blocks = withoutDatabases(await getBlocks(section.id));
 
   return (
-    <PageFade>
-      <div className="article-layout">
-        <SectionBlock
-          section={section}
-          headingLevel={1}
-          intro={
-            <div className="text-pretty text-muted-foreground">
-              <NotionRenderer
-                blocks={blocks}
-                demos={demos}
-                pageHref={pageHref(library)}
-                components={siteComponents}
-              />
-            </div>
-          }
-        />
-      </div>
-    </PageFade>
+    <div data-stream className="article-layout">
+      <SectionBlock
+        section={section}
+        headingLevel={1}
+        intro={
+          <div className="text-pretty text-muted-foreground">
+            <NotionRenderer
+              blocks={blocks}
+              demos={demos}
+              pageHref={pageHref(library)}
+              components={siteComponents}
+            />
+          </div>
+        }
+      />
+    </div>
+  );
+}
+
+// Same bones as the page: the title row, then the large stage. Static, no
+// shimmer (spec §11.5); the content fades over it once it streams in.
+function SectionSkeleton() {
+  return (
+    <div data-skeleton aria-hidden="true" className="flex flex-col gap-6">
+      <div className="h-7" />
+      <DemoStage size="hero" />
+    </div>
   );
 }
