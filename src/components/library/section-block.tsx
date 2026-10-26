@@ -5,7 +5,11 @@ import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { featuredEssay } from "@/lib/content/library";
 import type { LibrarySection } from "@/lib/content/types";
 
-/** The heading every section-like page uses (section pages, the Introduction). */
+/**
+ * The title of every top-level page (sections, the Introduction, About). Same
+ * type and line box as the sidebar wordmark (14px medium on a 28px line), so
+ * the two share baseline, cap height and center across the columns.
+ */
 export function SectionHeading({
   id,
   level = 2,
@@ -20,7 +24,7 @@ export function SectionHeading({
     <Heading
       id={id}
       data-section={id}
-      className="font-heading text-[22px] leading-7 tracking-[-0.01em] text-foreground"
+      className="text-sm leading-7 font-medium text-foreground"
     >
       {children}
     </Heading>

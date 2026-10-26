@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SectionHeading } from "@/components/library/section-block";
 import { PageFade } from "@/components/page-fade";
 import { title } from "@/lib/site";
 
@@ -11,9 +12,9 @@ export default function AboutPage() {
   return (
     <PageFade>
       <article className="article-layout flex flex-col gap-6">
-        <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground">
+        <SectionHeading id="about" level={1}>
           About
-        </h1>
+        </SectionHeading>
         <p className="text-pretty text-muted-foreground">
           Sanding Space is a library of short essays about design engineering
           and product engineering. Every essay contains live, interactive demos,

@@ -411,7 +411,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 - Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 12px `foreground` bar on the guide line.
 - Footer: 1px `border` top, About link (`.link`) and a 28px mute button (lucide `Volume2` / `VolumeX`).
 
-**Headings**: section heading Newsreader 22/28, tracking -0.01em; essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`.
+**Headings**: top-level page titles (section pages, Introduction, About) use the sidebar wordmark's type, Inter 14 medium on a 28px line, so title and wordmark share baseline, cap height and center across the columns, as on devouringdetails.com/system (decided). Essay title Newsreader 32/38, tracking -0.015em, `text-wrap: balance`. Eyebrow (section name above an essay title) 13px `subtle-foreground`. Content and sidebar both start 128px from the top on desktop and 64px below the 56px header on mobile.
 
 **Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 12.5px on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
 
