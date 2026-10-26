@@ -12,8 +12,11 @@ import { cn } from "@/lib/utils";
 type Search = Record<string, string | string[] | undefined>;
 type Props = { params: Promise<{ name: string }> };
 
+// An empty list fails the build under Cache Components; the placeholder
+// renders notFound().
 export function generateStaticParams() {
-  return Object.keys(registry).map((name) => ({ name }));
+  const names = Object.keys(registry);
+  return names.length ? names.map((name) => ({ name })) : [{ name: "__none" }];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -76,7 +79,7 @@ export function Frame({
         </div>
         {frame.chrome && (
           <a
-            href={`/${entry.essay}`}
+            href={entry.essay ? `/${entry.essay}` : "/"}
             target="_blank"
             rel="noopener"
             className="flex items-center gap-1 self-end px-3 pb-3 text-xs text-subtle-foreground"

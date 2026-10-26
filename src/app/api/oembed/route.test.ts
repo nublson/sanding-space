@@ -4,6 +4,13 @@ import { GET } from "./route";
 
 vi.mock("@/lib/content/notion", () => ({ getLibrary: vi.fn() }));
 
+vi.mock("@/lib/demo-meta", async (orig) =>
+  (await import("@/test/fake-demos")).mockDemoMeta(orig),
+);
+vi.mock("@/components/demos/lazy-demo", async () =>
+  (await import("@/test/fake-demos")).mockLazyDemo(),
+);
+
 const get = (url: string) =>
   GET(
     new Request(
@@ -17,11 +24,11 @@ describe("GET /api/oembed", () => {
   });
 
   it("serves demo urls without touching Notion", async () => {
-    const res = await get(`${SITE_URL}/demos/button-press-scale`);
+    const res = await get(`${SITE_URL}/demos/test-demo`);
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
       type: "rich",
-      title: "Button press, scale",
+      title: "Test demo",
     });
     expect(getLibrary).not.toHaveBeenCalled();
   });

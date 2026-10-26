@@ -19,9 +19,10 @@ function lazy(name: string): ComponentType<DemoProps> {
   return Demo;
 }
 
-export const demoComponents: Record<string, ComponentType<DemoProps>> = {
-  "button-press-scale": lazy("button-press-scale"),
-};
+export const demoComponents: Record<
+  string,
+  ComponentType<DemoProps>
+> = Object.fromEntries(Object.keys(demoMeta).map((name) => [name, lazy(name)]));
 
 export type DemoEntry = DemoMeta & {
   component: ComponentType<DemoProps>;

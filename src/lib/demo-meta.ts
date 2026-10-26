@@ -1,18 +1,15 @@
 export type DemoMeta = {
   title: string;
-  essay: string;
+  /** The essay that explains this demo. Optional: a demo can ship before its essay. */
+  essay?: string;
   height: number;
   aliases?: string[];
   retired?: boolean;
 };
 
-export const demoMeta: Record<string, DemoMeta> = {
-  "button-press-scale": {
-    title: "Button press, scale",
-    essay: "button-press",
-    height: 320,
-  },
-};
+// Names are permanent: rename with `aliases`, retire with `retired`. Each entry
+// also needs a loader in src/components/demos/lazy-demo.tsx.
+export const demoMeta: Record<string, DemoMeta> = {};
 
 export type ResolvedDemo<T extends DemoMeta = DemoMeta> =
   | { kind: "demo"; name: string; entry: T }

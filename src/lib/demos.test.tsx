@@ -36,14 +36,9 @@ const testRegistry: Record<string, DemoEntry> = {
 };
 
 describe("resolveDemo", () => {
-  it("resolves the real button-press-scale demo", () => {
-    const r = resolveDemo("button-press-scale");
-    expect(r.kind).toBe("demo");
-    if (r.kind === "demo") {
-      expect(r.entry.essay).toBe("button-press");
-      expect(r.entry.height).toBe(320);
-      expect(r.entry.title).toBe("Button press, scale");
-    }
+  it("resolves every registered demo by name", () => {
+    for (const name of Object.keys(demoMeta))
+      expect(resolveDemo(name).kind).toBe("demo");
   });
   it("returns missing for unknown names", () => {
     expect(resolveDemo("nope")).toEqual({ kind: "missing" });
@@ -84,7 +79,7 @@ describe("deriveDemos", () => {
     expect(screen.getByText('stub:old:{"a":"1"}')).toBeInTheDocument();
   });
   it("derives the real registry", () => {
-    expect(Object.keys(deriveDemos(registry))).toContain("button-press-scale");
+    expect(Object.keys(deriveDemos(registry))).toEqual(Object.keys(demoMeta));
   });
 });
 

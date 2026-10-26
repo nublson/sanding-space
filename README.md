@@ -47,8 +47,8 @@ pnpm dev
 ## Adding a demo
 
 1. Create the component at `src/components/demos/<name>.tsx`. It receives its query-string values as `params`.
-2. Add its metadata to `src/lib/demo-meta.ts` (`title`, `essay` slug, `height`, optional `aliases`, `retired`).
-3. Add the component to the `components` map in `src/lib/demos.tsx` under the same name.
+2. Add its metadata to `src/lib/demo-meta.ts` (`title`, `height`, and optional `essay` slug, `aliases`, `retired`). Without an `essay`, the attribution links to the home page.
+3. Add a loader under the same name in `src/components/demos/lazy-demo.tsx`: `"<name>": dynamic(() => import("./<name>"))`. Each demo is its own chunk, loaded only where it renders.
 4. In Notion, add an `/embed` block whose URL ends in `/demos/<name>`. The query string becomes `params`.
 
 Rules:
@@ -62,7 +62,7 @@ Rules:
 Every demo has a permanent standalone URL: `https://sanding.space/demos/<name>`.
 
 ```html
-<iframe src="https://sanding.space/demos/button-press-scale"
+<iframe src="https://sanding.space/demos/<name>"
   data-sanding loading="lazy" style="width:100%;height:320px;border:0"
   title="Button press, scale · Sanding Space"></iframe>
 <script async src="https://sanding.space/embed.js"></script>
@@ -83,7 +83,7 @@ The demo page is prerendered without the query string, so the mark only appears 
 oEmbed:
 
 ```
-GET https://sanding.space/api/oembed?url=https://sanding.space/demos/button-press-scale&maxwidth=&maxheight=&format=json
+GET https://sanding.space/api/oembed?url=https://sanding.space/demos/<name>&maxwidth=&maxheight=&format=json
 ```
 
 - Demo URLs (`/demos/<name>`, aliases included) return `type: "rich"` JSON with the iframe `html`. They come from the in-repo registry and work without Notion.
