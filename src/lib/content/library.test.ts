@@ -89,7 +89,7 @@ describe("buildLibrary", () => {
 });
 
 describe("featuredEssay", () => {
-  it("is never Soon", () => {
+  it("is the first essay by order, Soon included", () => {
     const lib = buildLibrary(
       [section()],
       [
@@ -97,12 +97,7 @@ describe("featuredEssay", () => {
         essay({ id: "b", slug: "b", order: 2 }),
       ],
     );
-    expect(featuredEssay(lib.sections[0])?.id).toBe("b");
-    const soon = buildLibrary(
-      [section()],
-      [essay({ id: "a", slug: "a", status: "Soon" })],
-    );
-    expect(featuredEssay(soon.sections[0])).toBeNull();
+    expect(featuredEssay(lib.sections[0])?.id).toBe("a");
   });
 });
 

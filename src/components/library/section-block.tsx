@@ -1,7 +1,5 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { EssayCard, type TitleLevel } from "@/components/library/essay-card";
-import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { featuredEssay } from "@/lib/content/library";
 import type { LibrarySection } from "@/lib/content/types";
 
@@ -41,7 +39,6 @@ export function SectionBlock({
   headingLevel?: 1 | 2 | 3;
 }) {
   const titleLevel = (headingLevel + 1) as TitleLevel;
-  const FeaturedTitle = `h${titleLevel}` as const;
   const featured = featuredEssay(section);
   const rest = section.essays.filter((e) => e !== featured);
 
@@ -52,28 +49,7 @@ export function SectionBlock({
       </SectionHeading>
       {intro}
       {featured && (
-        <Link
-          href={`/${featured.slug}`}
-          data-sound="page"
-          className="press -m-2 block rounded-[18px] p-2 pointer-fine:hover:bg-card"
-        >
-          <LiveThumbnail
-            demo={featured.coverDemo}
-            essaySlug={featured.slug}
-            size="hero"
-            preview
-          />
-          <div className="mt-3 px-0.5">
-            <FeaturedTitle className="text-sm font-medium text-foreground">
-              {featured.title}
-            </FeaturedTitle>
-            {featured.summary && (
-              <p className="mt-0.5 text-[13px] leading-5 text-subtle-foreground">
-                {featured.summary}
-              </p>
-            )}
-          </div>
-        </Link>
+        <EssayCard essay={featured} size="hero" titleLevel={titleLevel} />
       )}
       <div className="grid grid-cols-3 gap-x-6 gap-y-8 max-sm:grid-cols-2">
         {rest.map((essay) => (
