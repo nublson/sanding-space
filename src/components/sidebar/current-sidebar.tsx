@@ -3,19 +3,22 @@
 import { usePathname } from "next/navigation";
 import { type ReactNode, useMemo } from "react";
 import { Sidebar } from "@/components/sidebar/sidebar";
+import { RESOURCES } from "@/lib/content/resources";
 import type { LibrarySection } from "@/lib/content/types";
-import { INTRODUCTION } from "@/lib/introduction";
+import { ABOUT, INTRODUCTION } from "@/lib/standalone";
+
+const FIXED_PAGES = [INTRODUCTION.path, RESOURCES.path, ABOUT.path];
 
 type Current = {
-  introduction: boolean;
+  page: string | null;
   section: string | null;
   essay: string | null;
 };
 
 function fromPath(pathname: string, sections: LibrarySection[]): Current {
-  const none = { introduction: false, section: null, essay: null };
-  if (pathname.replace(/\/$/, "") === INTRODUCTION.path)
-    return { ...none, introduction: true };
+  const none = { page: null, section: null, essay: null };
+  const path = pathname.replace(/\/$/, "");
+  if (FIXED_PAGES.includes(path)) return { ...none, page: path };
   const sectionMatch = /^\/sections\/([^/]+)\/?$/.exec(pathname);
   if (sectionMatch) {
     const slug = decodeURIComponent(sectionMatch[1]);
@@ -36,10 +39,10 @@ function fromPath(pathname: string, sections: LibrarySection[]): Current {
 /** The sidebar with its current page, section and essay read from the URL. */
 export function CurrentSidebar({
   sections,
-  footer,
+  footerAction,
 }: {
   sections: LibrarySection[];
-  footer: ReactNode;
+  footerAction: ReactNode;
 }) {
   const pathname = usePathname();
   const current = useMemo(
@@ -49,10 +52,10 @@ export function CurrentSidebar({
   return (
     <Sidebar
       sections={sections}
-      introductionCurrent={current.introduction}
+      currentPagePath={current.page}
       currentSectionSlug={current.section}
       currentEssaySlug={current.essay}
-      footer={footer}
+      footerAction={footerAction}
     />
   );
 }

@@ -50,15 +50,15 @@ const sections: LibrarySection[] = [
 const setup = (
   section: string | null = "interaction",
   essaySlug: string | null = null,
-  introductionCurrent = false,
+  currentPagePath: string | null = null,
 ) =>
   render(
     <Sidebar
       sections={sections}
-      introductionCurrent={introductionCurrent}
+      currentPagePath={currentPagePath}
       currentSectionSlug={section}
       currentEssaySlug={essaySlug}
-      footer={<a href="/about">About</a>}
+      footerAction={null}
     />,
   );
 
@@ -116,7 +116,7 @@ describe("Sidebar", () => {
   });
 
   it("marks Introduction as the current page", () => {
-    setup(null, null, true);
+    setup(null, null, "/introduction");
     expect(screen.getByRole("link", { name: "Introduction" })).toHaveAttribute(
       "aria-current",
       "page",
@@ -125,5 +125,23 @@ describe("Sidebar", () => {
     expect(
       screen.getAllByRole("link", { name: "Introduction" })[1],
     ).not.toHaveAttribute("aria-current");
+  });
+
+  it.each([
+    ["Resources", "/resources"],
+    ["About", "/about"],
+  ])("marks %s in the footer as the current page", (name, path) => {
+    setup(null, null, path);
+    const link = screen.getByRole("link", { name });
+    expect(link).toHaveAttribute("href", path);
+    expect(link).toHaveAttribute("aria-current", "page");
+    expect(link).toHaveClass("text-foreground");
+    expect(link).not.toHaveClass("link");
+    for (const other of ["Introduction", "Resources", "About"]) {
+      if (other === name) continue;
+      expect(screen.getByRole("link", { name: other })).not.toHaveAttribute(
+        "aria-current",
+      );
+    }
   });
 });
