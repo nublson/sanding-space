@@ -19,6 +19,7 @@ export default async function SiteLayout({
     <div className="flex items-center justify-between">
       <Link
         href="/about"
+        transitionTypes={["sidebar-nav"]}
         data-sound="page"
         className="link flex h-8 items-center text-base max-md:h-7 max-md:text-sm pointer-coarse:h-11"
       >

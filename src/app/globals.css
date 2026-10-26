@@ -548,21 +548,30 @@ body {
  * full width on the push curve, while the old page fades into the new one
  * inside it. The sidebar fades out underneath with the root. The slide is on
  * the snapshots, not the group: Safari doesn't animate the group's move here.
- * 13rem is the push distance (the sidebar's w-52).
+ * 13rem is the push distance (the sidebar's w-52). From md up nothing was
+ * pushed, so the same links only crossfade, like PageFade.
  */
 ::view-transition-group(.shell-close) {
   animation: none;
 }
 ::view-transition-old(.shell-close) {
-  animation:
-    400ms var(--ease-push) both shell-slide,
-    200ms var(--ease-out) both page-fade-out;
+  animation: 200ms var(--ease-out) both page-fade-out;
 }
 /* No delay: the two fades overlap, so the column never shows blank. */
 ::view-transition-new(.shell-close) {
-  animation:
-    400ms var(--ease-push) both shell-slide,
-    200ms var(--ease-out) both page-fade-in;
+  animation: 200ms var(--ease-out) both page-fade-in;
+}
+@media (width < 48rem) {
+  ::view-transition-old(.shell-close) {
+    animation:
+      400ms var(--ease-push) both shell-slide,
+      200ms var(--ease-out) both page-fade-out;
+  }
+  ::view-transition-new(.shell-close) {
+    animation:
+      400ms var(--ease-push) both shell-slide,
+      200ms var(--ease-out) both page-fade-in;
+  }
 }
 @keyframes shell-slide {
   from {
