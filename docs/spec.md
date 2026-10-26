@@ -386,7 +386,7 @@ Goal: a focused, refined space that feels alive. The interface answers every pre
 
 Fonts via `next/font/google`: **Inter** (`--font-sans`, normal + italic), **Newsreader** (`--font-heading`, `opsz` axis), **Geist Mono** (`--font-mono`).
 
-Body: `font-size: 16px; line-height: 26px; letter-spacing: -0.008em; font-feature-settings: "cv11", "ss01"`, chrome and reading text alike, so the 32rem measure holds about 65 characters. Body headings Inter 500 at 22/28, 18/26 and 16/26 in `foreground` over muted copy; the essay summary is a lede at 18/28. External links in Notion text carry the destination's favicon (14px, via `/api/favicon`) before the text (decided).
+Body: `font-size: 16px; line-height: 26px; letter-spacing: -0.008em; font-feature-settings: "cv11", "ss01"`, chrome and reading text alike. Text fills the 672px column (about 85 characters per line), so paragraphs and stages share one right edge (decided). Body headings Inter 500 at 22/28, 18/26 and 16/26 in `foreground` over muted copy; the essay summary is a lede at 18/28. External links in Notion text carry the destination's favicon (14px, via `/api/favicon`) before the text (decided).
 
 Dark tokens (site):
 

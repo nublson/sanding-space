@@ -310,21 +310,9 @@ body {
 }
 
 /*
- * Long-form measure: about 74 characters at 14px Inter. Text blocks take it;
- * demo stages, cards, images, code and tables keep the full 672px column.
- */
-:root {
-  --measure: 32rem;
-}
-.measure,
-.notionic
-  > :is(p, ul, ol, blockquote, details, div:has(> :is(h2, h3, h4, h5))) {
-  max-width: var(--measure);
-}
-
-/*
- * Reading text runs at the body size, 16px on a 26px line, which keeps the
- * 32rem measure at about 65 characters. Body copy is muted; headings and
+ * Reading text runs at the body size, 16px on a 26px line, across the full
+ * 672px column (about 85 characters), so text and stages share one right
+ * edge. Body copy is muted; headings and
  * bold carry the foreground ink, so structure reads at a glance (spec §11).
  * A divider as the first block is a Notion habit, not content, so it never
  * opens a page with a gap.

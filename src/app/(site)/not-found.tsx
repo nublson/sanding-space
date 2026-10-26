@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground">
         Not found
       </h1>
-      <p className="measure text-muted-foreground">
+      <p className="text-muted-foreground">
         That page isn&rsquo;t here, or it isn&rsquo;t published yet.
       </p>
       <Link
