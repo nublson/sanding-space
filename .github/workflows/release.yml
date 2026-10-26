@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      sha: ${{ steps.push.outputs.sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -41,8 +43,13 @@ jobs:
         env:
           GIT_MERGE_AUTOEDIT: no
 
+      # Validation builds this exact commit, so a later push to main can't take
+      # the deploy gate status meant for the release.
       - name: Push merge to main
-        run: git push origin main
+        id: push
+        run: |
+          git push origin main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   validate-build:
     name: Build Validation
@@ -63,7 +70,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
         with:
-          ref: main
+          ref: ${{ needs.merge-develop.outputs.sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -98,7 +105,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          SHA=$(git rev-parse HEAD)
+          SHA="${{ needs.merge-develop.outputs.sha }}"
           if [ "${{ job.status }}" = "success" ]; then
             STATE=success
           else
