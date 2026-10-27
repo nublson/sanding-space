@@ -1,4 +1,5 @@
 import { type ReactNode, Suspense } from "react";
+import { WebmcpProvider } from "@/components/agents/webmcp-provider";
 import { NavMarker } from "@/components/nav-marker";
 import { CurrentSidebar } from "@/components/sidebar/current-sidebar";
 import { MobileShell } from "@/components/sidebar/mobile-shell";
@@ -16,6 +17,7 @@ export default async function SiteLayout({
   const library = await getLibrary();
   return (
     <SoundRoot>
+      <WebmcpProvider />
       <SkipLink />
       <NavMarker />
       <MobileShell

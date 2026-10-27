@@ -143,12 +143,13 @@ The references block at the end of each essay (the resources an essay draws from
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
 | Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays and sections have their own, the root one is the fallback |
 | Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
+| Agent surfaces | `/llms.txt`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Any page as Markdown on `Accept: text/markdown`; MCP and A2A servers; discovery manifests (`src/lib/agents/`) |
 | oEmbed | `/api/oembed` | |
 | Embed helper | `/embed.js` | Auto-height script |
 
 ### Reserved slugs (decided)
 
-Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `resources`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add any new top-level route to this list.
+Essay slugs must not be any of: `demos`, `sections`, `api`, `about`, `resources`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`, `llms.txt`, `auth.md`, `openapi.json`, `.well-known`. Add any new top-level route to this list.
 
 ### Linking between Notion pages
 

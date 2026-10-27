@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { linkHeaders, markdownRewrites } from "./src/lib/agents/discovery";
 import { aliasRedirects } from "./src/lib/demo-meta";
 
 const nextConfig: NextConfig = {
@@ -16,8 +17,13 @@ const nextConfig: NextConfig = {
       ...aliasRedirects(),
     ];
   },
+  async rewrites() {
+    // Before the page routes, so `Accept: text/markdown` reaches the Markdown route.
+    return { beforeFiles: markdownRewrites(), afterFiles: [], fallback: [] };
+  },
   async headers() {
     return [
+      ...linkHeaders(),
       {
         source: "/demos/:path*",
         headers: [

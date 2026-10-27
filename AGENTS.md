@@ -45,8 +45,9 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 | `/embed.js` | Auto-height helper script |
 | `/opengraph-image`, `/<slug>/opengraph-image`, `/sections/<slug>/opengraph-image`, `/demos/<name>/opengraph-image` | Generated Open Graph cards (`src/lib/og/image.tsx`) |
 | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
+| `/llms.txt`, `/api/markdown/<path>`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Agent surfaces (`src/lib/agents/`): any page as Markdown on `Accept: text/markdown` (rewrite in `next.config.ts`), MCP and A2A servers, discovery manifests |
 
-Reserved essay slugs: `demos`, `sections`, `api`, `about`, `resources`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`. Add every new top-level route to this list (here and in the build checks).
+Reserved essay slugs: `demos`, `sections`, `api`, `about`, `resources`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`, `llms.txt`, `auth.md`, `openapi.json`, `.well-known`. Add every new top-level route to this list (here and in the build checks).
 
 ## Interface layout
 
