@@ -120,11 +120,12 @@ Tools and references the site keeps coming back to, shown on `/resources` (§9.6
 | Description | text | One line, after the name |
 | Category | select | The group the row sits under. **The options' order in Notion is the category order on the page** (drag the options inside the property to reorder); there is no separate number (decided) |
 | Order | number | Order within its category (ascending) |
+| Visible | checkbox | Only `true` rows appear on the page; a database without this column shows every row |
 | *Database description* | | The page's one-line intro (decided) |
 
 Current categories, top to bottom: My Purls, Learning, Inspiration. Do not hardcode them; read them from the Category property.
 
-The code finds each column by the name above, or else by the first column of that type, so a renamed column still parses (`parseResource` in `src/lib/content/parse.ts`). A row shows only with a name, a URL and a Category that is one of the options; a category shows only when it has at least one such row.
+The code finds each column by the name above, or else by the first column of that type, so a renamed column still parses (`parseResource` in `src/lib/content/parse.ts`). A row shows only when Visible, with a name, a URL and a Category that is one of the options; a category shows only when it has at least one such row.
 
 The references block at the end of each essay (the resources an essay draws from) is out of the first milestone.
 

@@ -88,6 +88,7 @@ describe("parseResource", () => {
       description: "Gustavo Fior's craft notes.",
       category: "Inspiration",
       order: 1,
+      visible: true,
     });
   });
 
@@ -95,13 +96,15 @@ describe("parseResource", () => {
     const page = structuredClone(resourceFixture) as unknown as {
       properties: Record<string, Record<string, unknown>>;
     };
-    const { Name, URL, Description, Category, Order } = page.properties;
+    const { Name, URL, Description, Category, Order, Visible } =
+      page.properties;
     page.properties = {
       Title: Name,
       Link: URL,
       Blurb: Description,
       Group: Category,
       Rank: Order,
+      Shown: Visible,
     };
     const parsed = parseResource(page as unknown as PageObjectResponse);
     expect(parsed.name).toBe("Craft");
@@ -109,6 +112,27 @@ describe("parseResource", () => {
     expect(parsed.description).toBe("Gustavo Fior's craft notes.");
     expect(parsed.category).toBe("Inspiration");
     expect(parsed.order).toBe(1);
+    expect(parsed.visible).toBe(true);
+  });
+
+  it("hides a row whose Visible is unchecked", () => {
+    const page = structuredClone(resourceFixture) as unknown as {
+      properties: Record<string, Record<string, unknown>>;
+    };
+    page.properties.Visible.checkbox = false;
+    expect(parseResource(page as unknown as PageObjectResponse).visible).toBe(
+      false,
+    );
+  });
+
+  it("shows every row of a database without a Visible column", () => {
+    const page = structuredClone(resourceFixture) as unknown as {
+      properties: Record<string, Record<string, unknown>>;
+    };
+    delete page.properties.Visible;
+    expect(parseResource(page as unknown as PageObjectResponse).visible).toBe(
+      true,
+    );
   });
 
   it("handles an empty URL, category and order", () => {
