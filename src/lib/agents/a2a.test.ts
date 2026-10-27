@@ -37,6 +37,20 @@ test("skills mirror the MCP tools", () => {
   expect(A2A_SKILLS.map((s) => s.id)).toEqual(AGENT_TOOLS.map((t) => t.name));
 });
 
+test("every advertised example gets an answer from its own skill", async () => {
+  for (const skill of A2A_SKILLS) {
+    for (const example of skill.examples) {
+      const parts = example.startsWith("{")
+        ? [{ data: JSON.parse(example) }]
+        : [{ text: example }];
+      const res = await send(parts);
+      expect(res.error).toBeUndefined();
+      const data = res.result?.message.parts.find((p) => "data" in p);
+      if (data) expect(data).toMatchObject({ data: { skill: skill.id } });
+    }
+  }
+});
+
 test("a data part runs the named skill", async () => {
   const res = await send([
     { data: { skill: "get_page", path: "/button-press/" } },

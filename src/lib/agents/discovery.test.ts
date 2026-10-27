@@ -20,6 +20,21 @@ test("pages rewrite to the Markdown route only when Markdown is accepted", async
     }),
   ]);
   for (const rule of rules) {
+    const [missing] = rule.missing ?? [];
+    expect(missing).toMatchObject({ type: "header", key: "accept" });
+    const refuses = new RegExp(`^${(missing as { value: string }).value}$`);
+    for (const header of [
+      "text/html, text/markdown;q=0",
+      "text/markdown; q=0.0, text/html",
+      "text/markdown;q=0.000",
+    ])
+      expect(refuses.test(header)).toBe(true);
+    for (const header of [
+      "text/markdown",
+      "text/markdown;q=0.5, text/html",
+      "text/html, text/markdown;q=0.01",
+    ])
+      expect(refuses.test(header)).toBe(false);
     const [has] = rule.has ?? [];
     expect(has).toMatchObject({ type: "header", key: "accept" });
     const accept = new RegExp(`^${(has as { value: string }).value}$`);

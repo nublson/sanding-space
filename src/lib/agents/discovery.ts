@@ -14,10 +14,20 @@ const ACCEPTS_MARKDOWN = [
   { type: "header" as const, key: "accept", value: ".*text/markdown.*" },
 ];
 
+/** A zero weight (`text/markdown;q=0`) refuses Markdown, so that client gets HTML. */
+const REFUSES_MARKDOWN = [
+  {
+    type: "header" as const,
+    key: "accept",
+    value: ".*text/markdown\\s*;\\s*q=0(\\.0{0,3})?\\s*(,.*)?",
+  },
+];
+
 export function markdownRewrites() {
   return PAGE_SOURCES.map(({ source, path }) => ({
     source,
     has: ACCEPTS_MARKDOWN,
+    missing: REFUSES_MARKDOWN,
     destination: `/api/markdown/${path}`,
   }));
 }

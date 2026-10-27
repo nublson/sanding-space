@@ -85,13 +85,23 @@ describe("essayMarkdown", () => {
       pageHref: (id) => (id === "p2" ? "/hover" : null),
     });
     expect(md.startsWith('---\ntitle: "Press: a study"\n')).toBe(true);
-    expect(md).toContain("section: Interaction\n");
+    expect(md).toContain('section: "Interaction"\n');
     expect(md.match(/^# /gm)).toHaveLength(1);
     expect(md).toContain("# Press: a study");
     expect(md).toMatch(/Demo: https?:\/\/[^/]+\/demos\/surface/);
     expect(md).toContain("Hello.");
     expect(md).toMatch(/\[Hover\]\(https?:\/\/[^/]+\/hover\)/);
   });
+});
+
+test("front matter keeps YAML-looking titles as strings", () => {
+  const md = essayMarkdown({
+    essay: essay({ title: "null", summary: "123" }),
+    section: section([]),
+    blocks: [],
+    pageHref: () => null,
+  });
+  expect(md).toContain('title: "null"\ndescription: "123"\n');
 });
 
 describe("sectionMarkdown", () => {

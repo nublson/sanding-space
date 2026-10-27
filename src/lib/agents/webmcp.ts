@@ -20,8 +20,33 @@ const result = (text: string): WebmcpResult => ({
 
 const UNAVAILABLE = "Could not reach Sanding Space. Try again later.";
 
+/**
+ * The essay entries of /llms.txt: list items under the section headings,
+ * without each section's own link. The fixed pages and agent surfaces after
+ * "## Pages" are not essays.
+ */
+export function essayLines(llmsTxt: string): string[] {
+  const lines: string[] = [];
+  let inSections = false;
+  for (const line of llmsTxt.split("\n")) {
+    if (line === "## Pages") break;
+    if (line.startsWith("## ")) inSections = true;
+    else if (
+      inSections &&
+      line.startsWith("- ") &&
+      !/\]\([^)]*\/sections\/[^)]*\)/.test(line)
+    )
+      lines.push(line);
+  }
+  return lines;
+}
+
 export function webmcpTools(fetcher: typeof fetch): WebmcpTool[] {
-  const index = async () => (await fetcher("/llms.txt")).text();
+  const index = async () => {
+    const response = await fetcher("/llms.txt");
+    if (!response.ok) throw new Error(UNAVAILABLE);
+    return response.text();
+  };
 
   return [
     {
@@ -55,14 +80,12 @@ export function webmcpTools(fetcher: typeof fetch): WebmcpTool[] {
         if (!query) return result("Provide a query, or use list_essays.");
         try {
           const needle = query.toLowerCase();
-          const matches = (await index()).split("\n").filter(
-            (line) =>
-              line.startsWith("- ") &&
-              // Match the text, not the link target.
-              line
-                .replace(/\]\([^)]*\)/, "]")
-                .toLowerCase()
-                .includes(needle),
+          const matches = essayLines(await index()).filter((line) =>
+            // Match the text, not the link target.
+            line
+              .replace(/\]\([^)]*\)/, "]")
+              .toLowerCase()
+              .includes(needle),
           );
           return result(
             matches.length > 0

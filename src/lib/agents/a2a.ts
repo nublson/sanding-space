@@ -34,12 +34,16 @@ export type A2ADeps = {
   listResources(): Promise<unknown>;
 };
 
+/**
+ * Messages the endpoint answers as advertised: free text is a search query,
+ * every other skill is named in a data part.
+ */
 const EXAMPLES: Record<(typeof AGENT_TOOLS)[number]["name"], string[]> = {
-  list_essays: ["What essays are on Sanding Space?"],
-  search_essays: ["Find essays about motion"],
-  get_page: ["Read the essay with slug button-press"],
-  list_demos: ["Which demos can I embed?"],
-  list_resources: ["What tools does Sanding Space recommend?"],
+  list_essays: ['{"skill":"list_essays"}'],
+  search_essays: ["motion"],
+  get_page: ['{"skill":"get_page","path":"introduction"}'],
+  list_demos: ['{"skill":"list_demos"}'],
+  list_resources: ['{"skill":"list_resources"}'],
 };
 
 export const A2A_SKILLS = AGENT_TOOLS.map((tool) => ({

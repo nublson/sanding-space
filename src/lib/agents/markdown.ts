@@ -22,10 +22,9 @@ function body(blocks: NotionBlock[], pageHref: PageHref): string {
   }).trim();
 }
 
+/** Always quoted, so a title like `null` or `2026` stays a string. */
 function yaml(value: string): string {
-  return /[:#{}[\],&*?|>!%@`"'\n]/.test(value) || value.trim() !== value
-    ? JSON.stringify(value)
-    : value;
+  return JSON.stringify(value);
 }
 
 function frontMatter(fields: Record<string, string | null | undefined>) {
