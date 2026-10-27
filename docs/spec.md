@@ -367,6 +367,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 - Header identical to the desktop wordmark, with a **sidebar toggle button before the logo**. The header stays fixed.
 - The sidebar is the same component (sections, Question, essays, About + mute footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
 - While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
+- A horizontal touch swipe also opens and closes it (decided), like a native app's push drawer: the content follows the finger from wherever it is (mid-slide included) and stretches with resistance past either end; on release a flick (0.25 px/ms) or a brisk drag (0.11 px/ms over 24 px) goes its way, anything slower settles on the side of halfway it drifts to. A moving release carries the finger's speed (180–400 ms, starting at the release velocity, `--ease-out`'s tail); a still one uses the toggle's push spring. Vertical scroll and pinch-zoom stay native; swipes starting on a live demo stage, a field or a sideways scroller belong to the page. The toggle sound plays only when the state changes.
 - The essay hero demo runs edge to edge; the card grid drops to 2 columns.
 
 ### 9.6 Resources `/resources`
