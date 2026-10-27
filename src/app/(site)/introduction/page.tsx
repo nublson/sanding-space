@@ -14,7 +14,11 @@ import { pageMetadata } from "@/lib/site";
 // sidebar label and path are fixed; the title is the Notion page's own.
 export async function generateMetadata(): Promise<Metadata> {
   const { title } = await getIntroduction();
-  return pageMetadata({ name: title, path: INTRODUCTION.path });
+  return pageMetadata({
+    name: title,
+    path: INTRODUCTION.path,
+    ownImage: true,
+  });
 }
 
 // Laid out like a section page: the Notion title as the heading, then the body.

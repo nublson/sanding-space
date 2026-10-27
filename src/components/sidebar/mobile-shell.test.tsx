@@ -208,6 +208,20 @@ describe("MobileShell swipe", () => {
     });
   }
 
+  it("a swipe-open leaves focus alone; the toggle still moves it in", async () => {
+    const user = userEvent.setup();
+    const { toggle } = setup();
+    const sidebar = () =>
+      document.getElementById(toggle.getAttribute("aria-controls") ?? "");
+    swipe(screen.getByText("Page content"), 160);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(sidebar()?.contains(document.activeElement)).toBe(false);
+    // Closed and reopened with the toggle: focus moves into the sidebar.
+    await user.click(toggle);
+    await user.click(toggle);
+    expect(sidebar()?.contains(document.activeElement)).toBe(true);
+  });
+
   it("a swipe right opens it and a swipe left closes it", () => {
     const { toggle } = setup();
     swipe(screen.getByText("Page content"), 160);

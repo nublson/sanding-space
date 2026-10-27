@@ -63,16 +63,20 @@ export function pageMetadata({
   // A page's openGraph replaces the layout's whole object, root card included,
   // so pages without a card of their own name the root card here. An explicit
   // list would also beat a route's own opengraph-image file, hence ownImage.
+  // Next applies that file only when `images` is absent, not merely undefined
+  // (it checks hasOwnProperty), so with ownImage the key is left out.
   const images = ownImage
-    ? undefined
-    : [
-        {
-          url: absoluteUrl("/opengraph-image"),
-          width: 1200,
-          height: 630,
-          alt: SITE_NAME,
-        },
-      ];
+    ? {}
+    : {
+        images: [
+          {
+            url: absoluteUrl("/opengraph-image"),
+            width: 1200,
+            height: 630,
+            alt: SITE_NAME,
+          },
+        ],
+      };
   return {
     title: { absolute: resolvedTitle },
     description: resolvedDescription,
@@ -84,7 +88,7 @@ export function pageMetadata({
       siteName: SITE_NAME,
       locale: "en_US",
       type,
-      images,
+      ...images,
       ...(type === "article" && article
         ? {
             publishedTime: article.publishedTime ?? undefined,
@@ -99,7 +103,7 @@ export function pageMetadata({
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
-      images,
+      ...images,
     },
   };
 }

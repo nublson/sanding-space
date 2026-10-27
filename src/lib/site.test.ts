@@ -20,6 +20,19 @@ test("previews show everywhere except Vercel production", () => {
   expect(showPreviews({})).toBe(true);
 });
 
+test("pageMetadata leaves images out entirely for a route with its own card", () => {
+  // Next applies a route's opengraph-image file only when the page's
+  // openGraph has no images key at all; images: undefined still blocks it.
+  const own = pageMetadata({ path: "/introduction", ownImage: true });
+  expect(own.openGraph && "images" in own.openGraph).toBe(false);
+  expect(own.twitter && "images" in own.twitter).toBe(false);
+  // Without a card of its own, a page names the root card.
+  const root = pageMetadata({ path: "/introduction" });
+  expect(root.openGraph?.images).toEqual([
+    expect.objectContaining({ url: `${SITE_URL}/opengraph-image` }),
+  ]);
+});
+
 test("pageMetadata carries title, canonical and the same Open Graph copy", () => {
   const meta = pageMetadata({
     name: "Button Press",
