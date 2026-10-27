@@ -141,7 +141,7 @@ The references block at the end of each essay (the resources an essay draws from
 | Section | `/sections/<slug>` | Section intro + its essays |
 | Resources | `/resources` | Tools and references by category, from the Resources database (§3.4, §9.6). Linked from the sidebar footer, above About |
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
-| Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays and sections have their own, the root one is the fallback |
+| Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays, sections, the Introduction, About and Resources have their own, the root one is the fallback |
 | Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
 | Agent surfaces | `/llms.txt`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Any page as Markdown on `Accept: text/markdown`; MCP and A2A servers; discovery manifests (`src/lib/agents/`) |
 | oEmbed | `/api/oembed` | |

@@ -43,7 +43,7 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `noti
 | `/demos/<name>` | Standalone embeddable demo (permanent URL) |
 | `/api/oembed` | oEmbed endpoint |
 | `/embed.js` | Auto-height helper script |
-| `/opengraph-image`, `/<slug>/opengraph-image`, `/sections/<slug>/opengraph-image`, `/demos/<name>/opengraph-image` | Generated Open Graph cards (`src/lib/og/image.tsx`) |
+| `/opengraph-image`, `/<slug>/opengraph-image` (essays, Introduction, About, Resources), `/sections/<slug>/opengraph-image`, `/demos/<name>/opengraph-image` | Generated Open Graph cards (`src/lib/og/image.tsx`) |
 | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
 | `/llms.txt`, `/api/markdown/<path>`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Agent surfaces (`src/lib/agents/`): any page as Markdown on `Accept: text/markdown` (rewrite in `next.config.ts`), MCP and A2A servers, discovery manifests |
 

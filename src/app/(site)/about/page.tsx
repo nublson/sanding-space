@@ -14,7 +14,7 @@ import { ABOUT } from "@/lib/standalone";
 // colophon: the sidebar label and path are fixed, the page is Notion's.
 export async function generateMetadata(): Promise<Metadata> {
   const { title } = await getAbout();
-  return pageMetadata({ name: title, path: ABOUT.path });
+  return pageMetadata({ name: title, path: ABOUT.path, ownImage: true });
 }
 
 export default async function AboutPage() {

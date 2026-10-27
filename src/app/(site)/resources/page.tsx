@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     name: RESOURCES.name,
     description: intro || undefined,
     path: RESOURCES.path,
+    ownImage: true,
   });
 }
 
