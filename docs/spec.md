@@ -458,17 +458,21 @@ Library: `@web-kits/audio` (Web Audio synthesis, no audio files). All sounds are
 
 | Name | Definition | Used for |
 |---|---|---|
-| `tap` | triangle 1400 → 900 Hz, decay 0.035 s, gain 0.12 | non-navigating presses: in-text links, About, mobile sidebar toggle |
-| `page` | pink noise through a bandpass at 700 Hz (Q 1.4) sweeping to 2800 Hz (attack 0.07, decay 0.16); envelope attack 0.05, decay 0.2; gain 0.09 | any press that navigates: cards, thumbnails, sidebar essays and sections |
-| `toggle-on` | sine 660 Hz then 990 Hz (+60 ms), decays 0.07 / 0.1 s, gain 0.12 each | unmute, open mobile sidebar |
-| `toggle-off` | the same notes in reverse | mute (plays just before silence), close mobile sidebar |
+| `tap` | a dry tick: pink noise through a bandpass at 2800 Hz (Q 1.4), decay 0.015 s, gain 0.32, over a sine at 180 Hz, decay 0.04 s, gain 0.06 | non-navigating presses: in-text links, About, mobile sidebar toggle |
+| `page` | a sheet settling: pink noise through a lowpass that opens at 2200 Hz and closes to 700 Hz over 0.14 s (Q 0.7); envelope attack 0.012, decay 0.17; gain 0.12 | any press that navigates: cards, thumbnails, sidebar essays and sections |
+| `toggle-on` | a switch click: pink noise through a bandpass at 2200 Hz (Q 1.6), decay 0.014 s, gain 0.3, over a triangle body at 420 Hz (lowpass at 3× the body), decay 0.055 s, gain 0.07 | unmute, open mobile sidebar |
+| `toggle-off` | the same click, duller: transient at 1500 Hz, body at 300 Hz | mute (plays just before silence), close mobile sidebar |
+| `hover` | the tap's tick alone, quieter and shorter: pink noise through a bandpass at 2400 Hz (Q 2), decay 0.01 s, gain 0.36 | entering a sidebar item (Introduction, sections, essays, Resources, About) with a mouse on a fine pointer; once per item, never on Soon items |
+
+No sound is a melody or a pitch sweep: each is a short mechanical gesture, and on/off differ by weight and brightness, not by notes. Peaks sit near 0.08 for the clicks, 0.04 for `page` and 0.03 for `hover`.
 
 Every play uses `jitter: { detune: 30, volume: 0.08 }`.
 
 Rules:
 - **On by default.** Sound answers user gestures only, so browser autoplay rules are never hit (the audio context resumes on the first gesture).
 - **One sound per gesture**: a navigating link plays `page`, never `tap` + `page`. Keyboard activation (Enter/Space) plays the same sound as a click.
-- **Silent**: hover, focus, scroll, page load, Soon items.
+- **Hover** is silent everywhere except the sidebar, where items opt in with `data-sound-hover="hover"`. It plays once on entering an item (moving between its children never repeats it), only for `pointerType === "mouse"` on `(hover: hover) and (pointer: fine)`, so touch and pen stay silent.
+- **Silent**: focus, scroll, page load, Soon items, hover outside the sidebar.
 - Throttle: the same sound can't restart within 60 ms.
 - **Mute** button in the sidebar footer: sets master volume to 0 via `setMasterVolume`, persisted in `localStorage`, `aria-pressed`, accessible name "Mute sound" (constant; `aria-pressed` carries the state).
 - Reduced motion does not mute. Sound never carries information that is not also visible.
@@ -495,7 +499,7 @@ Approach: CSS first (portfolio patterns) plus React `<ViewTransition>` for route
 
 All easing is `--ease-out` unless noted. With `prefers-reduced-motion`, everything above becomes instant except color changes, and view transitions are skipped.
 
-Rejected (decoration, not explanation): hover sounds, scroll-triggered reveals, parallax, cursor followers, logo animation, shimmering skeletons, hover effects on live demo thumbnails, animated focus rings.
+Rejected (decoration, not explanation): hover sounds outside the sidebar, scroll-triggered reveals, parallax, cursor followers, logo animation, shimmering skeletons, hover effects on live demo thumbnails, animated focus rings.
 
 ### 11.6 Embeds (`/demos/<name>`)
 

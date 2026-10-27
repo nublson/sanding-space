@@ -49,6 +49,63 @@ describe("SoundRoot", () => {
     expect(playSound).toHaveBeenCalledTimes(1);
   });
 
+  describe("hover", () => {
+    let finePointer = true;
+    beforeEach(() => {
+      finePointer = true;
+      // Live like a real MediaQueryList: `matches` reads the current value.
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        get matches() {
+          return finePointer;
+        },
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }));
+    });
+
+    function tree() {
+      return render(
+        <SoundRoot>
+          <a href="#a" data-sound-hover="hover">
+            <span>a</span>
+          </a>
+          <a href="#b" data-sound-hover="hover">
+            b
+          </a>
+          <span>outside</span>
+        </SoundRoot>,
+      );
+    }
+
+    it("plays once per item entered with a mouse", () => {
+      tree();
+      fireEvent.pointerOver(screen.getByText("a"), { pointerType: "mouse" });
+      fireEvent.pointerOver(screen.getByText("a").parentElement as Element, {
+        pointerType: "mouse",
+      });
+      expect(playSound).toHaveBeenCalledTimes(1);
+      expect(playSound).toHaveBeenCalledWith("hover");
+      fireEvent.pointerOver(screen.getByText("b"), { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(2);
+      fireEvent.pointerOver(screen.getByText("outside"), {
+        pointerType: "mouse",
+      });
+      fireEvent.pointerOver(screen.getByText("b"), { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(3);
+    });
+
+    it("stays silent for touch, pen and coarse pointers", () => {
+      tree();
+      fireEvent.pointerOver(screen.getByText("a"), { pointerType: "touch" });
+      fireEvent.pointerOver(screen.getByText("b"), { pointerType: "pen" });
+      expect(playSound).not.toHaveBeenCalled();
+      finePointer = false;
+      fireEvent.pointerOver(screen.getByText("a"), { pointerType: "mouse" });
+      expect(playSound).not.toHaveBeenCalled();
+    });
+  });
+
   it("ignores aria-disabled elements", () => {
     render(
       <SoundRoot>

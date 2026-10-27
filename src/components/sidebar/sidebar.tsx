@@ -64,6 +64,7 @@ export function Sidebar({
         <Link
           href={INTRODUCTION.path}
           data-sound="page"
+          data-sound-hover="hover"
           transitionTypes={SIDEBAR_NAV}
           aria-current={introductionCurrent ? "page" : undefined}
           className={cn(
@@ -82,6 +83,7 @@ export function Sidebar({
                 <Link
                   href={`/sections/${section.slug}`}
                   data-sound="page"
+                  data-sound-hover="hover"
                   transitionTypes={SIDEBAR_NAV}
                   aria-current={
                     current && !currentEssaySlug ? "page" : undefined
@@ -119,6 +121,7 @@ export function Sidebar({
                               <Link
                                 href={`/${essay.slug}`}
                                 data-sound="page"
+                                data-sound-hover="hover"
                                 transitionTypes={SIDEBAR_NAV}
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
@@ -169,6 +172,7 @@ export function Sidebar({
                 key={page.path}
                 href={page.path}
                 data-sound="page"
+                data-sound-hover="hover"
                 transitionTypes={SIDEBAR_NAV}
                 aria-current={current ? "page" : undefined}
                 // .link carries the resting ink and hover; the current page
