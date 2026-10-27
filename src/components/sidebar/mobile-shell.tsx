@@ -49,6 +49,8 @@ export function MobileShell({
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const openRef = useRef(open);
+  // False when a swipe opened the sidebar: see the focus effect below.
+  const focusOnOpenRef = useRef(true);
   const pathname = usePathname();
   const router = useRouter();
   const [shownPath, setShownPath] = useState(pathname);
@@ -79,8 +81,15 @@ export function MobileShell({
     [pathname, close],
   );
 
-  // Move focus into the sidebar once it opens.
+  // Move focus into the sidebar once it opens, for the toggle's keyboard and
+  // assistive-tech users. Not after a swipe, a touch-only gesture: nothing
+  // had focus, so the browser would treat the scripted focus as keyboard
+  // focus and ring the first link under the finger.
   useEffect(() => {
+    if (open && !focusOnOpenRef.current) {
+      focusOnOpenRef.current = true;
+      return;
+    }
     if (open) {
       // The first focusable that is actually rendered: the wordmark link is
       // hidden below md, and focus() on a display:none element does nothing.
@@ -262,6 +271,7 @@ export function MobileShell({
       );
       if (next !== openRef.current) {
         playSound(next ? "toggle-on" : "toggle-off");
+        focusOnOpenRef.current = !next;
         setInstant(false);
         setOpen(next);
       }
