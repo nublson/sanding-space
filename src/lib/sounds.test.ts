@@ -16,51 +16,58 @@ vi.mock("@web-kits/audio", () => ({
 
 const JITTER = { jitter: { detune: 30, volume: 0.08 } };
 
+function clickDef(transient: number, body: number) {
+  return {
+    layers: [
+      {
+        source: { type: "noise", color: "pink" },
+        filter: { type: "bandpass", frequency: transient, resonance: 1.6 },
+        envelope: { decay: 0.014 },
+        gain: 0.3,
+      },
+      {
+        source: { type: "triangle", frequency: body },
+        filter: { type: "lowpass", frequency: body * 3 },
+        envelope: { decay: 0.055 },
+        gain: 0.07,
+      },
+    ],
+  };
+}
+
 const tapDef = {
-  source: { type: "triangle", frequency: { start: 1400, end: 900 } },
-  envelope: { decay: 0.035 },
-  gain: 0.12,
+  layers: [
+    {
+      source: { type: "noise", color: "pink" },
+      filter: { type: "bandpass", frequency: 2800, resonance: 1.4 },
+      envelope: { decay: 0.015 },
+      gain: 0.32,
+    },
+    {
+      source: { type: "sine", frequency: 180 },
+      envelope: { decay: 0.04 },
+      gain: 0.06,
+    },
+  ],
 };
 const pageDef = {
   source: { type: "noise", color: "pink" },
   filter: {
-    type: "bandpass",
+    type: "lowpass",
     frequency: 700,
-    resonance: 1.4,
-    envelope: { attack: 0.07, peak: 2800, decay: 0.16 },
+    resonance: 0.7,
+    envelope: { peak: 2200, decay: 0.14 },
   },
-  envelope: { attack: 0.05, decay: 0.2 },
-  gain: 0.09,
+  envelope: { attack: 0.012, decay: 0.17 },
+  gain: 0.12,
 };
-const onDef = {
-  layers: [
-    {
-      source: { type: "sine", frequency: 660 },
-      envelope: { decay: 0.07 },
-      gain: 0.12,
-    },
-    {
-      source: { type: "sine", frequency: 990 },
-      envelope: { decay: 0.1 },
-      gain: 0.12,
-      delay: 0.06,
-    },
-  ],
-};
-const offDef = {
-  layers: [
-    {
-      source: { type: "sine", frequency: 990 },
-      envelope: { decay: 0.07 },
-      gain: 0.12,
-    },
-    {
-      source: { type: "sine", frequency: 660 },
-      envelope: { decay: 0.1 },
-      gain: 0.12,
-      delay: 0.06,
-    },
-  ],
+const onDef = clickDef(2200, 420);
+const offDef = clickDef(1500, 300);
+const hoverDef = {
+  source: { type: "noise", color: "pink" },
+  filter: { type: "bandpass", frequency: 2400, resonance: 2 },
+  envelope: { decay: 0.01 },
+  gain: 0.36,
 };
 
 async function load() {
@@ -79,10 +86,11 @@ describe("sounds", () => {
 
   it("definitions match the spec", async () => {
     const { playSound } = await load();
-    for (const n of ["tap", "page", "toggle-on", "toggle-off"] as const) {
+    const names = ["tap", "page", "toggle-on", "toggle-off", "hover"] as const;
+    for (const n of names) {
       playSound(n);
     }
-    expect(definitions).toEqual([tapDef, pageDef, onDef, offDef]);
+    expect(definitions).toEqual([tapDef, pageDef, onDef, offDef, hoverDef]);
     for (const play of plays.values()) {
       expect(play).toHaveBeenCalledWith(JITTER);
     }

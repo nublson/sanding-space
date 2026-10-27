@@ -49,6 +49,91 @@ describe("SoundRoot", () => {
     expect(playSound).toHaveBeenCalledTimes(1);
   });
 
+  describe("hover", () => {
+    let finePointer = true;
+    beforeEach(() => {
+      finePointer = true;
+      // Live like a real MediaQueryList: `matches` reads the current value.
+      window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+        get matches() {
+          return finePointer;
+        },
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }));
+    });
+
+    function tree() {
+      return render(
+        <SoundRoot>
+          <a href="#a" data-sound-hover="hover">
+            <span>a</span>
+          </a>
+          <a href="#b" data-sound-hover="hover">
+            b
+          </a>
+          <span>outside</span>
+        </SoundRoot>,
+      );
+    }
+
+    it("plays once per item entered with a mouse", () => {
+      tree();
+      const child = screen.getByText("a");
+      const item = child.parentElement as Element;
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      // Moving onto a child and back onto the item itself is not a re-entry.
+      fireEvent.pointerOut(item, {
+        pointerType: "mouse",
+        relatedTarget: child,
+      });
+      fireEvent.pointerOver(child, { pointerType: "mouse" });
+      fireEvent.pointerOut(child, {
+        pointerType: "mouse",
+        relatedTarget: item,
+      });
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(1);
+      expect(playSound).toHaveBeenCalledWith("hover");
+      fireEvent.pointerOver(screen.getByText("b"), { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(2);
+      fireEvent.pointerOver(screen.getByText("outside"), {
+        pointerType: "mouse",
+      });
+      fireEvent.pointerOver(screen.getByText("b"), { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(3);
+    });
+
+    it("plays again after leaving the window and returning to the item", () => {
+      tree();
+      const item = screen.getByText("b");
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(1);
+      // Leaving the window: no related target.
+      fireEvent.pointerOut(item, { pointerType: "mouse", relatedTarget: null });
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(2);
+      // Leaving to plain content, then back.
+      fireEvent.pointerOut(item, {
+        pointerType: "mouse",
+        relatedTarget: screen.getByText("outside"),
+      });
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(3);
+    });
+
+    it("stays silent for touch, pen and coarse pointers", () => {
+      tree();
+      fireEvent.pointerOver(screen.getByText("a"), { pointerType: "touch" });
+      fireEvent.pointerOver(screen.getByText("b"), { pointerType: "pen" });
+      expect(playSound).not.toHaveBeenCalled();
+      finePointer = false;
+      fireEvent.pointerOver(screen.getByText("a"), { pointerType: "mouse" });
+      expect(playSound).not.toHaveBeenCalled();
+    });
+  });
+
   it("ignores aria-disabled elements", () => {
     render(
       <SoundRoot>

@@ -68,7 +68,7 @@ Decided in [docs/spec.md §10](docs/spec.md): the **shaving** mark (one curl str
 Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's portfolio (nublson.com, repo `nublson/nublson`): Inter / Newsreader / Geist Mono, achromatic OKLCH dark tokens, `--ease-out` motion utilities.
 
 - **UI kit**: shadcn/ui on **Base UI** primitives (`base-nova`), lucide icons. Don't add Radix.
-- **Sound**: `@web-kits/audio`. Four sounds (`tap`, `page`, `toggle-on`, `toggle-off`) defined only in `src/lib/sounds.ts`; elements opt in with `data-sound`. Press and state changes only, never hover/focus/scroll/load. One sound per gesture.
+- **Sound**: `@web-kits/audio`. Five sounds (`tap`, `page`, `toggle-on`, `toggle-off`, `hover`) defined only in `src/lib/sounds.ts`; elements opt in with `data-sound` (press) and `data-sound-hover` (sidebar items only, mouse on fine pointers). Press, state changes and sidebar hover only, never focus/scroll/load. One sound per gesture.
 - **Motion**: CSS first + React `<ViewTransition>` for routes. `motion/react` is for demos only, never site chrome. Animate transform/opacity/color only; honor reduced motion.
 - **Quality gates** after each milestone: `better-interface`, then `find-animation-opportunities`, then `improve` (§11.8).
 
