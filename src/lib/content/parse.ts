@@ -106,6 +106,8 @@ export function parseResource(page: PageObjectResponse): ResourceEntry {
     ).trim(),
     category: propOfType(p, "Category", "select")?.select?.name ?? null,
     order: propOfType(p, "Order", "number")?.number ?? Number.POSITIVE_INFINITY,
+    // Only the checkbox column hides a row: a database without one shows all.
+    visible: propOfType(p, "Visible", "checkbox")?.checkbox ?? true,
   };
 }
 

@@ -31,10 +31,10 @@ export function categoryId(name: string): string {
 
 /**
  * The page's data from the database's schema and rows. A row shows only
- * with a name, a URL and a Category that is one of the options; a category
- * shows only with at least one row. Rows sort by Order, then by name. Two
- * names that slug alike ("A & B", "A-B") get distinct ids, since the id is
- * the heading's and the section's label.
+ * when Visible, with a name, a URL and a Category that is one of the
+ * options; a category shows only with at least one row. Rows sort by Order,
+ * then by name. Two names that slug alike ("A & B", "A-B") get distinct ids,
+ * since the id is the heading's and the section's label.
  */
 export function buildResources(
   schema: ResourcesSchema,
@@ -43,9 +43,11 @@ export function buildResources(
   const ids = new Set<string>();
   const categories = schema.categories.flatMap((name) => {
     const resources = entries
-      .filter((e) => e.category === name && e.name && e.url)
+      .filter((e) => e.visible && e.category === name && e.name && e.url)
       .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
-      .map(({ category: _category, ...resource }) => resource);
+      .map(
+        ({ category: _category, visible: _visible, ...resource }) => resource,
+      );
     if (resources.length === 0) return [];
     const base = categoryId(name);
     let id = base;

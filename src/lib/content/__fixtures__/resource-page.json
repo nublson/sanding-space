@@ -43,7 +43,8 @@
       "type": "select",
       "select": { "id": "opt-3", "name": "Inspiration", "color": "default" }
     },
-    "Order": { "id": "d", "type": "number", "number": 1 }
+    "Order": { "id": "d", "type": "number", "number": 1 },
+    "Visible": { "id": "e", "type": "checkbox", "checkbox": true }
   },
   "url": "https://www.notion.so/3756f20af849489e857151858d7b8cbd"
 }

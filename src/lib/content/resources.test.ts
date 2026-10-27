@@ -9,6 +9,7 @@ const entry = (o: Partial<ResourceEntry> = {}): ResourceEntry => ({
   description: "",
   category: "Inspiration",
   order: 1,
+  visible: true,
   ...o,
 });
 
@@ -37,6 +38,17 @@ describe("buildResources", () => {
       "b",
     ]);
     expect(built.categories[0].resources[0]).not.toHaveProperty("category");
+    expect(built.categories[0].resources[0]).not.toHaveProperty("visible");
+  });
+
+  it("hides rows with Visible unchecked, and the category when none is left", () => {
+    const built = buildResources(schema, [
+      entry({ id: "hidden", category: "Learning", visible: false }),
+      entry({ id: "shown", category: "Inspiration" }),
+      entry({ id: "also-hidden", category: "Inspiration", visible: false }),
+    ]);
+    expect(built.categories.map((c) => c.name)).toEqual(["Inspiration"]);
+    expect(built.categories[0].resources.map((r) => r.id)).toEqual(["shown"]);
   });
 
   it("hides empty categories and rows without a name, URL or known category", () => {

@@ -36,8 +36,14 @@ export type Resource = {
   description: string;
   order: number;
 };
-/** A row of the Resources database as parsed: a Resource plus its Category option. */
-export type ResourceEntry = Resource & { category: string | null };
+/**
+ * A row of the Resources database as parsed: a Resource plus its Category
+ * option and its Visible checkbox (true when the database has no such column).
+ */
+export type ResourceEntry = Resource & {
+  category: string | null;
+  visible: boolean;
+};
 /** A Category option of the Resources database, with its resources by Order. */
 export type ResourceCategory = {
   id: string;
