@@ -7,6 +7,7 @@ import {
   type Pointer,
   restX,
   restY,
+  smoothVelocity,
   stepField,
 } from "./surface-field";
 
@@ -169,5 +170,17 @@ describe("easePress", () => {
     let up = 1;
     for (let f = 0; f < 6; f++) up = easePress(up, false, FRAME);
     expect(down).toBeLessThan(1 - up);
+  });
+});
+
+describe("smoothVelocity", () => {
+  it("weighs a new sample by half at 60Hz, as the demo always has", () => {
+    expect(smoothVelocity(0, 100, 1 / 60)).toBeCloseTo(50);
+  });
+
+  it("two 120Hz frames smooth exactly as much as one 60Hz frame", () => {
+    const once = smoothVelocity(0, 100, 1 / 60);
+    const twice = smoothVelocity(smoothVelocity(0, 100, 1 / 120), 100, 1 / 120);
+    expect(twice).toBeCloseTo(once);
   });
 });

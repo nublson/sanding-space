@@ -177,6 +177,22 @@ export function maxSpeed(field: Field): number {
   return Math.sqrt(max);
 }
 
+/**
+ * Pointer velocity's smoothing time constant, s: weighs a new sample by half
+ * at 60Hz, and by the same amount per unit of time at any other frame rate.
+ */
+const VELOCITY_TAU = 1 / 60 / Math.LN2;
+
+/** Blends a new velocity sample into the running one, frame-rate independent. */
+export function smoothVelocity(
+  current: number,
+  sample: number,
+  dt: number,
+): number {
+  const k = 1 - Math.exp(-dt / VELOCITY_TAU);
+  return current + (sample - current) * k;
+}
+
 /** Eases the press depth toward its target, slower in than out. */
 export function easePress(press: number, down: boolean, dt: number): number {
   const target = down ? 1 : 0;

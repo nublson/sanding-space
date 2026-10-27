@@ -12,13 +12,26 @@ import {
   ViewTransition,
 } from "react";
 import { ShavingMark } from "@/components/brand/shaving-mark";
+import {
+  clampOffset,
+  ownsHorizontalGesture,
+  releaseVelocity,
+  rubberBand,
+  type Sample,
+  SWIPE_SLOP,
+  settlesOpen,
+  settleTransition,
+  translateX,
+} from "@/components/sidebar/swipe";
 import { INTRODUCTION } from "@/lib/introduction";
+import { playSound } from "@/lib/sounds";
 
 const SIDEBAR_ID = "site-sidebar";
 
 /**
  * Below `md`: a fixed header (toggle, then the wordmark) and an off-canvas sidebar
- * that pushes the content right. At `md`+: the sidebar sticks beside content.
+ * that pushes the content right, opened by the toggle or a horizontal swipe. At
+ * `md`+: the sidebar sticks beside content.
  */
 export function MobileShell({
   sidebar,
@@ -33,6 +46,9 @@ export function MobileShell({
   const [instant, setInstant] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const openRef = useRef(open);
   const pathname = usePathname();
   const router = useRouter();
   const [shownPath, setShownPath] = useState(pathname);
@@ -100,6 +116,187 @@ export function MobileShell({
   }, [closeIfCurrent]);
 
   useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
+  // Swipe, touch only and below md: once a drag commits to the horizontal
+  // axis the track follows the finger from wherever it is (mid-slide too),
+  // stretching past either end, and the release settles open or shut at the
+  // finger's speed; a slow one uses the toggle's push spring. Vertical scroll
+  // and pinch-zoom stay with the browser (touch-action on the root).
+  useEffect(() => {
+    const root = rootRef.current;
+    const track = trackRef.current;
+    const sidebar = sidebarRef.current;
+    if (!root || !track || !sidebar) return;
+    const mobile = window.matchMedia?.("(max-width: 767.98px)");
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    let drag: {
+      id: number;
+      x0: number;
+      y0: number;
+      t0: number;
+      /** The offset the drag adds dx to; set when it commits to the x axis. */
+      from: number;
+      width: number;
+      moving: boolean;
+      samples: Sample[];
+    } | null = null;
+    // A drag that ends over a link or the scrim must not also press it: the
+    // click a touch fires on lifting is dropped, but only within this window,
+    // so a later keyboard or assistive-tech activation still goes through.
+    let swallowClickUntil = 0;
+    // Clears the release's inline transition once it has played. Removing
+    // it mid-slide would cancel the slide and snap to the end, so this waits
+    // for transitionend, with a fallback that defers while one still runs.
+    let settleTimer: ReturnType<typeof setTimeout> | undefined;
+
+    function settled() {
+      clearTimeout(settleTimer);
+      const sliding = track
+        ?.getAnimations?.()
+        .some((a) => a.playState === "running");
+      if (sliding) {
+        settleTimer = setTimeout(settled, 200);
+        return;
+      }
+      track?.style.removeProperty("transition");
+      track?.style.removeProperty("will-change");
+    }
+    function onTransitionEnd(event: TransitionEvent) {
+      if (event.target === track && event.propertyName === "translate")
+        settled();
+    }
+    function release(transition: string | null) {
+      track?.style.removeProperty("translate");
+      sidebar?.style.removeProperty("visibility");
+      sidebar?.style.removeProperty("transition");
+      clearTimeout(settleTimer);
+      if (transition) track?.style.setProperty("transition", transition);
+      else track?.style.removeProperty("transition");
+      // In case no transition runs (already at rest, reduced motion).
+      settleTimer = setTimeout(settled, 600);
+    }
+    function onPointerDown(event: PointerEvent) {
+      swallowClickUntil = 0;
+      if (event.pointerType !== "touch" || !event.isPrimary) return;
+      if (
+        !mobile?.matches ||
+        ownsHorizontalGesture(event.target, root as Element)
+      )
+        return;
+      drag = {
+        id: event.pointerId,
+        x0: event.clientX,
+        y0: event.clientY,
+        t0: event.timeStamp,
+        from: 0,
+        width: sidebar?.offsetWidth ?? 0,
+        moving: false,
+        samples: [],
+      };
+    }
+    function onPointerMove(event: PointerEvent) {
+      if (!drag || event.pointerId !== drag.id) return;
+      const dx = event.clientX - drag.x0;
+      if (!drag.moving) {
+        const dy = event.clientY - drag.y0;
+        if (Math.hypot(dx, dy) < SWIPE_SLOP) return;
+        // Where the track is now, mid-slide included, so grabbing it never
+        // jumps; the class's resting offset when it can't be read.
+        const at =
+          (track && translateX(getComputedStyle(track).translate)) ??
+          (openRef.current ? 0 : -drag.width);
+        // Vertical, or outwards from an end it already rests at: not a swipe.
+        if (
+          Math.abs(dy) > Math.abs(dx) ||
+          (dx > 0 && at >= -0.5) ||
+          (dx < 0 && at <= -drag.width + 0.5)
+        ) {
+          drag = null;
+          return;
+        }
+        drag.moving = true;
+        drag.from = at - dx;
+        clearTimeout(settleTimer);
+        track?.style.setProperty("transition", "none");
+        track?.style.setProperty("will-change", "translate");
+        // Shown at once: the closed sidebar's visibility change is delayed.
+        sidebar?.style.setProperty("transition", "none");
+        sidebar?.style.setProperty("visibility", "visible");
+      }
+      track?.style.setProperty(
+        "translate",
+        `${rubberBand(drag.from + dx, drag.width)}px 0`,
+      );
+      drag.samples.push({ x: event.clientX, t: event.timeStamp });
+      if (drag.samples.length > 8) drag.samples.shift();
+    }
+    function onPointerUp(event: PointerEvent) {
+      if (!drag || event.pointerId !== drag.id) return;
+      const ended = drag;
+      drag = null;
+      if (!ended.moving) return;
+      swallowClickUntil = performance.now() + 300;
+      const dx = event.clientX - ended.x0;
+      const drawn = rubberBand(ended.from + dx, ended.width);
+      // Lifting counts too: a finger held still before letting go has no speed.
+      const velocity = releaseVelocity([
+        ...ended.samples,
+        { x: event.clientX, t: event.timeStamp },
+      ]);
+      const next = settlesOpen({
+        offset: clampOffset(ended.from + dx, ended.width),
+        velocity,
+        travel: dx,
+        elapsed: event.timeStamp - ended.t0,
+        width: ended.width,
+      });
+      // Clearing the inline offset and changing the class land in the same
+      // frame, so the transition runs from the finger's position, carrying
+      // its speed. Reduced motion keeps the stylesheet's instant settle.
+      release(
+        reduced?.matches
+          ? null
+          : settleTransition((next ? 0 : -ended.width) - drawn, velocity),
+      );
+      if (next !== openRef.current) {
+        playSound(next ? "toggle-on" : "toggle-off");
+        setInstant(false);
+        setOpen(next);
+      }
+    }
+    function onPointerCancel(event: PointerEvent) {
+      if (!drag || event.pointerId !== drag.id) return;
+      const ended = drag;
+      drag = null;
+      if (ended.moving) release(null);
+    }
+    function onClick(event: MouseEvent) {
+      if (performance.now() > swallowClickUntil) return;
+      swallowClickUntil = 0;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    root.addEventListener("pointerdown", onPointerDown);
+    root.addEventListener("pointermove", onPointerMove);
+    root.addEventListener("pointerup", onPointerUp);
+    root.addEventListener("pointercancel", onPointerCancel);
+    root.addEventListener("click", onClick, true);
+    track.addEventListener("transitionend", onTransitionEnd);
+    return () => {
+      track.removeEventListener("transitionend", onTransitionEnd);
+      root.removeEventListener("pointerdown", onPointerDown);
+      root.removeEventListener("pointermove", onPointerMove);
+      root.removeEventListener("pointerup", onPointerUp);
+      root.removeEventListener("pointercancel", onPointerCancel);
+      root.removeEventListener("click", onClick, true);
+      clearTimeout(settleTimer);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") close(true);
@@ -118,7 +315,10 @@ export function MobileShell({
   }, [open, close]);
 
   return (
-    <div className="overflow-x-clip">
+    <div
+      ref={rootRef}
+      className="overflow-x-clip max-md:touch-pan-y max-md:touch-pinch-zoom"
+    >
       <header className="site-header fixed inset-x-0 top-0 z-20 flex h-14 items-center bg-background px-2 md:hidden">
         <button
           ref={toggleRef}
@@ -149,6 +349,7 @@ export function MobileShell({
       </header>
 
       <div
+        ref={trackRef}
         data-open={open}
         data-instant={instant}
         className="shell-track flex max-md:w-[calc(100%+13rem)] max-md:-translate-x-52 max-md:data-[open=true]:translate-x-0 md:mx-auto md:max-w-[1024px] md:gap-8 md:px-8"

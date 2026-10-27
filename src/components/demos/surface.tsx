@@ -11,6 +11,7 @@ import {
   type Pointer,
   restX,
   restY,
+  smoothVelocity,
   stepField,
 } from "./surface-field";
 
@@ -18,8 +19,10 @@ const LABEL =
   "A field of dots that yields under your pointer. Press and drag to push it; arrow keys move, Space presses.";
 /** Keyboard cursor step, px. */
 const KEY_STEP = 12;
-/** Frames the field may hold still under a steady pointer before the loop idles. */
-const QUIET_FRAMES = 12;
+/** How long, s, the field may hold still under a steady pointer before the loop idles. */
+const QUIET_TIME = 0.2;
+/** Dots are drawn in this many brightness steps, one fill each. */
+const ALPHA_STEPS = 8;
 
 type Input = {
   pointer: Pointer | null;
@@ -88,23 +91,25 @@ export default function Surface(_: DemoProps) {
       c.globalAlpha = 1;
       c.clearRect(0, 0, width, height);
       c.fillStyle = color;
+      // One path per brightness step, so a frame is a handful of fills
+      // rather than one per dot. Radii stay exact; alpha snaps to 1/8 steps.
+      const paths = Array.from({ length: ALPHA_STEPS + 1 }, () => new Path2D());
       const { cols, rows, ox, oy } = field;
       for (let j = 0; j < rows; j++) {
         const y = restY(field, j);
         for (let i = 0; i < cols; i++) {
           const n = j * cols + i;
           const disp = Math.min(1, Math.hypot(ox[n], oy[n]) / 14);
-          c.globalAlpha = 0.22 + disp * 0.7;
-          c.beginPath();
-          c.arc(
-            restX(field, i) + ox[n],
-            y + oy[n],
-            1.6 + disp * 1.4,
-            0,
-            6.2832,
-          );
-          c.fill();
+          const path = paths[Math.round(disp * ALPHA_STEPS)];
+          const x = restX(field, i) + ox[n];
+          const r = 1.6 + disp * 1.4;
+          path.moveTo(x + r, y + oy[n]);
+          path.arc(x, y + oy[n], r, 0, 6.2832);
         }
+      }
+      for (let step = 0; step <= ALPHA_STEPS; step++) {
+        c.globalAlpha = 0.22 + (step / ALPHA_STEPS) * 0.7;
+        c.fill(paths[step]);
       }
       if (input.key) {
         c.globalAlpha = 0.5;
@@ -122,11 +127,11 @@ export default function Surface(_: DemoProps) {
       lastFrame = now;
       const p = input.pointer;
       if (p) {
-        // Velocity from the frame's displacement, smoothed by half: steadier
-        // than per-event samples, and it decays on its own when the pointer
-        // stops.
-        p.vx = p.vx * 0.5 + ((p.x - input.prevX) / dt) * 0.5;
-        p.vy = p.vy * 0.5 + ((p.y - input.prevY) / dt) * 0.5;
+        // Velocity from the frame's displacement, smoothed over time: steadier
+        // than per-event samples, the same at 60Hz and 120Hz, and it decays
+        // on its own when the pointer stops.
+        p.vx = smoothVelocity(p.vx, (p.x - input.prevX) / dt, dt);
+        p.vy = smoothVelocity(p.vy, (p.y - input.prevY) / dt, dt);
         input.prevX = p.x;
         input.prevY = p.y;
       }
@@ -146,8 +151,8 @@ export default function Surface(_: DemoProps) {
         press === (input.down ? 1 : 0) &&
         Math.hypot(p.vx, p.vy) < 1 &&
         maxSpeed(field) < 1;
-      quiet = steady ? quiet + 1 : 0;
-      if (quiet > QUIET_FRAMES) lastFrame = 0;
+      quiet = steady ? quiet + dt : 0;
+      if (quiet > QUIET_TIME) lastFrame = 0;
       else schedule();
     }
 

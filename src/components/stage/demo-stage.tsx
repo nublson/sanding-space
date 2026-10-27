@@ -15,6 +15,8 @@ export function DemoStage({
     <div
       inert={preview || undefined}
       aria-hidden={preview ? "true" : undefined}
+      // A live demo owns its gestures: no sidebar swipe starts here.
+      data-swipe-ignore={preview ? undefined : ""}
       className={cn(
         "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border bg-card",
         size === "hero" ? "aspect-[2/1]" : "aspect-[4/3]",
