@@ -17,4 +17,8 @@ export const RESERVED_SLUGS: readonly string[] = [
   "apple-icon",
   "icon2",
   "manifest.webmanifest",
+  "llms.txt",
+  "auth.md",
+  "openapi.json",
+  ".well-known",
 ];
