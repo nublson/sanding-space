@@ -80,10 +80,20 @@ describe("SoundRoot", () => {
 
     it("plays once per item entered with a mouse", () => {
       tree();
-      fireEvent.pointerOver(screen.getByText("a"), { pointerType: "mouse" });
-      fireEvent.pointerOver(screen.getByText("a").parentElement as Element, {
+      const child = screen.getByText("a");
+      const item = child.parentElement as Element;
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      // Moving onto a child and back onto the item itself is not a re-entry.
+      fireEvent.pointerOut(item, {
         pointerType: "mouse",
+        relatedTarget: child,
       });
+      fireEvent.pointerOver(child, { pointerType: "mouse" });
+      fireEvent.pointerOut(child, {
+        pointerType: "mouse",
+        relatedTarget: item,
+      });
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
       expect(playSound).toHaveBeenCalledTimes(1);
       expect(playSound).toHaveBeenCalledWith("hover");
       fireEvent.pointerOver(screen.getByText("b"), { pointerType: "mouse" });
@@ -92,6 +102,24 @@ describe("SoundRoot", () => {
         pointerType: "mouse",
       });
       fireEvent.pointerOver(screen.getByText("b"), { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(3);
+    });
+
+    it("plays again after leaving the window and returning to the item", () => {
+      tree();
+      const item = screen.getByText("b");
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(1);
+      // Leaving the window: no related target.
+      fireEvent.pointerOut(item, { pointerType: "mouse", relatedTarget: null });
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
+      expect(playSound).toHaveBeenCalledTimes(2);
+      // Leaving to plain content, then back.
+      fireEvent.pointerOut(item, {
+        pointerType: "mouse",
+        relatedTarget: screen.getByText("outside"),
+      });
+      fireEvent.pointerOver(item, { pointerType: "mouse" });
       expect(playSound).toHaveBeenCalledTimes(3);
     });
 

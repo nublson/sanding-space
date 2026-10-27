@@ -32,12 +32,22 @@ export function SoundRoot({ children }: { children: ReactNode }) {
       if (!el || el.getAttribute("aria-disabled") === "true") return;
       playSound(el.dataset.soundHover as SoundName);
     }
+    // Forget the item once the pointer truly leaves it (to another element
+    // or out of the window), so coming back to the same item ticks again.
+    // Moves between the item's own children keep it.
+    function onPointerOut(event: PointerEvent) {
+      if (!hovered) return;
+      const next = event.relatedTarget;
+      if (!(next instanceof Node) || !hovered.contains(next)) hovered = null;
+    }
 
     document.addEventListener("click", onClick);
     document.addEventListener("pointerover", onPointerOver);
+    document.addEventListener("pointerout", onPointerOut);
     return () => {
       document.removeEventListener("click", onClick);
       document.removeEventListener("pointerover", onPointerOver);
+      document.removeEventListener("pointerout", onPointerOut);
     };
   }, []);
 
