@@ -4,64 +4,70 @@ import {
   ICON_FOREGROUND,
   MARK_PATH,
 } from "@/components/brand/icon-tile";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME } from "@/lib/site";
 import { loadGoogleFont } from "./fonts";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
-// The site's achromatic tokens in sRGB hex (Satori reads no OKLCH):
-// foreground oklch(0.946), muted oklch(0.7), subtle oklch(0.64),
-// card oklch(0.218), border oklch(0.248).
-const MUTED = "#9e9e9e";
+// The site's subtle token, oklch(0.64), in sRGB hex (Satori reads no OKLCH).
 const SUBTLE = "#8c8c8c";
-const CARD = "#1a1a1a";
-const BORDER = "#212121";
 
-const PAD = 72;
-const STAGE = 380;
-const GAP = 56;
-const COLUMN = OG_SIZE.width - PAD * 2 - STAGE - GAP;
+// Link previews often crop the card towards 1.6:1, shaving about 100px off
+// each side, so nothing sits closer to the left or right edge than this.
+const PAD_X = 120;
+const PAD_Y = 88;
 
-/** Keep a description to one breath; the column has room for two lines. */
-function clip(text: string, max = 110): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max).replace(/\s+\S*$/, "");
-  return `${cut}…`;
-}
+// Two type roles: the title, and one secondary size shared by the wordmark and
+// the line above the title. Inter's own display tracking is about -0.022em.
+const SECONDARY = { fontSize: 28, fontWeight: 500, letterSpacing: "-0.01em" };
 
-/** Title size from length, so a long title still fits the column in three lines. */
-function titleSize(title: string, serif: boolean): number {
+/** Title size from length, so a long title still fits in three lines. */
+function titleSize(title: string): number {
   const n = title.length;
-  const base = n <= 18 ? 84 : n <= 30 ? 68 : n <= 44 ? 58 : 48;
-  return serif ? base + 4 : base;
+  return n <= 24 ? 92 : n <= 40 ? 78 : n <= 64 ? 66 : 56;
 }
+
+// The dot field from the Surface demo: a 24px grid, one column on the text's
+// left edge (PAD_X is a multiple of the step), easing out by row
+// FIELD_FADE_ROWS so the title sits on clean ground.
+const FIELD_STEP = 24;
+const FIELD_COLUMNS = OG_SIZE.width / FIELD_STEP - 1;
+const FIELD_FADE_ROWS = 20;
+const FIELD_OPACITY = 0.3;
+const FIELD = Array.from(
+  { length: FIELD_FADE_ROWS * FIELD_COLUMNS },
+  (_, i) => {
+    const row = Math.floor(i / FIELD_COLUMNS);
+    const col = i % FIELD_COLUMNS;
+    return {
+      x: (col + 1) * FIELD_STEP,
+      y: FIELD_STEP / 2 + row * FIELD_STEP,
+      opacity: FIELD_OPACITY * (1 - row / FIELD_FADE_ROWS) ** 2,
+    };
+  },
+);
 
 /**
- * One card for every page, laid out like the site: a demo stage on the right
- * (the mark stands in until a demo screenshot can), the title and description
- * centred on the left, the wordmark and the domain in the corners. Essays set
- * the title in Newsreader like the page; everything else uses Inter.
+ * One card for every page: the silicon-carbide surface under a dot field that
+ * fades out towards the title, the wordmark in the top-left corner and the
+ * title, large, in the bottom-left, with an optional muted line above it (a
+ * section's question, an essay's section). Preview platforms print the page's
+ * title and description beside the image, so the card carries nothing else.
+ * Every title is set in Inter, essays included.
  */
 export async function ogImage({
-  eyebrow,
   title,
-  description,
-  serif = false,
+  eyebrow,
 }: {
-  eyebrow?: string;
   title: string;
-  description?: string;
-  serif?: boolean;
+  eyebrow?: string;
 }) {
-  const body = clip(description ?? "");
-  const domain = SITE_URL.replace(/^https?:\/\//, "");
-  const text = `${SITE_NAME}${domain}${eyebrow ?? ""}${title}${body}`;
-  const [inter, interMedium, newsreader] = await Promise.all([
-    loadGoogleFont("Inter", 400, text),
-    loadGoogleFont("Inter", 500, text),
-    serif ? loadGoogleFont("Newsreader", 400, title) : null,
-  ]);
+  const interMedium = await loadGoogleFont(
+    "Inter",
+    500,
+    `${SITE_NAME}${eyebrow ?? ""}${title}`,
+  );
 
   return new ImageResponse(
     <div
@@ -69,26 +75,40 @@ export async function ogImage({
         width: "100%",
         height: "100%",
         display: "flex",
-        position: "relative",
-        background: `radial-gradient(1100px 700px at 0% 0%, #171717 0%, ${ICON_BACKGROUND} 60%)`,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: `${PAD_Y}px ${PAD_X}px`,
+        background: ICON_BACKGROUND,
         color: ICON_FOREGROUND,
         fontFamily: "Inter",
       }}
     >
-      {/* Wordmark, top-left, as in the sidebar. */}
-      <div
-        style={{
-          position: "absolute",
-          top: PAD - 8,
-          left: PAD,
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-        }}
+      {/* Satori draws no repeating CSS gradients, so the dots are SVG. */}
+      <svg
+        width={OG_SIZE.width}
+        height={OG_SIZE.height}
+        viewBox={`0 0 ${OG_SIZE.width} ${OG_SIZE.height}`}
+        role="img"
+        aria-label="A field of dots"
+        style={{ position: "absolute", top: 0, left: 0 }}
       >
+        {FIELD.map((dot) => (
+          <circle
+            key={`${dot.x},${dot.y}`}
+            cx={dot.x}
+            cy={dot.y}
+            r={1.6}
+            fill={ICON_FOREGROUND}
+            opacity={dot.opacity}
+          />
+        ))}
+      </svg>
+
+      {/* Wordmark, as in the sidebar. */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <svg
-          width={32}
-          height={32}
+          width={34}
+          height={34}
           viewBox="0 0 48 48"
           role="img"
           aria-label={SITE_NAME}
@@ -96,131 +116,45 @@ export async function ogImage({
           <path
             d={MARK_PATH}
             fill="none"
-            stroke={ICON_FOREGROUND}
+            stroke={SUBTLE}
             strokeWidth={5}
             strokeLinecap="round"
           />
         </svg>
-        <div
-          style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.01em" }}
-        >
-          {SITE_NAME}
-        </div>
+        <div style={{ ...SECONDARY, color: SUBTLE }}>{SITE_NAME}</div>
       </div>
 
-      {/* Domain, bottom-left. */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: PAD - 12,
-          left: PAD,
-          fontSize: 24,
-          color: SUBTLE,
-        }}
-      >
-        {domain}
-      </div>
-
-      {/* Text column, vertically centred. */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: PAD,
-          width: COLUMN,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: 18,
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {eyebrow && (
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            {/* The current-essay bar from the sidebar guide line. */}
-            <div
-              style={{ width: 3, height: 22, background: ICON_FOREGROUND }}
-            />
-            <div style={{ fontSize: 24, fontWeight: 500, color: SUBTLE }}>
-              {eyebrow}
-            </div>
+          <div
+            style={{
+              maxWidth: 840,
+              ...SECONDARY,
+              lineHeight: 1.3,
+              color: SUBTLE,
+              textWrap: "balance",
+            }}
+          >
+            {eyebrow}
           </div>
         )}
         <div
           style={{
-            fontSize: titleSize(title, serif),
-            lineHeight: 1.08,
-            fontFamily: serif ? "Newsreader" : "Inter",
-            fontWeight: serif ? 400 : 500,
-            letterSpacing: serif ? "-0.015em" : "-0.025em",
+            fontSize: titleSize(title),
+            lineHeight: 1.1,
+            fontWeight: 500,
+            letterSpacing: "-0.022em",
             textWrap: "balance",
           }}
         >
           {title}
         </div>
-        {body && (
-          <div
-            style={{
-              fontSize: 27,
-              lineHeight: 1.4,
-              color: MUTED,
-              textWrap: "pretty",
-            }}
-          >
-            {body}
-          </div>
-        )}
-      </div>
-
-      {/* The demo stage: the site's card surface with the mark on it. */}
-      <div
-        style={{
-          position: "absolute",
-          top: (OG_SIZE.height - STAGE) / 2,
-          right: PAD,
-          width: STAGE,
-          height: STAGE,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: CARD,
-          border: `1px solid ${BORDER}`,
-          borderRadius: 28,
-          boxShadow: "0 0 0 1px rgba(255,255,255,0.03) inset",
-        }}
-      >
-        <svg
-          width={236}
-          height={236}
-          viewBox="0 0 48 48"
-          role="img"
-          aria-label="The shaving mark"
-        >
-          <path
-            d={MARK_PATH}
-            fill="none"
-            stroke={ICON_FOREGROUND}
-            strokeWidth={5}
-            strokeLinecap="round"
-          />
-        </svg>
       </div>
     </div>,
     {
       ...OG_SIZE,
       fonts: [
-        { name: "Inter", data: inter, weight: 400, style: "normal" },
         { name: "Inter", data: interMedium, weight: 500, style: "normal" },
-        ...(newsreader
-          ? [
-              {
-                name: "Newsreader",
-                data: newsreader,
-                weight: 400 as const,
-                style: "normal" as const,
-              },
-            ]
-          : []),
       ],
     },
   );
