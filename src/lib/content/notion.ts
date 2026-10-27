@@ -40,8 +40,16 @@ function client(): Client {
  * Links to other sites carry the site's favicon: notionic looks each host up
  * once per fetch and inlines the icon as a data URL, so it is cached with the
  * blocks and the page renders without a request per link.
+ *
+ * `siteIcons` takes the icon each site declares on its home page (SVG, else
+ * the smallest PNG of 32px or more, else /favicon.ico) before Google's and
+ * DuckDuckGo's copies, which can be stale or re-encoded. It means fetching
+ * URLs the linked sites choose; notionic refuses private addresses, and the
+ * site runs on Vercel functions with no private network to reach.
  */
-const FETCH_OPTIONS: FetchBlocksOptions = { linkFavicons: true };
+const FETCH_OPTIONS: FetchBlocksOptions = {
+  linkFavicons: { siteIcons: true },
+};
 
 export async function getLibrary(): Promise<Library> {
   "use cache";
