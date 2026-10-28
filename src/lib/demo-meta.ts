@@ -10,6 +10,7 @@ export type DemoMeta = {
 // Names are permanent: rename with `aliases`, retire with `retired`. Each entry
 // also needs a loader in src/components/demos/lazy-demo.tsx.
 export const demoMeta: Record<string, DemoMeta> = {
+  "search-expand": { title: "Search Expand", height: 280 },
   surface: { title: "Surface", height: 420 },
 };
 

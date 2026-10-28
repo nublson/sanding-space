@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "notionic/styles.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -38,6 +36,9 @@
 }
 
 body {
+  /* iOS 26+ Safari: Base UI backdrops are position: absolute and need this
+     to cover the visual viewport after scrolling. */
+  position: relative;
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 26px;
