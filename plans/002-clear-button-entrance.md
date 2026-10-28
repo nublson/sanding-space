@@ -6,6 +6,10 @@
 - **Category**: Easing & duration / Physicality / Accessibility
 - **Estimated scope**: 2 files, 2 class strings
 
+## Correction (after review on PR #26)
+
+Point 3 and its fix were wrong. The site's reduced-motion policy is decided in `docs/spec.md:503`: "everything above becomes instant except color changes", enforced by a global `transition-duration: 0.01ms !important` in `src/app/globals.css` (around line 162). Under reduced motion the clear button therefore appears instantly, as every transition on the site does; no fade survives. `motion-reduce:starting:scale-100` had no visible effect and was removed. Points 1 and 2 (the fade and the 0.9 scale step) stand for normal motion.
+
 ## Problem
 
 Three issues on the search demo's clear (X) button, all in its entrance.

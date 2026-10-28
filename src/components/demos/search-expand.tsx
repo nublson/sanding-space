@@ -116,7 +116,7 @@ export default function SearchExpand({ params }: DemoProps) {
                         playSound("tap");
                         clear();
                       }}
-                      className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-full pointer-coarse:size-11 text-muted-foreground starting:scale-90 starting:opacity-0 motion-reduce:starting:scale-100"
+                      className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded-full pointer-coarse:size-11 text-muted-foreground starting:scale-90 starting:opacity-0"
                     >
                       <X aria-hidden />
                     </Button>
