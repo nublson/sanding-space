@@ -65,8 +65,25 @@ jobs:
             echo "develop already has notionic $current."
             echo "action=close" >> "$GITHUB_OUTPUT"
           elif [ "$proposed" = "$latest" ]; then
-            echo "$BRANCH already proposes notionic $latest."
-            echo "action=none" >> "$GITHUB_OUTPUT"
+            # A run that pushed the branch but failed before the PR or checks
+            # would otherwise leave this release stuck: redo just those steps.
+            # A PR closed on this exact commit means the release was turned
+            # down, so it waits for the next one.
+            head=$(git rev-parse FETCH_HEAD)
+            state=$(gh pr list --head "$BRANCH" --state all --json state,headRefOid \
+              --jq "map(select(.headRefOid == \"$head\"))[0].state // \"\"")
+            checks=$(gh run list --workflow pr-checks.yml --commit "$head" \
+              --json databaseId --jq length)
+            if [ -n "$state" ] && [ "$state" != "OPEN" ]; then
+              echo "The PR for notionic $latest was closed; waiting for the next release."
+              echo "action=none" >> "$GITHUB_OUTPUT"
+            elif [ "$state" = "OPEN" ] && [ "$checks" -gt 0 ]; then
+              echo "$BRANCH already proposes notionic $latest."
+              echo "action=none" >> "$GITHUB_OUTPUT"
+            else
+              echo "$BRANCH has notionic $latest but no open PR or PR Checks run; retrying them."
+              echo "action=retry" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "Upgrading notionic $current → $latest."
             echo "action=bump" >> "$GITHUB_OUTPUT"
@@ -98,7 +115,7 @@ jobs:
           git push --force origin "$BRANCH"
 
       - name: Open or update the PR and run PR Checks
-        if: steps.versions.outputs.action == 'bump'
+        if: contains(fromJSON('["bump", "retry"]'), steps.versions.outputs.action)
         env:
           CURRENT: ${{ steps.versions.outputs.current }}
           LATEST: ${{ steps.versions.outputs.latest }}
