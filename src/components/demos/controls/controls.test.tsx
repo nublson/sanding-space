@@ -140,4 +140,13 @@ describe("DemoLayout", () => {
     );
     expect(container.firstElementChild?.childElementCount).toBe(1);
   });
+
+  it("adds no padding without slots, so a bare demo keeps its size", () => {
+    const { container } = render(
+      <DemoLayout>
+        <span>subject</span>
+      </DemoLayout>,
+    );
+    expect(container.firstElementChild?.className).not.toMatch(/\bpy-/);
+  });
 });

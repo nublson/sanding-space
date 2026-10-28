@@ -6,7 +6,7 @@ Date: 2026-10-28. Status: approved design, awaiting spec review.
 
 Demos should let readers switch a property on and off and see the difference in place. The first use: the Surface demo gains a **pressure** input and **guides** that show the press depth. An essay chooses, per embed, which of the two controls appear and where they start.
 
-The visual pattern comes from three reference demos: the subject in the middle, a two-option segmented switch with a sliding pill below it, and an optional dashed "Guides" chip above it that turns blue when on.
+The visual pattern comes from three reference demos: the subject in the middle, a two-option segmented switch with a sliding pill below it, and an optional dashed "Guides" chip above it that lights up when on. The references use a blue accent; this site does not (spec §10), so guides use the foreground ink.
 
 ## Decisions
 
@@ -60,9 +60,9 @@ New folder `src/components/demos/controls/`.
 
 - **`DemoLayout`**: stacks an optional `top`, the subject and an optional `bottom`, centred. The subject fills the remaining height.
 - **`SegmentedSwitch`**: props `options: [{ value, label }, { value, label }]`, `value`, `onChange`, `label` (accessible group name). Built on Base UI `ToggleGroup` in single mode. Base UI allows un-pressing the active item (empty value); the switch ignores that change, so one option is always active. The active pill is a `motion/react` element with a shared `layoutId` that slides between options and jumps instantly under reduced motion. Arrow keys move focus (Base UI). A press plays `tap`.
-- **`GuidesToggle`**: props `pressed`, `onChange`. Built on Base UI `Toggle` (`aria-pressed`). Dashed border, lucide `Crosshair` icon, label "Guides". When on, its text, border and a faint fill use the guide blue. Plays `toggle-on` / `toggle-off`.
+- **`GuidesToggle`**: props `pressed`, `onChange`. Built on Base UI `Toggle` (`aria-pressed`). Dashed border, lucide `Crosshair` icon, label "Guides". When on, its text turns foreground, its dashed border foreground at 40%, with a faint foreground fill (the same 7% as the switch pill). Plays `toggle-on` / `toggle-off`.
 - **`useGuides(params)`**: the `guides` preset hook described above. It reads the param with `readChoice`, holds the state and returns the `GuidesToggle` element for the demo's top slot.
-- **Guide colour**: one CSS custom property, `--demo-guide`, defined in the kit with a dark value and a light value (for `?theme=light` embeds). Demos may use colour (spec §10); the site chrome does not.
+- **Guide colour**: none of its own. Controls and measures (rings, values, outlines) use the foreground ink like the rest of the site (spec §10), and so follow `?theme` for free.
 - Everything else uses theme tokens (muted text, foreground, border, secondary surface for the pill).
 
 New helper in `src/lib/params.ts`, next to `readNumber`:
@@ -99,7 +99,7 @@ Sounds are unchanged: a press on the field still plays `tap`.
 
 ## 3. Surface's guides, edge cases, testing
 
-**Drawing.** In the existing `draw()` pass, when Guides is on and there is a pointer or keyboard cursor: a 1 px dashed circle of radius `reach(press)` around it, and `press.toFixed(2)` in Geist Mono 12 px at the ring's upper right, clamped inside the stage. Colour comes from `--demo-guide`, read like `currentColor` today and re-read on colour-scheme change. Toggling Guides draws once even when the loop is idle.
+**Drawing.** In the existing `draw()` pass, when Guides is on and there is a pointer or keyboard cursor: a 1 px dashed circle of radius `reach(press)` around it, and `press.toFixed(2)` in Geist Mono 12 px at the ring's upper right, clamped inside the stage. Colour is the canvas `currentColor` (foreground) the dots already use; the ring reads apart from the dots by its dash and full opacity. Toggling Guides draws once even when the loop is idle.
 
 **Accessibility.** The Guides chip announces its pressed state; the switch is a labelled group with arrow-key movement. No live region for the value (it would announce every frame). Respect `prefers-reduced-motion` (pill jumps; field keeps its existing reduced damping).
 

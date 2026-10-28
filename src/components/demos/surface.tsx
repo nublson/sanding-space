@@ -84,7 +84,6 @@ export default function Surface({ params }: DemoProps) {
     let dpr = 1;
     let field: Field = createField(0, 0);
     let color = "currentColor";
-    let guideColor = "currentColor";
     let press = 0;
     let frame = 0;
     let lastFrame = 0;
@@ -105,9 +104,7 @@ export default function Surface({ params }: DemoProps) {
 
     function readColor() {
       // Any CSS colour works as a fill style; alpha comes from globalAlpha.
-      const style = getComputedStyle(canvas as HTMLCanvasElement);
-      color = style.color;
-      guideColor = style.getPropertyValue("--demo-guide").trim() || color;
+      color = getComputedStyle(canvas as HTMLCanvasElement).color;
     }
 
     function resize() {
@@ -169,7 +166,7 @@ export default function Surface({ params }: DemoProps) {
     ) {
       const radius = reach(press);
       c.globalAlpha = 1;
-      c.strokeStyle = guideColor;
+      c.strokeStyle = color;
       c.lineWidth = 1;
       c.setLineDash([4, 4]);
       c.beginPath();
@@ -178,7 +175,7 @@ export default function Surface({ params }: DemoProps) {
       c.setLineDash([]);
       const label = press.toFixed(2);
       c.font = '12px "Geist Mono", ui-monospace, monospace';
-      c.fillStyle = guideColor;
+      c.fillStyle = color;
       // Upper right of the ring, kept inside the stage.
       const out = radius * Math.SQRT1_2 + 6;
       const w = c.measureText(label).width;

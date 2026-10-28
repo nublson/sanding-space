@@ -19,7 +19,6 @@
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
   --color-subtle-foreground: var(--subtle-foreground);
-  --color-demo-guide: var(--demo-guide);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
@@ -82,8 +81,6 @@ body {
   --input: oklch(0.922 0 0);
   --ring: oklch(0.556 0 0); /* focus ring, 4.5:1 on background */
   --image-outline: oklch(0 0 0 / 0.1);
-  /* Demo guides only; the chrome has no hue. */
-  --demo-guide: oklch(0.52 0.17 250);
 }
 
 .dark {
@@ -108,8 +105,6 @@ body {
   --input: oklch(0.27 0 0);
   --ring: oklch(0.7 0 0);
   --image-outline: oklch(1 0 0 / 0.1);
-  /* Demo guides only; the chrome has no hue. */
-  --demo-guide: oklch(0.72 0.15 240);
 }
 
 /* Embeds with theme=system: dark by default, light tokens on light hosts. */
@@ -136,7 +131,6 @@ body {
     --input: oklch(0.922 0 0);
     --ring: oklch(0.556 0 0);
     --image-outline: oklch(0 0 0 / 0.1);
-    --demo-guide: oklch(0.52 0.17 250);
   }
 }
 
