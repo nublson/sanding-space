@@ -10,9 +10,12 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+  # The notionic Update workflow dispatches this on its branch: a PR it opens
+  # with GITHUB_TOKEN does not start pull_request runs.
+  workflow_dispatch:
 
 concurrency:
-  group: pr-checks-${{ github.event.pull_request.number }}
+  group: pr-checks-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
