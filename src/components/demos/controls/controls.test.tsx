@@ -17,43 +17,52 @@ const OPTIONS = [
 beforeEach(() => vi.mocked(playSound).mockClear());
 
 describe("SegmentedSwitch", () => {
-  function renderSwitch(onChange = vi.fn()) {
+  function renderSwitch(
+    onChange = vi.fn(),
+    value: "press" | "pressure" = "press",
+  ) {
     render(
-      <SegmentedSwitch
-        label="Press mode"
-        options={OPTIONS}
-        value="press"
-        onChange={onChange}
-      />,
+      <>
+        <button type="button">before</button>
+        <SegmentedSwitch
+          label="Press mode"
+          options={OPTIONS}
+          value={value}
+          onChange={onChange}
+        />
+      </>,
     );
     return onChange;
   }
 
-  it("is a labelled group with the active option pressed", () => {
+  it("is a labelled radio group with the active option checked", () => {
     renderSwitch();
-    expect(screen.getByRole("group", { name: "Press mode" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Press" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    expect(screen.getByRole("button", { name: "Pressure" })).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
+    expect(
+      screen.getByRole("radiogroup", { name: "Press mode" }),
+    ).toBeVisible();
+    expect(screen.getByRole("radio", { name: "Press" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Pressure" })).not.toBeChecked();
   });
 
   it("changes to the other option with a tap", async () => {
     const onChange = renderSwitch();
-    await userEvent.click(screen.getByRole("button", { name: "Pressure" }));
+    await userEvent.click(screen.getByRole("radio", { name: "Pressure" }));
     expect(onChange).toHaveBeenCalledWith("pressure");
     expect(playSound).toHaveBeenCalledWith("tap");
   });
 
-  it("ignores a press on the active option, so one always stays on", async () => {
+  it("ignores a press on the active option", async () => {
     const onChange = renderSwitch();
-    await userEvent.click(screen.getByRole("button", { name: "Press" }));
+    await userEvent.click(screen.getByRole("radio", { name: "Press" }));
     expect(onChange).not.toHaveBeenCalled();
     expect(playSound).not.toHaveBeenCalled();
+  });
+
+  it("puts the tab stop on the active option, even when it is second", async () => {
+    renderSwitch(vi.fn(), "pressure");
+    screen.getByRole("button", { name: "before" }).focus();
+    await userEvent.tab();
+    expect(screen.getByRole("radio", { name: "Pressure" })).toHaveFocus();
   });
 });
 

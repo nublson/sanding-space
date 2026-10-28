@@ -1,14 +1,17 @@
 "use client";
 
-import { Toggle } from "@base-ui/react/toggle";
-import { ToggleGroup } from "@base-ui/react/toggle-group";
+import { Radio } from "@base-ui/react/radio";
+import { RadioGroup } from "@base-ui/react/radio-group";
 import { motion, useReducedMotion } from "motion/react";
 import { useId } from "react";
 import { playSound } from "@/lib/sounds";
 
 type Option<T extends string> = { value: T; label: string };
 
-/** Two options, one always on; the pill slides to the active one. */
+/**
+ * Two options, one always on; the pill slides to the active one. A radio
+ * group, so Tab lands on the active option and arrow keys change it.
+ */
 export function SegmentedSwitch<T extends string>({
   label,
   options,
@@ -24,39 +27,40 @@ export function SegmentedSwitch<T extends string>({
   const reduced = useReducedMotion();
 
   return (
-    <ToggleGroup
+    <RadioGroup
       aria-label={label}
-      value={[value]}
+      value={value}
       onValueChange={(next) => {
-        // Pressing the active option un-presses it; a switch always keeps one.
-        const picked = next[0] as T | undefined;
-        if (picked === undefined || picked === value) return;
+        if (next === value) return;
         playSound("tap");
-        onChange(picked);
+        onChange(next as T);
       }}
       className="flex gap-0.5"
     >
       {options.map((option) => (
-        <Toggle
+        <Radio.Root
           key={option.value}
           value={option.value}
-          className="relative rounded-full px-4 py-2 text-muted-foreground text-sm outline-none transition-colors duration-150 ease-(--ease-out) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-pressed:text-foreground"
+          className="relative cursor-pointer rounded-full px-4 py-2 text-muted-foreground text-sm outline-none transition-colors duration-150 ease-(--ease-out) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-checked:text-foreground"
         >
           {option.value === value ? (
+            // Under reduced motion the pill fades in place instead of sliding.
             <motion.span
-              layoutId={pillId}
+              layoutId={reduced ? undefined : pillId}
+              initial={reduced ? { opacity: 0 } : false}
+              animate={{ opacity: 1 }}
               aria-hidden
               className="absolute inset-0 rounded-full bg-foreground/7"
               transition={
                 reduced
-                  ? { duration: 0 }
+                  ? { duration: 0.15, ease: "easeOut" }
                   : { type: "spring", duration: 0.3, bounce: 0 }
               }
             />
           ) : null}
           <span className="relative">{option.label}</span>
-        </Toggle>
+        </Radio.Root>
       ))}
-    </ToggleGroup>
+    </RadioGroup>
   );
 }

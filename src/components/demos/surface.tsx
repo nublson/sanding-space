@@ -36,6 +36,8 @@ const MODE_OPTIONS = [
 const KEY_STEP = 12;
 /** How long, s, the field may hold still under a steady pointer before the loop idles. */
 const QUIET_TIME = 0.2;
+/** The guides' value label; the canvas never loads this face on its own. */
+const GUIDE_FONT = '12px "Geist Mono", ui-monospace, monospace';
 /** Dots are drawn in this many brightness steps, one fill each. */
 const ALPHA_STEPS = 8;
 
@@ -89,6 +91,8 @@ export default function Surface({ params }: DemoProps) {
     let lastFrame = 0;
     let quiet = 0;
     let onScreen = true;
+    let monoRequested = false;
+    let disposed = false;
     const reducedQuery = matchMedia("(prefers-reduced-motion: reduce)");
     const schemeQuery = matchMedia("(prefers-color-scheme: dark)");
     let reduced = reducedQuery.matches;
@@ -174,7 +178,14 @@ export default function Surface({ params }: DemoProps) {
       c.stroke();
       c.setLineDash([]);
       const label = press.toFixed(2);
-      c.font = '12px "Geist Mono", ui-monospace, monospace';
+      if (!monoRequested) {
+        // Fetch the face only once guides draw, then redraw in it.
+        monoRequested = true;
+        document.fonts?.load(GUIDE_FONT).then(() => {
+          if (!disposed) draw();
+        });
+      }
+      c.font = GUIDE_FONT;
       c.fillStyle = color;
       // Upper right of the ring, kept inside the stage.
       const out = radius * Math.SQRT1_2 + 6;
@@ -390,6 +401,7 @@ export default function Surface({ params }: DemoProps) {
     resize();
 
     return () => {
+      disposed = true;
       wakeRef.current = null;
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();

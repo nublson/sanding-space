@@ -17,7 +17,7 @@ describe("Surface controls", () => {
   it("renders no controls without params, as today", () => {
     const { container } = render(<Surface name="surface" params={{}} />);
     expect(screen.queryByRole("button", { name: "Guides" })).toBeNull();
-    expect(screen.queryByRole("group", { name: "Press mode" })).toBeNull();
+    expect(screen.queryByRole("radiogroup", { name: "Press mode" })).toBeNull();
     expect(canvasLabel(container)).toBe(TODAY);
   });
 
@@ -25,10 +25,7 @@ describe("Surface controls", () => {
     const { container } = render(
       <Surface name="surface" params={{ pressure: "on" }} />,
     );
-    expect(screen.getByRole("button", { name: "Pressure" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(screen.getByRole("radio", { name: "Pressure" })).toBeChecked();
     expect(canvasLabel(container)).toContain("Press harder");
   });
 
@@ -36,10 +33,7 @@ describe("Surface controls", () => {
     render(
       <Surface name="surface" params={{ pressure: "maybe", guides: "yes" }} />,
     );
-    expect(screen.getByRole("button", { name: "Press" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(screen.getByRole("radio", { name: "Press" })).toBeChecked();
     expect(screen.getByRole("button", { name: "Guides" })).toHaveAttribute(
       "aria-pressed",
       "false",
@@ -52,6 +46,6 @@ describe("Surface controls", () => {
       "aria-pressed",
       "true",
     );
-    expect(screen.queryByRole("group", { name: "Press mode" })).toBeNull();
+    expect(screen.queryByRole("radiogroup", { name: "Press mode" })).toBeNull();
   });
 });

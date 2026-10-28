@@ -51,7 +51,7 @@ URL examples:
 
 - No other demo adopts the kit in this change.
 - No locked states (a fixed value with no control visible).
-- No changes to the frame, the stage, `demo-meta.ts` heights, or frame params.
+- No changes to the frame, the stage, or frame params. Surface's registered height rises from 336 to 420 px so its field (about 274 px with both controls) fits the 220 px ring at full reach.
 - No variable pressure from touch force.
 
 ## 1. Controls kit
@@ -59,7 +59,7 @@ URL examples:
 New folder `src/components/demos/controls/`.
 
 - **`DemoLayout`**: stacks an optional `top`, the subject and an optional `bottom`, centred. The subject fills the remaining height.
-- **`SegmentedSwitch`**: props `options: [{ value, label }, { value, label }]`, `value`, `onChange`, `label` (accessible group name). Built on Base UI `ToggleGroup` in single mode. Base UI allows un-pressing the active item (empty value); the switch ignores that change, so one option is always active. The active pill is a `motion/react` element with a shared `layoutId` that slides between options and jumps instantly under reduced motion. Arrow keys move focus (Base UI). A press plays `tap`.
+- **`SegmentedSwitch`**: props `options: [{ value, label }, { value, label }]`, `value`, `onChange`, `label` (accessible group name). Built on Base UI `RadioGroup` (`role="radio"` items): Tab lands on the checked option and arrow keys change it. A press on the checked option is ignored. The active pill is a `motion/react` element with a shared `layoutId` that slides between options and fades in place (150 ms opacity) under reduced motion. Arrow keys move focus (Base UI). A press plays `tap`.
 - **`GuidesToggle`**: props `pressed`, `onChange`. Built on Base UI `Toggle` (`aria-pressed`). Dashed border, lucide `Crosshair` icon, label "Guides". When on, its text turns foreground, its dashed border foreground at 40%, with a faint foreground fill (the same 7% as the switch pill). Plays `toggle-on` / `toggle-off`.
 - **`useGuides(params)`**: the `guides` preset hook described above. It reads the param with `readChoice`, holds the state and returns the `GuidesToggle` element for the demo's top slot.
 - **Guide colour**: none of its own. Controls and measures (rings, values, outlines) use the foreground ink like the rest of the site (spec §10), and so follow `?theme` for free.
@@ -93,7 +93,7 @@ Returns `undefined` when the key is absent (the demo hides that control), the va
 
 **Idle check.** The loop's "steady" test compares `press` with the current `pressTarget(...)` instead of `down ? 1 : 0`, so a held mouse in Pressure mode keeps animating until the hold has fully built.
 
-**Layout.** Surface renders inside `DemoLayout`: the `useGuides` control on top only with `guides`, the canvas in the middle, `SegmentedSwitch` ("Press" / "Pressure", label "Press mode") at the bottom only with `pressure`. The registered stage height stays 336 px; with both controls the field is about 240 px tall. The canvas `aria-label` names the active mode.
+**Layout.** Surface renders inside `DemoLayout`: the `useGuides` control on top only with `guides`, the canvas in the middle, `SegmentedSwitch` ("Press" / "Pressure", label "Press mode") at the bottom only with `pressure`. The registered stage height is 420 px; with both controls the field is about 274 px tall. The canvas `aria-label` names the active mode.
 
 Sounds are unchanged: a press on the field still plays `tap`.
 
@@ -101,7 +101,7 @@ Sounds are unchanged: a press on the field still plays `tap`.
 
 **Drawing.** In the existing `draw()` pass, when Guides is on and there is a pointer or keyboard cursor: a 1 px dashed circle of radius `reach(press)` around it, and `press.toFixed(2)` in Geist Mono 12 px at the ring's upper right, clamped inside the stage. Colour is the canvas `currentColor` (foreground) the dots already use; the ring reads apart from the dots by its dash and full opacity. Toggling Guides draws once even when the loop is idle.
 
-**Accessibility.** The Guides chip announces its pressed state; the switch is a labelled group with arrow-key movement. No live region for the value (it would announce every frame). Respect `prefers-reduced-motion` (pill jumps; field keeps its existing reduced damping).
+**Accessibility.** The Guides chip announces its pressed state; the switch is a labelled radio group: Tab lands on the checked option, arrows change it. No live region for the value (it would announce every frame). Respect `prefers-reduced-motion` (pill fades in place; field keeps its existing reduced damping).
 
 **Edge cases.**
 
