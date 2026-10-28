@@ -1,22 +1,37 @@
 "use client";
 
 import type { DemoProps } from "notionic";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { readChoice } from "@/lib/params";
 import { playSound } from "@/lib/sounds";
+import { DemoLayout } from "./controls/demo-layout";
+import { SegmentedSwitch } from "./controls/segmented-switch";
+import { useGuides } from "./controls/use-guides";
 import {
   createField,
   easePress,
   type Field,
   maxSpeed,
   type Pointer,
+  type PressMode,
+  pressTarget,
+  reach,
   restX,
   restY,
   smoothVelocity,
   stepField,
 } from "./surface-field";
 
-const LABEL =
-  "A field of dots that yields under your pointer. Press and drag to push it; arrow keys move, Space presses.";
+const LABELS: Record<PressMode, string> = {
+  press:
+    "A field of dots that yields under your pointer. Press and drag to push it; arrow keys move, Space presses.",
+  pressure:
+    "A field of dots that yields under your pointer. Press harder, or hold longer, to push deeper; arrow keys move, Space presses.",
+};
+const MODE_OPTIONS = [
+  { value: "press", label: "Press" },
+  { value: "pressure", label: "Pressure" },
+] as const;
 /** Keyboard cursor step, px. */
 const KEY_STEP = 12;
 /** How long, s, the field may hold still under a steady pointer before the loop idles. */
@@ -32,11 +47,30 @@ type Input = {
   prevY: number;
   /** The keyboard cursor, shown while the canvas has keyboard focus. */
   key: { x: number; y: number } | null;
+  /** Seconds the current press has been held. */
+  heldFor: number;
+  /** A pen's pressure, or null for pointers that don't report it. */
+  penPressure: number | null;
 };
 
-export default function Surface(_: DemoProps) {
+export default function Surface({ params }: DemoProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pressure = readChoice(params, "pressure", ["off", "on"], "off");
+  const [mode, setMode] = useState<PressMode>(
+    pressure === "on" ? "pressure" : "press",
+  );
+  const { guides, control } = useGuides(params);
+  // The field mounts once; the controls reach its frame loop through refs.
+  const modeRef = useRef(mode);
+  const guidesRef = useRef(guides);
+  const wakeRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    modeRef.current = mode;
+    guidesRef.current = guides;
+    wakeRef.current?.();
+  }, [mode, guides]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -50,6 +84,7 @@ export default function Surface(_: DemoProps) {
     let dpr = 1;
     let field: Field = createField(0, 0);
     let color = "currentColor";
+    let guideColor = "currentColor";
     let press = 0;
     let frame = 0;
     let lastFrame = 0;
@@ -64,11 +99,15 @@ export default function Surface(_: DemoProps) {
       prevX: 0,
       prevY: 0,
       key: null,
+      heldFor: 0,
+      penPressure: null,
     };
 
     function readColor() {
       // Any CSS colour works as a fill style; alpha comes from globalAlpha.
-      color = getComputedStyle(canvas as HTMLCanvasElement).color;
+      const style = getComputedStyle(canvas as HTMLCanvasElement);
+      color = style.color;
+      guideColor = style.getPropertyValue("--demo-guide").trim() || color;
     }
 
     function resize() {
@@ -119,6 +158,33 @@ export default function Surface(_: DemoProps) {
         c.arc(input.key.x, input.key.y, 6 + press * 4, 0, 6.2832);
         c.stroke();
       }
+      const at = input.pointer ?? input.key;
+      if (guidesRef.current && at) drawGuides(c, at);
+    }
+
+    /** The pointer's reach, and the press depth beside it. */
+    function drawGuides(
+      c: CanvasRenderingContext2D,
+      at: { x: number; y: number },
+    ) {
+      const radius = reach(press);
+      c.globalAlpha = 1;
+      c.strokeStyle = guideColor;
+      c.lineWidth = 1;
+      c.setLineDash([4, 4]);
+      c.beginPath();
+      c.arc(at.x, at.y, radius, 0, 6.2832);
+      c.stroke();
+      c.setLineDash([]);
+      const label = press.toFixed(2);
+      c.font = '12px "Geist Mono", ui-monospace, monospace';
+      c.fillStyle = guideColor;
+      // Upper right of the ring, kept inside the stage.
+      const out = radius * Math.SQRT1_2 + 6;
+      const w = c.measureText(label).width;
+      const x = Math.min(width - w - 4, Math.max(4, at.x + out));
+      const y = Math.min(height - 4, Math.max(14, at.y - out));
+      c.fillText(label, x, y);
     }
 
     function tick(now: number) {
@@ -135,7 +201,14 @@ export default function Surface(_: DemoProps) {
         input.prevX = p.x;
         input.prevY = p.y;
       }
-      press = easePress(press, input.down ? 1 : 0, dt);
+      if (input.down) input.heldFor += dt;
+      const target = pressTarget({
+        down: input.down,
+        mode: modeRef.current,
+        heldFor: input.heldFor,
+        penPressure: input.penPressure,
+      });
+      press = easePress(press, target, dt, modeRef.current);
       const moving = stepField(field, { pointer: p, press, dt, reduced });
       draw();
 
@@ -148,7 +221,7 @@ export default function Surface(_: DemoProps) {
       // input calls wake().
       const steady =
         p !== null &&
-        press === (input.down ? 1 : 0) &&
+        press === target &&
         Math.hypot(p.vx, p.vy) < 1 &&
         maxSpeed(field) < 1;
       quiet = steady ? quiet + dt : 0;
@@ -165,6 +238,11 @@ export default function Surface(_: DemoProps) {
       quiet = 0;
       if (!frame) lastFrame = 0;
       schedule();
+    }
+
+    function readPressure(e: PointerEvent) {
+      // Only pens report real pressure; mouse and touch report a flat 0.5.
+      input.penPressure = e.pointerType === "pen" ? e.pressure : null;
     }
 
     function local(e: PointerEvent): { x: number; y: number } {
@@ -192,12 +270,15 @@ export default function Surface(_: DemoProps) {
 
     function onPointerMove(e: PointerEvent) {
       if (!e.isPrimary) return;
+      readPressure(e);
       const { x, y } = local(e);
       moveTo(x, y);
     }
     function onPointerDown(e: PointerEvent) {
       if (!e.isPrimary || e.button !== 0) return;
       input.down = true;
+      input.heldFor = 0;
+      readPressure(e);
       const { x, y } = local(e);
       moveTo(x, y);
       playSound("tap");
@@ -244,6 +325,8 @@ export default function Surface(_: DemoProps) {
         const cursor = keyCursor();
         moveTo(cursor.x, cursor.y);
         input.down = true;
+        input.heldFor = 0;
+        input.penPressure = null;
         playSound("tap");
         wake();
       }
@@ -282,6 +365,7 @@ export default function Surface(_: DemoProps) {
       draw();
     }
 
+    wakeRef.current = wake;
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(root);
     const viewObserver = new IntersectionObserver((records) => {
@@ -309,6 +393,7 @@ export default function Surface(_: DemoProps) {
     resize();
 
     return () => {
+      wakeRef.current = null;
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       viewObserver.disconnect();
@@ -330,13 +415,29 @@ export default function Surface(_: DemoProps) {
   return (
     // Stretch, not height: 100%. Both the stage and the standalone page centre
     // the demo in a flex row, and a percentage collapses to 0 in the latter.
-    <div ref={rootRef} data-stream className="relative w-full self-stretch">
-      <canvas
-        ref={canvasRef}
-        tabIndex={0}
-        aria-label={LABEL}
-        className="absolute inset-0 block h-full w-full touch-pan-y select-none text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-      />
+    <div data-stream className="flex w-full self-stretch">
+      <DemoLayout
+        top={control}
+        bottom={
+          pressure === undefined ? null : (
+            <SegmentedSwitch
+              label="Press mode"
+              options={MODE_OPTIONS}
+              value={mode}
+              onChange={setMode}
+            />
+          )
+        }
+      >
+        <div ref={rootRef} className="absolute inset-0">
+          <canvas
+            ref={canvasRef}
+            tabIndex={0}
+            aria-label={LABELS[mode]}
+            className="absolute inset-0 block h-full w-full touch-pan-y select-none text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          />
+        </div>
+      </DemoLayout>
     </div>
   );
 }
