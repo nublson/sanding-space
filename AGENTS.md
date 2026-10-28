@@ -78,7 +78,7 @@ Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's 
 - **Essay status**: `Published` → live page. `Soon` → listed, muted, not clickable, no page. `Preview` → Published everywhere except Vercel production, where it is Draft (resolved once in `getLibrary` via `showPreviews()`). `Draft` → invisible (draft mode only). Sections show only when `Visible = true` and they have at least one Published or Soon essay.
 - **Resource visibility**: a Resources row shows only with `Visible = true`, a name, a URL and a Category that is one of the options. A database without a Visible column shows every row. Categories show only when they have at least one such row.
 - **Demo names are permanent.** Renaming = add the old name to `aliases` (308 redirect, keep the query string). Demos are never deleted; retired ones render a "This demo has moved" card.
-- **Frame params** `theme`, `bg`, `chrome` are consumed by the demo route and never passed to the demo. Demos must not use those param names.
+- **Frame params** `theme`, `bg`, `chrome` are consumed by the demo route and never passed to the demo. Demos must not use those param names. `chrome` has no effect any more (embeds have no attribution mark) but stays reserved for old URLs.
 - **Demo param presets** (`guides`) mean the same control in every demo (`useGuides` in `src/components/demos/controls`); what turning one on shows is up to each demo. Demos may use a preset name only with that meaning.
 - **Headers**: `/demos/:path*` gets `frame-ancestors *` (no `X-Frame-Options`); everything else gets `frame-ancestors 'self'`.
 - Pages without demos must ship no demo JavaScript; a demo page ships only its own demo.

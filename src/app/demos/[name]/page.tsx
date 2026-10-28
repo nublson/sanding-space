@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ShavingMark } from "@/components/brand/shaving-mark";
 import { ResizeReporter } from "@/components/embed/resize-reporter";
 import { resolveDemo } from "@/lib/demo-meta";
 import { demos, registry } from "@/lib/demos";
@@ -34,13 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// The prerendered shell can't see the query string. It leaves the mark out,
-// so with ?chrome=0 it never flashes in; otherwise it appears once the
-// search params resolve.
+// The prerendered shell can't see the query string.
 const FALLBACK_FRAME: FrameParams = {
   theme: "system",
   bg: "default",
-  chrome: false,
 };
 
 export function Frame({
@@ -67,29 +63,15 @@ export function Frame({
       )}
     >
       {/* The measured root is never shorter than the registry height, so
-          embed.js keeps the stage size; taller content grows it. The
-          attribution sits in its own row so it never covers the demo. */}
+          embed.js keeps the stage size; taller content grows it. */}
       <ResizeReporter
         name={name}
         minHeight={entry.height}
-        className="flex w-full flex-col"
+        className="flex w-full"
       >
         <div className="flex w-full flex-1 items-center justify-center">
           <Demo name={name} params={params} />
         </div>
-        {frame.chrome && (
-          <a
-            href={entry.essay ? `/${entry.essay}` : "/"}
-            target="_blank"
-            rel="noopener"
-            className="flex items-center gap-1 self-end px-3 pb-3 text-xs text-subtle-foreground"
-          >
-            <ShavingMark size={12} />
-            Sanding Space
-            <span aria-hidden="true">↗</span>
-            <span className="sr-only">(opens in a new tab)</span>
-          </a>
-        )}
       </ResizeReporter>
     </div>
   );

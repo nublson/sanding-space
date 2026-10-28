@@ -91,9 +91,9 @@ Frame params:
 |---|---|---|
 | `theme` | `light` / `dark` / `system` | `system` |
 | `bg` | `default` / `transparent` | `default` |
-| `chrome` | `0` hides the "Sanding Space ↗" mark | shown |
+| `chrome` | Reserved, no effect (the frame no longer draws an attribution mark) | — |
 
-The demo page is prerendered without the query string, so the mark only appears once the params are read (it never flashes in with `?chrome=0`). With a forced `theme`, the first paint may briefly use the system theme.
+The demo page is prerendered without the query string, so with a forced `theme` the first paint may briefly use the system theme.
 
 oEmbed:
 

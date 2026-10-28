@@ -25,25 +25,18 @@ const frame = async (name: string, search: Record<string, string> = {}) =>
 describe("demo page", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("links the attribution home when the demo has no essay yet", async () => {
-    await frame("essayless-demo");
-    expect(screen.getByRole("link", { name: /Sanding Space/ })).toHaveAttribute(
-      "href",
-      "/",
-    );
-  });
-
-  it("shows an attribution link to the essay that opens in a new tab", async () => {
+  it("shows no attribution mark, so the embed is the demo alone", async () => {
     await frame("test-demo");
-    const link = screen.getByRole("link", { name: /Sanding Space/ });
-    expect(link).toHaveAttribute("href", "/test-essay");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener");
+    expect(screen.queryByText(/Sanding Space/)).toBeNull();
+    expect(screen.queryByRole("link")).toBeNull();
   });
 
-  it("hides the attribution with chrome=0", async () => {
-    await frame("test-demo", { chrome: "0" });
-    expect(screen.queryByText(/Sanding Space/)).toBeNull();
+  it("still keeps an old chrome=0 out of the demo's params", async () => {
+    await frame("test-demo", { chrome: "0", x: "1" });
+    expect(screen.getByRole("button")).toHaveAttribute(
+      "data-params",
+      JSON.stringify({ x: "1" }),
+    );
   });
 
   it("applies the theme class", async () => {
@@ -90,9 +83,5 @@ describe("demo page", () => {
     const { container } = await frame("test-demo");
     const root = container.querySelector("[data-resize-root]");
     expect(root).toHaveStyle({ minHeight: "320px" });
-    // The attribution lives inside the measured area, after the stage.
-    const link = screen.getByRole("link", { name: /Sanding Space/ });
-    expect(root).toContainElement(link);
-    expect(link).not.toHaveClass("fixed");
   });
 });
