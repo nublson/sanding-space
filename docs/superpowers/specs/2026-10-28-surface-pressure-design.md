@@ -1,0 +1,88 @@
+# Surface pressure and demo controls
+
+Date: 2026-10-28. Status: approved design, awaiting spec review.
+
+## Goal
+
+Demos should let readers switch a property on and off and see the difference in place. The first use: the Surface demo gains a **pressure** input and a **readout** of the press depth. An essay chooses, per embed, which of the two controls appear and where they start.
+
+The visual pattern comes from three reference demos: the subject in the middle, a two-option segmented switch with a sliding pill below it, and an optional dashed "Guides" chip above it that turns blue when on.
+
+## Decisions
+
+- **Shared kit, not inline.** The controls live in a small kit every demo can use. The frame stays stage + caption only (spec §9); controls are part of the demo, so chromeless embeds keep them.
+- **Pressure without pressure hardware** (mouse, trackpad, plain touch, keyboard): pressure builds with hold time. A pen uses its real `PointerEvent.pressure`.
+- **Readout**: a dashed ring at the pointer's full reach (the radius where the push ends), with the 0.00–1.00 value beside it.
+- **Route props show a control and set its start**: `?pressure=off|on`, `?readout=off|on`. No param, no control, and the demo behaves exactly as today.
+
+## Non-goals
+
+- No other demo adopts the kit in this change.
+- No locked states (a fixed value with no control visible).
+- No changes to the frame, the stage, `demo-meta.ts` heights, or frame params.
+- No variable pressure from touch force.
+
+## 1. Controls kit
+
+New folder `src/components/demos/controls/`.
+
+- **`DemoLayout`**: stacks an optional `top`, the subject and an optional `bottom`, centred. The subject fills the remaining height.
+- **`SegmentedSwitch`**: props `options: [{ value, label }, { value, label }]`, `value`, `onChange`, `label` (accessible group name). Built on Base UI `ToggleGroup` in single mode. Base UI allows un-pressing the active item (empty value); the switch ignores that change, so one option is always active. The active pill is a `motion/react` element with a shared `layoutId` that slides between options and jumps instantly under reduced motion. Arrow keys move focus (Base UI). A press plays `tap`.
+- **`GuidesToggle`**: props `pressed`, `onChange`. Built on Base UI `Toggle` (`aria-pressed`). Dashed border, lucide `Crosshair` icon, label "Guides". When on, its text, border and a faint fill use the guide blue. Plays `toggle-on` / `toggle-off`.
+- **Guide colour**: one CSS custom property, `--demo-guide`, defined in the kit with a dark value and a light value (for `?theme=light` embeds). Demos may use colour (spec §10); the site chrome does not.
+- Everything else uses theme tokens (muted text, foreground, border, secondary surface for the pill).
+
+New helper in `src/lib/params.ts`, next to `readNumber`:
+
+```ts
+readChoice<T extends string>(params, key, choices: readonly T[], fallback: T): T | undefined
+```
+
+Returns `undefined` when the key is absent (the demo hides that control), the value when it is one of `choices`, otherwise `fallback`.
+
+## 2. Surface
+
+**Params.** `readChoice(params, "pressure", ["off", "on"], "off")` and the same for `"readout"`. Absent: the control is hidden and its state is fixed (Press mode, Guides off). Present: the control is shown and starts at the given value; an unknown value starts at `off`.
+
+**State.** `mode: "press" | "pressure"` and `guides: boolean` are React state changed by the controls. The canvas effect still mounts once and reads both through refs; a change wakes the frame loop instead of rebuilding the field.
+
+**Physics** (`surface-field.ts`, pure functions):
+
+- `easePress(press, target: number, dt, tau?)` eases toward a number in 0–1 instead of a boolean. Press mode keeps `PRESS_IN` 0.16 s / `PRESS_OUT` 0.05 s; Pressure mode follows faster (about 0.05 s both ways) so a pen does not lag.
+- `pressTarget({ down, mode, heldFor, penPressure })`:
+  - not down → 0
+  - Press mode → 1
+  - Pressure mode, pen → `penPressure` (only read while down, since a hovering pen reports 0)
+  - Pressure mode, anything else → `min(1, heldFor / HOLD_TIME)`, `HOLD_TIME` = 1.2 s
+- `reach(press)` = `RADIUS + press × RADIUS_PRESS`, used by `integrate` and by the readout so the ring never drifts from the push.
+
+`heldFor` is accumulated in the frame loop while down and reset on release. Keyboard Space counts as a held press.
+
+**Idle check.** The loop's "steady" test compares `press` with the current `pressTarget(...)` instead of `down ? 1 : 0`, so a held mouse in Pressure mode keeps animating until the hold has fully built.
+
+**Layout.** Surface renders inside `DemoLayout`: `GuidesToggle` on top only with `readout`, the canvas in the middle, `SegmentedSwitch` ("Press" / "Pressure", label "Press mode") at the bottom only with `pressure`. The registered stage height stays 336 px; with both controls the field is about 240 px tall. The canvas `aria-label` names the active mode.
+
+Sounds are unchanged: a press on the field still plays `tap`.
+
+## 3. Readout, edge cases, testing
+
+**Drawing.** In the existing `draw()` pass, when Guides is on and there is a pointer or keyboard cursor: a 1 px dashed circle of radius `reach(press)` around it, and `press.toFixed(2)` in Geist Mono 12 px at the ring's upper right, clamped inside the stage. Colour comes from `--demo-guide`, read like `currentColor` today and re-read on colour-scheme change. Toggling Guides draws once even when the loop is idle.
+
+**Accessibility.** The Guides chip announces its pressed state; the switch is a labelled group with arrow-key movement. No live region for the value (it would announce every frame). Respect `prefers-reduced-motion` (pill jumps; field keeps its existing reduced damping).
+
+**Edge cases.**
+
+| Case | Behaviour |
+|---|---|
+| `?pressure=yes` | Control shown, starts at `off` |
+| Pen hovering | Pressure ignored until down |
+| Mode switched mid-press | Target changes; depth eases to it |
+| Space held in Pressure mode | Builds like a held mouse |
+| Frame params | Untouched; `pressure` and `readout` don't collide with `theme`, `bg`, `chrome` |
+
+**Tests.**
+
+- Unit (Vitest): `pressTarget` every branch; numeric `easePress`; `reach`; `readChoice` absent / valid / invalid.
+- Component: `SegmentedSwitch` keeps one option active and ignores an un-press; `GuidesToggle` flips `aria-pressed`; Surface renders each control only when its param is present.
+- Browser: `/demos/surface`, `?pressure=on`, `?readout=on`, both, and `?theme=light`, in the preview.
+- `pnpm lint` and the full test suite pass.
