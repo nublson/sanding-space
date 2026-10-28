@@ -2,9 +2,12 @@ import {
   createField,
   easePress,
   type Field,
+  HOLD_TIME,
   isMoving,
   maxSpeed,
   type Pointer,
+  pressTarget,
+  reach,
   restX,
   restY,
   smoothVelocity,
@@ -159,16 +162,16 @@ describe("maxSpeed", () => {
 describe("easePress", () => {
   it("rises toward 1 while down and falls back to exactly 0", () => {
     let press = 0;
-    for (let t = 0; t < 0.6; t += FRAME) press = easePress(press, true, FRAME);
+    for (let t = 0; t < 0.6; t += FRAME) press = easePress(press, 1, FRAME);
     expect(press).toBeGreaterThan(0.95);
-    for (let t = 0; t < 1; t += FRAME) press = easePress(press, false, FRAME);
+    for (let t = 0; t < 1; t += FRAME) press = easePress(press, 0, FRAME);
     expect(press).toBe(0);
   });
   it("sinks in slower than it lets go", () => {
     let down = 0;
-    for (let f = 0; f < 6; f++) down = easePress(down, true, FRAME);
+    for (let f = 0; f < 6; f++) down = easePress(down, 1, FRAME);
     let up = 1;
-    for (let f = 0; f < 6; f++) up = easePress(up, false, FRAME);
+    for (let f = 0; f < 6; f++) up = easePress(up, 0, FRAME);
     expect(down).toBeLessThan(1 - up);
   });
 });
@@ -182,5 +185,60 @@ describe("smoothVelocity", () => {
     const once = smoothVelocity(0, 100, 1 / 60);
     const twice = smoothVelocity(smoothVelocity(0, 100, 1 / 120), 100, 1 / 120);
     expect(twice).toBeCloseTo(once);
+  });
+});
+
+describe("reach", () => {
+  it("is 60px at rest and 110px fully pressed", () => {
+    expect(reach(0)).toBe(60);
+    expect(reach(1)).toBe(110);
+    expect(reach(0.5)).toBe(85);
+  });
+});
+
+describe("pressTarget", () => {
+  const base = {
+    down: true,
+    mode: "pressure" as const,
+    heldFor: 0,
+    penPressure: null,
+  };
+  it("is 0 when not down, even for a hovering pen", () => {
+    expect(pressTarget({ ...base, down: false, penPressure: 0.8 })).toBe(0);
+    expect(pressTarget({ ...base, down: false, mode: "press" })).toBe(0);
+  });
+  it("is 1 in press mode while down", () => {
+    expect(pressTarget({ ...base, mode: "press" })).toBe(1);
+  });
+  it("follows the pen in pressure mode", () => {
+    expect(pressTarget({ ...base, penPressure: 0.35 })).toBe(0.35);
+    expect(pressTarget({ ...base, penPressure: 1.4 })).toBe(1);
+  });
+  it("builds with hold time without a pen", () => {
+    expect(pressTarget({ ...base, heldFor: 0 })).toBe(0);
+    expect(pressTarget({ ...base, heldFor: HOLD_TIME / 2 })).toBeCloseTo(0.5);
+    expect(pressTarget({ ...base, heldFor: HOLD_TIME * 3 })).toBe(1);
+  });
+});
+
+describe("easePress in pressure mode", () => {
+  it("follows faster than press mode sinks in", () => {
+    let p = 0;
+    let q = 0;
+    for (let f = 0; f < 3; f++) {
+      p = easePress(p, 1, FRAME, "pressure");
+      q = easePress(q, 1, FRAME, "press");
+    }
+    expect(p).toBeGreaterThan(q);
+  });
+  it("returns to exactly 0 after release", () => {
+    let p = 0.7;
+    for (let t = 0; t < 0.5; t += FRAME) p = easePress(p, 0, FRAME, "pressure");
+    expect(p).toBe(0);
+  });
+  it("eases, never jumps, when the target changes mid-press", () => {
+    const next = easePress(1, 0.3, FRAME, "pressure");
+    expect(next).toBeLessThan(1);
+    expect(next).toBeGreaterThan(0.3);
   });
 });

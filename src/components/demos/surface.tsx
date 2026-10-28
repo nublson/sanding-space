@@ -135,7 +135,7 @@ export default function Surface(_: DemoProps) {
         input.prevX = p.x;
         input.prevY = p.y;
       }
-      press = easePress(press, input.down, dt);
+      press = easePress(press, input.down ? 1 : 0, dt);
       const moving = stepField(field, { pointer: p, press, dt, reduced });
       draw();
 

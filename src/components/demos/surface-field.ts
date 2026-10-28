@@ -20,6 +20,10 @@ const DRAG = 3;
 /** Press depth time constants, s: sinking in is deliberate, letting go snaps. */
 const PRESS_IN = 0.16;
 const PRESS_OUT = 0.05;
+/** In pressure mode the depth follows its target this quickly, s, both ways. */
+const PRESS_FOLLOW = 0.05;
+/** Without real pressure, holding this long, s, reaches full depth. */
+export const HOLD_TIME = 1.2;
 /** Integration step, s. Frames are split into steps no longer than this. */
 const MAX_STEP = 1 / 120;
 /** Below these a dot is at rest and snaps to zero. */
@@ -38,6 +42,9 @@ export type Field = {
   vx: Float32Array;
   vy: Float32Array;
 };
+
+/** "press" is all or nothing; "pressure" follows a pen, or builds with hold time. */
+export type PressMode = "press" | "pressure";
 
 export type Pointer = {
   x: number;
@@ -78,6 +85,11 @@ export function createField(
   };
 }
 
+/** How far, px, the pointer's push reaches at a given press depth. */
+export function reach(press: number): number {
+  return RADIUS + press * RADIUS_PRESS;
+}
+
 /** Rest position of the dot at column `i`, row `j`. */
 export function restX(field: Field, i: number): number {
   return field.originX + i * field.spacing;
@@ -106,7 +118,7 @@ function integrate(field: Field, input: StepInput, h: number): void {
   const zeta = input.reduced ? ZETA_REDUCED : ZETA;
   const k = OMEGA * OMEGA;
   const c = 2 * zeta * OMEGA;
-  const radius = RADIUS + press * RADIUS_PRESS;
+  const radius = reach(press);
   const push = PUSH + press * (PUSH_PRESS - PUSH);
 
   for (let j = 0; j < rows; j++) {
@@ -193,10 +205,34 @@ export function smoothVelocity(
   return current + (sample - current) * k;
 }
 
-/** Eases the press depth toward its target, slower in than out. */
-export function easePress(press: number, down: boolean, dt: number): number {
-  const target = down ? 1 : 0;
-  const tau = down ? PRESS_IN : PRESS_OUT;
+/** The press depth to ease toward this frame. */
+export function pressTarget(input: {
+  down: boolean;
+  mode: PressMode;
+  /** Seconds the current press has been held. */
+  heldFor: number;
+  /** A pen's pressure while down, or null for pointers without real pressure. */
+  penPressure: number | null;
+}): number {
+  if (!input.down) return 0;
+  if (input.mode === "press") return 1;
+  if (input.penPressure !== null)
+    return Math.min(1, Math.max(0, input.penPressure));
+  return Math.min(1, input.heldFor / HOLD_TIME);
+}
+
+/**
+ * Eases the press depth toward its target. Press mode sinks in slower than
+ * it lets go; pressure mode follows quickly both ways so a pen doesn't lag.
+ */
+export function easePress(
+  press: number,
+  target: number,
+  dt: number,
+  mode: PressMode = "press",
+): number {
+  const tau =
+    mode === "pressure" ? PRESS_FOLLOW : target > press ? PRESS_IN : PRESS_OUT;
   const next = press + (target - press) * (1 - Math.exp(-dt / tau));
   return Math.abs(next - target) < 0.001 ? target : next;
 }
