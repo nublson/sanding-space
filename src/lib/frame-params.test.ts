@@ -11,13 +11,13 @@ describe("splitParams", () => {
         bg: "transparent",
       }),
     ).toEqual({
-      frame: { theme: "light", bg: "transparent", chrome: false },
+      frame: { theme: "light", bg: "transparent" },
       params: { stiffness: "500" },
     });
   });
   it("applies defaults and rejects invalid values", () => {
     expect(splitParams({ theme: "blue", bg: "red" })).toEqual({
-      frame: { theme: "system", bg: "default", chrome: true },
+      frame: { theme: "system", bg: "default" },
       params: {},
     });
   });

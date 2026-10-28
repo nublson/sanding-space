@@ -191,7 +191,7 @@ Reserved **frame params**, consumed by the route and **not** passed to the demo:
 |---|---|---|
 | `theme` | `light` / `dark` / `system` | `system` |
 | `bg` | `default` / `transparent` | `default` |
-| `chrome` | `0` hides the attribution mark | shown |
+| `chrome` | Reserved, no effect: the frame draws no attribution mark | — |
 
 All other query params are passed to the demo as `params`. Demo authors must not use the reserved names.
 
@@ -222,7 +222,7 @@ Rules (decided):
 
 ### 6.4 `/demos/[name]` page
 
-- Chromeless: the demo centered on a stage, plus a small "Sanding Space ↗" mark in a corner linking to `/<essay>` (hidden with `chrome=0`). Open the link in a new tab (`target="_blank"`), since it usually runs inside someone else's page.
+- Chromeless: the demo fills its frame (the whole window standalone, the iframe when embedded), nothing else. The registry height is only the minimum and the size a fresh embed opens at. There is no attribution mark (decided 2026-10-28; `chrome` stays a reserved param so old `?chrome=0` embeds never reach a demo).
 - Prerender every demo with `generateStaticParams` over the registry.
 - Only that demo's JavaScript ships.
 - Apply `theme` and `bg`. With `bg=transparent`, `html` and `body` must be transparent.
@@ -507,7 +507,7 @@ Rejected (decoration, not explanation): hover sounds outside the sidebar, scroll
 ### 11.6 Embeds (`/demos/<name>`)
 
 - `?theme=system` (default) resolves to the light tokens on light hosts and the dark tokens on dark ones; `?theme=light|dark` forces one. This is the only place light mode exists.
-- `?bg=transparent` and `?chrome=0` as in §6.2. The attribution mark is the shaving mark + "Sanding Space ↗", 12px `subtle-foreground`, bottom-right, `target="_blank"`.
+- `?bg=transparent` as in §6.2. No attribution mark.
 - No site sounds and no page entrance inside embeds. A demo's own sounds play only on interaction inside the iframe.
 
 ### 11.7 Accessibility

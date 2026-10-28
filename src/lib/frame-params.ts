@@ -1,9 +1,10 @@
 export type FrameParams = {
   theme: "light" | "dark" | "system";
   bg: "default" | "transparent";
-  chrome: boolean;
 };
 
+// `chrome` once toggled an attribution mark the frame no longer draws. It
+// stays reserved so old ?chrome=0 embeds never pass it to a demo.
 export const FRAME_PARAM_KEYS: ReadonlySet<string> = new Set([
   "theme",
   "bg",
@@ -32,7 +33,6 @@ export function splitParams(
     frame: {
       theme: theme === "light" || theme === "dark" ? theme : "system",
       bg: bg === "transparent" ? "transparent" : "default",
-      chrome: first(search.chrome) !== "0",
     },
     params,
   };

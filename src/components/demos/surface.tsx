@@ -1,26 +1,46 @@
 "use client";
 
 import type { DemoProps } from "notionic";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { readChoice } from "@/lib/params";
 import { playSound } from "@/lib/sounds";
+import { DemoLayout } from "./controls/demo-layout";
+import { showsControls } from "./controls/presets";
+import { SegmentedSwitch } from "./controls/segmented-switch";
+import { useGuides } from "./controls/use-guides";
 import {
   createField,
   easePress,
   type Field,
   maxSpeed,
   type Pointer,
+  type PressedBy,
+  type PressMode,
+  penPressureFor,
+  pressTarget,
+  reach,
   restX,
   restY,
   smoothVelocity,
   stepField,
 } from "./surface-field";
 
-const LABEL =
-  "A field of dots that yields under your pointer. Press and drag to push it; arrow keys move, Space presses.";
+const LABELS: Record<PressMode, string> = {
+  press:
+    "A field of dots that yields under your pointer. Press and drag to push it; arrow keys move, Space presses.",
+  pressure:
+    "A field of dots that yields under your pointer. Press harder, or hold longer, to push deeper; arrow keys move, Space presses.",
+};
+const MODE_OPTIONS = [
+  { value: "press", label: "Press" },
+  { value: "pressure", label: "Pressure" },
+] as const;
 /** Keyboard cursor step, px. */
 const KEY_STEP = 12;
 /** How long, s, the field may hold still under a steady pointer before the loop idles. */
 const QUIET_TIME = 0.2;
+/** Fallbacks for the guides' value label, after the site's mono face. */
+const GUIDE_FONT_FALLBACK = "ui-monospace, monospace";
 /** Dots are drawn in this many brightness steps, one fill each. */
 const ALPHA_STEPS = 8;
 
@@ -32,11 +52,32 @@ type Input = {
   prevY: number;
   /** The keyboard cursor, shown while the canvas has keyboard focus. */
   key: { x: number; y: number } | null;
+  /** Seconds the current press has been held. */
+  heldFor: number;
+  /** A pen's pressure, or null for pointers that don't report it. */
+  penPressure: number | null;
+  /** What started the current press, so other inputs can't change its pressure. */
+  pressedBy: PressedBy;
 };
 
-export default function Surface(_: DemoProps) {
+export default function Surface({ params }: DemoProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pressure = readChoice(params, "pressure", ["off", "on"], "off");
+  const [mode, setMode] = useState<PressMode>(
+    pressure === "on" ? "pressure" : "press",
+  );
+  const { guides, control } = useGuides(params);
+  // The field mounts once; the controls reach its frame loop through refs.
+  const modeRef = useRef(mode);
+  const guidesRef = useRef(guides);
+  const wakeRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    modeRef.current = mode;
+    guidesRef.current = guides;
+    wakeRef.current?.();
+  }, [mode, guides]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -50,11 +91,14 @@ export default function Surface(_: DemoProps) {
     let dpr = 1;
     let field: Field = createField(0, 0);
     let color = "currentColor";
+    let guideFont = `12px ${GUIDE_FONT_FALLBACK}`;
     let press = 0;
     let frame = 0;
     let lastFrame = 0;
     let quiet = 0;
     let onScreen = true;
+    let monoRequested = false;
+    let disposed = false;
     const reducedQuery = matchMedia("(prefers-reduced-motion: reduce)");
     const schemeQuery = matchMedia("(prefers-color-scheme: dark)");
     let reduced = reducedQuery.matches;
@@ -64,11 +108,18 @@ export default function Surface(_: DemoProps) {
       prevX: 0,
       prevY: 0,
       key: null,
+      heldFor: 0,
+      penPressure: null,
+      pressedBy: null,
     };
 
     function readColor() {
       // Any CSS colour works as a fill style; alpha comes from globalAlpha.
-      color = getComputedStyle(canvas as HTMLCanvasElement).color;
+      const style = getComputedStyle(canvas as HTMLCanvasElement);
+      color = style.color;
+      // next/font names the face; its generated family lives in this variable.
+      const mono = style.getPropertyValue("--font-geist-mono").trim();
+      guideFont = `12px ${mono ? `${mono}, ` : ""}${GUIDE_FONT_FALLBACK}`;
     }
 
     function resize() {
@@ -119,6 +170,41 @@ export default function Surface(_: DemoProps) {
         c.arc(input.key.x, input.key.y, 6 + press * 4, 0, 6.2832);
         c.stroke();
       }
+      const at = input.pointer ?? input.key;
+      if (guidesRef.current && at) drawGuides(c, at);
+    }
+
+    /** The pointer's reach, and the press depth beside it. */
+    function drawGuides(
+      c: CanvasRenderingContext2D,
+      at: { x: number; y: number },
+    ) {
+      const radius = reach(press);
+      c.globalAlpha = 1;
+      c.strokeStyle = color;
+      c.lineWidth = 1;
+      c.setLineDash([4, 4]);
+      c.beginPath();
+      c.arc(at.x, at.y, radius, 0, 6.2832);
+      c.stroke();
+      c.setLineDash([]);
+      const label = press.toFixed(2);
+      if (!monoRequested) {
+        // Fetch the face only once guides draw, then redraw in it.
+        monoRequested = true;
+        // The canvas never loads a face on its own.
+        document.fonts?.load(guideFont).then(() => {
+          if (!disposed) draw();
+        });
+      }
+      c.font = guideFont;
+      c.fillStyle = color;
+      // Upper right of the ring, kept inside the stage.
+      const out = radius * Math.SQRT1_2 + 6;
+      const w = c.measureText(label).width;
+      const x = Math.min(width - w - 4, Math.max(4, at.x + out));
+      const y = Math.min(height - 4, Math.max(14, at.y - out));
+      c.fillText(label, x, y);
     }
 
     function tick(now: number) {
@@ -135,7 +221,14 @@ export default function Surface(_: DemoProps) {
         input.prevX = p.x;
         input.prevY = p.y;
       }
-      press = easePress(press, input.down, dt);
+      if (input.down) input.heldFor += dt;
+      const target = pressTarget({
+        down: input.down,
+        mode: modeRef.current,
+        heldFor: input.heldFor,
+        penPressure: input.penPressure,
+      });
+      press = easePress(press, target, dt, modeRef.current);
       const moving = stepField(field, { pointer: p, press, dt, reduced });
       draw();
 
@@ -148,7 +241,7 @@ export default function Surface(_: DemoProps) {
       // input calls wake().
       const steady =
         p !== null &&
-        press === (input.down ? 1 : 0) &&
+        press === target &&
         Math.hypot(p.vx, p.vy) < 1 &&
         maxSpeed(field) < 1;
       quiet = steady ? quiet + dt : 0;
@@ -165,6 +258,10 @@ export default function Surface(_: DemoProps) {
       quiet = 0;
       if (!frame) lastFrame = 0;
       schedule();
+    }
+
+    function readPressure(e: PointerEvent) {
+      input.penPressure = penPressureFor(input.penPressure, e, input.pressedBy);
     }
 
     function local(e: PointerEvent): { x: number; y: number } {
@@ -187,17 +284,22 @@ export default function Surface(_: DemoProps) {
     function leave() {
       input.pointer = null;
       input.down = false;
+      input.pressedBy = null;
       wake();
     }
 
     function onPointerMove(e: PointerEvent) {
       if (!e.isPrimary) return;
+      readPressure(e);
       const { x, y } = local(e);
       moveTo(x, y);
     }
     function onPointerDown(e: PointerEvent) {
       if (!e.isPrimary || e.button !== 0) return;
       input.down = true;
+      input.heldFor = 0;
+      input.pressedBy = "pointer";
+      readPressure(e);
       const { x, y } = local(e);
       moveTo(x, y);
       playSound("tap");
@@ -210,6 +312,7 @@ export default function Surface(_: DemoProps) {
     function onPointerUp(e: PointerEvent) {
       if (!e.isPrimary) return;
       input.down = false;
+      input.pressedBy = null;
       // Touch ends with no further events: let the surface settle.
       if (e.pointerType !== "mouse") leave();
       else wake();
@@ -244,6 +347,9 @@ export default function Surface(_: DemoProps) {
         const cursor = keyCursor();
         moveTo(cursor.x, cursor.y);
         input.down = true;
+        input.heldFor = 0;
+        input.pressedBy = "key";
+        input.penPressure = null;
         playSound("tap");
         wake();
       }
@@ -251,6 +357,7 @@ export default function Surface(_: DemoProps) {
     function onKeyUp(e: KeyboardEvent) {
       if (e.key === " " || e.key === "Enter") {
         input.down = false;
+        input.pressedBy = null;
         wake();
       }
     }
@@ -282,6 +389,7 @@ export default function Surface(_: DemoProps) {
       draw();
     }
 
+    wakeRef.current = wake;
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(root);
     const viewObserver = new IntersectionObserver((records) => {
@@ -309,6 +417,8 @@ export default function Surface(_: DemoProps) {
     resize();
 
     return () => {
+      disposed = true;
+      wakeRef.current = null;
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       viewObserver.disconnect();
@@ -330,13 +440,29 @@ export default function Surface(_: DemoProps) {
   return (
     // Stretch, not height: 100%. Both the stage and the standalone page centre
     // the demo in a flex row, and a percentage collapses to 0 in the latter.
-    <div ref={rootRef} data-stream className="relative w-full self-stretch">
-      <canvas
-        ref={canvasRef}
-        tabIndex={0}
-        aria-label={LABEL}
-        className="absolute inset-0 block h-full w-full touch-pan-y select-none text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-      />
+    <div data-stream className="flex w-full self-stretch">
+      <DemoLayout
+        top={control}
+        bottom={
+          pressure === undefined || !showsControls(params) ? null : (
+            <SegmentedSwitch
+              label="Press mode"
+              options={MODE_OPTIONS}
+              value={mode}
+              onChange={setMode}
+            />
+          )
+        }
+      >
+        <div ref={rootRef} className="absolute inset-0">
+          <canvas
+            ref={canvasRef}
+            tabIndex={0}
+            aria-label={LABELS[mode]}
+            className="absolute inset-0 block h-full w-full touch-pan-y select-none text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          />
+        </div>
+      </DemoLayout>
     </div>
   );
 }

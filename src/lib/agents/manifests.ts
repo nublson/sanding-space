@@ -237,8 +237,8 @@ Demos live at \`${url("/demos/{name}")}\`; the names are permanent (renamed
 demos redirect). Get the embed code from oEmbed:
 \`${url("/api/oembed")}?url=${url("/demos/{name}")}\`. It is an iframe plus
 \`${url("/embed.js")}\`, which keeps the frame's height in sync. Query
-parameters on the demo URL become the demo's props; \`theme\` (light, dark, system),
-\`bg=transparent\` and \`chrome=0\` style the frame.
+parameters on the demo URL become the demo's props; \`theme\` (light, dark, system)
+and \`bg=transparent\` style the frame.
 
 ## Conventions
 

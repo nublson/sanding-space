@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readNumber } from "./params";
+import { readChoice, readNumber } from "./params";
 
 const range = { min: 0.5, max: 1 };
 
@@ -17,5 +17,20 @@ describe("readNumber", () => {
     expect(readNumber({ a: "450" }, "a", 400, { min: 50, max: 1000 })).toBe(
       450,
     );
+  });
+});
+
+describe("readChoice", () => {
+  const choices = ["off", "on"] as const;
+  it("is undefined when the key is absent", () => {
+    expect(readChoice({}, "guides", choices, "off")).toBeUndefined();
+  });
+  it("reads a listed value", () => {
+    expect(readChoice({ guides: "on" }, "guides", choices, "off")).toBe("on");
+    expect(readChoice({ guides: "off" }, "guides", choices, "off")).toBe("off");
+  });
+  it("falls back for unlisted and empty values", () => {
+    expect(readChoice({ guides: "yes" }, "guides", choices, "off")).toBe("off");
+    expect(readChoice({ guides: "" }, "guides", choices, "off")).toBe("off");
   });
 });
