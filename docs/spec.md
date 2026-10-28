@@ -206,7 +206,7 @@ export const registry = {
     component: ButtonPressScale,
     title: "Button press, scale",
     essay: "button-press",        // optional: canonical essay slug for the "Read the essay" link; omit while the demo has no essay (links go to `/`)
-    height: 320,                  // fallback iframe height before auto-height runs
+    height: 320,                  // essay stage height, and the embed's minimum and opening height
     aliases: ["button-scale"],    // old names, 308-redirect to the current name
   },
 } satisfies Registry
@@ -451,7 +451,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 
 **Text**: intros, summaries and essay body in `muted-foreground` with `text-wrap: pretty`; bold in `foreground`. Inline code Geist Mono 14px (0.875em of the reading size) on `card` with 1px `border`, 6px radius. Content column max width 672px, blocks 56px apart (48px on mobile).
 
-**Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Large stage 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
+**Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Essay stages (the cover and inline demos) take the demo's registry `height`, the size a fresh embed opens at, so a demo is the same size in an essay and in an embed; without a registered demo they are 420px (decided 2026-10-28). Section cards keep an aspect ratio: large card 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
 
 **Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 16 medium `foreground`, summary 14/22 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, no badge; no hover, press, sound or pointer cursor.
 

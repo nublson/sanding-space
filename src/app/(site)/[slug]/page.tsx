@@ -147,7 +147,7 @@ async function EssayContent({ params }: Props) {
         <LiveThumbnail
           demo={essay.coverDemo}
           essaySlug={essay.slug}
-          size="hero"
+          size="essay"
         />
       </div>
       <div className="border-t border-border pt-12 text-pretty text-muted-foreground">
@@ -173,7 +173,7 @@ function EssaySkeleton() {
         <div className="h-[38px]" />
       </div>
       <div className="max-sm:-mx-4">
-        <DemoStage size="hero" />
+        <DemoStage size="essay" />
       </div>
     </div>
   );
