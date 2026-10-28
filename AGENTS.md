@@ -28,7 +28,7 @@ The full build brief is [docs/spec.md](docs/spec.md). Read it before working on 
 
 ## Stack
 
-Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, `notionic` + `@notionhq/client`, Motion (`motion/react`) for demos, deployed on Vercel. Package manager: **pnpm**. Lint/format: **Biome** (`pnpm lint`, `pnpm format`). Source lives in `src/`.
+Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens (tokens only), `notionic` + `@notionhq/client`, Motion (`motion/react`) for demos, deployed on Vercel. Package manager: **pnpm**. Lint/format: **Biome** (`pnpm lint`, `pnpm format`). Source lives in `src/`.
 
 ## Routes
 
@@ -68,7 +68,8 @@ Decided in [docs/spec.md §10](docs/spec.md): the **shaving** mark (one curl str
 
 Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's portfolio (nublson.com, repo `nublson/nublson`): Inter / Newsreader / Geist Mono, achromatic OKLCH dark tokens, `--ease-out` motion utilities.
 
-- **UI kit**: shadcn/ui on **Base UI** primitives (`base-nova`), lucide icons. Don't add Radix.
+- **UI kit**: our own components on **Base UI** (`@base-ui/react`), lucide icons. From shadcn/ui we keep only the tokens in `globals.css`: no shadcn components, CLI, `components.json` or `shadcn/tailwind.css`. Don't add Radix.
+- **Component library**: `src/components/ui/` is the one library for the site and every demo: our own components on Base UI (`@base-ui/react`), one file per component, styled with the shared tokens. Demos import from it and never style a raw Base UI part or native control that the library already covers. Missing a primitive? Write it there on Base UI, with only the options its callers need, never inside a demo. Biome lints it like the rest of `src/`.
 - **Sound**: `@web-kits/audio`. Five sounds (`tap`, `page`, `toggle-on`, `toggle-off`, `hover`) defined only in `src/lib/sounds.ts`; elements opt in with `data-sound` (press) and `data-sound-hover` (sidebar items only, mouse on fine pointers). Press, state changes and sidebar hover only, never focus/scroll/load. One sound per gesture.
 - **Motion**: CSS first + React `<ViewTransition>` for routes. `motion/react` is for demos only, never site chrome. Animate transform/opacity/color only; honor reduced motion.
 - **Quality gates** after each milestone: `better-interface`, then `find-animation-opportunities`, then `improve` (§11.8).
@@ -79,7 +80,7 @@ Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's 
 - **Resource visibility**: a Resources row shows only with `Visible = true`, a name, a URL and a Category that is one of the options. A database without a Visible column shows every row. Categories show only when they have at least one such row.
 - **Demo names are permanent.** Renaming = add the old name to `aliases` (308 redirect, keep the query string). Demos are never deleted; retired ones render a "This demo has moved" card.
 - **Frame params** `theme`, `bg`, `chrome` are consumed by the demo route and never passed to the demo. Demos must not use those param names. `chrome` has no effect any more (embeds have no attribution mark) but stays reserved for old URLs.
-- **Demo param presets** mean the same thing in every demo (`src/components/demos/controls`): `guides` is the Guides chip (`useGuides`), and what turning it on shows is up to each demo; controls are hidden by default, so `?pressure=on` locks that state; `controls=on` shows the controls for the params present (`showsControls`). Demos may use a preset name only with that meaning.
+- **Demo param presets** mean the same thing in every demo (`src/components/demos/controls`): `guides` is the Guides chip (`useGuides`), and what turning it on shows is up to each demo; controls are hidden by default, so `?pressure=on` locks that state; `controls=on` shows the controls for the params present and `controls=off` hides them (`showsControls`). A demo whose controls are its subject may default them on (`showsControls(params, "on")`, as `search-expand` does); there, `controls=off` locks the state. Demos may use a preset name only with that meaning.
 - **Headers**: `/demos/:path*` gets `frame-ancestors *` (no `X-Frame-Options`); everything else gets `frame-ancestors 'self'`.
 - Pages without demos must ship no demo JavaScript; a demo page ships only its own demo.
 - The linked Essays database view at the end of a section page body must render nothing.

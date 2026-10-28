@@ -137,6 +137,13 @@ describe("showsControls", () => {
     expect(showsControls({ controls: "maybe" })).toBe(false);
     expect(showsControls({ controls: "on" })).toBe(true);
   });
+
+  it("shows controls unless controls=off for a demo that defaults them on", () => {
+    expect(showsControls({}, "on")).toBe(true);
+    expect(showsControls({ controls: "maybe" }, "on")).toBe(true);
+    expect(showsControls({ controls: "on" }, "on")).toBe(true);
+    expect(showsControls({ controls: "off" }, "on")).toBe(false);
+  });
 });
 
 describe("DemoLayout", () => {

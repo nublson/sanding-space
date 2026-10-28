@@ -83,8 +83,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`dark ${inter.variable} ${newsreader.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <JsonLd data={websiteJsonLd} />
-        {children}
+        {/* Base UI portals mount on <body>, outside this stacking context,
+            so popups sit above the page whatever its z-indexes. */}
+        <div className="isolate flex flex-1 flex-col">
+          <JsonLd data={websiteJsonLd} />
+          {children}
+        </div>
         <Analytics />
         <SpeedInsights />
       </body>

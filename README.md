@@ -6,7 +6,7 @@ Essays are written in Notion and rendered with [notionic](https://notionic.dev).
 
 Pages: the Introduction (`/introduction`, where `/` redirects), essays (`/<slug>`), sections (`/sections/<slug>`), a static About page (`/about`), a Resources page (`/resources`), and standalone demos (`/demos/<name>`).
 
-Stack: Next.js (App Router), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, notionic, Motion, pnpm, Biome.
+Stack: Next.js (App Router), TypeScript, Tailwind CSS v4 + shadcn/ui tokens, Base UI, notionic, Motion, pnpm, Biome.
 
 ## Setup
 

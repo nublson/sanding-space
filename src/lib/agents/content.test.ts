@@ -59,8 +59,8 @@ test("search matches title, summary and section, ignoring case", () => {
 });
 
 test("demos carry their essay and embed code", () => {
-  const [surface] = demoItems(library);
-  expect(surface.name).toBe("surface");
+  const surface = demoItems(library).find((d) => d.name === "surface");
+  if (!surface) throw new Error("surface demo missing");
   expect(surface.essayUrl).toMatch(/\/button-press$/);
   expect(surface.embedHtml).toContain('<iframe src="');
   expect(surface.embedHtml).toContain("/embed.js");

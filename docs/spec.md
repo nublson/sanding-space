@@ -23,7 +23,7 @@ Read the whole document before writing code. Decisions marked **(decided)** are 
 ## 2. Stack (decided unless noted)
 
 - Next.js (App Router), TypeScript, React Server Components
-- Tailwind CSS v4 + shadcn/ui on **Base UI** primitives (decided, see §11.1)
+- Tailwind CSS v4 + shadcn/ui tokens, components on **Base UI** primitives (decided, see §11.1)
 - `@web-kits/audio` for interface sound (decided, see §11.4)
 - `notionic` + `@notionhq/client`
 - Motion (`motion/react`) for demo animation (suggested)
@@ -407,8 +407,8 @@ Goal: a focused, refined space that feels alive. The interface answers every pre
 
 ### 11.1 Foundation
 
-- shadcn/ui with **Base UI** primitives: the Base UI variant of the portfolio's Nova style (`base-nova`; the portfolio itself uses `radix-nova`). Same `components.json` otherwise: `rsc: true`, `baseColor: neutral`, CSS variables, aliases `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/hooks`, `iconLibrary: lucide`, and the `@notionic` registry (`https://notionic.dev/r/{name}.json`).
-- `globals.css` imports, in order: `tailwindcss`, `tw-animate-css`, `shadcn/tailwind.css`, `notionic/styles.css`.
+- Components are our own, written on **Base UI** primitives in `src/components/ui/` (decided 2026-10-28, replacing shadcn/ui `base-nova`). From shadcn/ui only the tokens remain: the CSS variables in `globals.css` (neutral base color). No shadcn components, CLI or `components.json`; icons are lucide.
+- `globals.css` imports, in order: `tailwindcss`, `notionic/styles.css`.
 - **Dark only.** No `next-themes`, no theme toggle; `<html class="dark">`. Light tokens exist only for demo embeds (§11.6).
 
 ### 11.2 Type and tokens
