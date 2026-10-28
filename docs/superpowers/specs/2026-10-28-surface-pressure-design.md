@@ -14,7 +14,7 @@ The visual pattern comes from three reference demos: the subject in the middle, 
 - **Pressure without pressure hardware** (mouse, trackpad, plain touch, keyboard): pressure builds with hold time. A pen uses its real `PointerEvent.pressure`.
 - **Surface's guides**: a dashed ring at the pointer's full reach (the radius where the push ends), with the 0.00–1.00 value beside it.
 - **Two kinds of demo params**: **presets**, shared names with one meaning across every demo (first and only one: `guides`), and **demo props**, owned by one demo (Surface: `pressure`). See "Params: presets and demo props".
-- **Route params show a control and set its start**: `?pressure=off|on`, `?guides=off|on`. No param, no control, and the demo behaves exactly as today.
+- **Route params set a state; `controls=on` shows its control**: `?pressure=off|on`, `?guides=off|on` set where each starts, locked by default. `?controls=on` shows the controls for the params present. No params, and the demo behaves exactly as today.
 
 ## Params: presets and demo props
 
@@ -25,7 +25,7 @@ Demo params (everything except the reserved frame params `theme`, `bg`, `chrome`
 | Preset | Control | Values | Surface shows | A Button demo might show |
 |---|---|---|---|---|
 | `guides` | `GuidesToggle` chip, top slot | `on`, `off` (unknown → `off`) | Reach ring + press value | Dashed padding boxes, labelled gaps |
-| `controls` | None; hides every control | `off` hides, anything else shows | Locks the states the other params set, e.g. `?pressure=on&controls=off` | Same |
+| `controls` | None; shows or hides every control | `on` shows; absent or anything else hides (default) | `?pressure=on` alone is locked to Pressure; `?pressure=on&controls=on` adds the switch | Same |
 
 Each preset has a hook in the kit that reads the param and owns the state and the control, so demos never re-implement it:
 
@@ -44,10 +44,10 @@ URL examples:
 | URL | Result |
 |---|---|
 | `/demos/surface` | The dot field alone, same as today |
-| `/demos/surface?pressure=off` | Field + switch, starting on Press |
-| `/demos/surface?guides=on` | Field + Guides chip, starting on |
-| `/demos/surface?pressure=on&guides=on` | Field + both controls, both starting on |
-| `/demos/surface?pressure=on&controls=off` | Field locked to Pressure, no switch |
+| `/demos/surface?pressure=on` | Field locked to Pressure, no switch |
+| `/demos/surface?guides=on` | Field with guides drawn, no chip |
+| `/demos/surface?pressure=off&controls=on` | Field + switch, starting on Press |
+| `/demos/surface?pressure=on&guides=on&controls=on` | Field + both controls, both starting on |
 
 ## Non-goals
 
@@ -95,7 +95,7 @@ Returns `undefined` when the key is absent (the demo hides that control), the va
 
 **Idle check.** The loop's "steady" test compares `press` with the current `pressTarget(...)` instead of `down ? 1 : 0`, so a held mouse in Pressure mode keeps animating until the hold has fully built.
 
-**Layout.** Surface renders inside `DemoLayout`: the `useGuides` control on top only with `guides`, the canvas in the middle, `SegmentedSwitch` ("Press" / "Pressure", label "Press mode") at the bottom only with `pressure`. The registered stage height is 420 px; with both controls the field is about 274 px tall. The canvas `aria-label` names the active mode.
+**Layout.** Surface renders inside `DemoLayout`: the `useGuides` chip on top only with `guides` and `controls=on`, the canvas in the middle, `SegmentedSwitch` ("Press" / "Pressure", label "Press mode") at the bottom only with `pressure` and `controls=on`. The registered stage height is 420 px; with both controls the field is about 274 px tall. The canvas `aria-label` names the active mode.
 
 Sounds are unchanged: a press on the field still plays `tap`.
 

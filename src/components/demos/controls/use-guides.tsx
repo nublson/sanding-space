@@ -6,9 +6,8 @@ import { GuidesToggle } from "./guides-toggle";
 import { showsControls } from "./presets";
 
 /**
- * The `guides` preset: `?guides=on|off` shows the Guides chip and sets where
- * it starts. Without the param there is no chip and guides stay off; with
- * `controls=off` guides keep their state but the chip is hidden.
+ * The `guides` preset: `?guides=on|off` sets whether guides draw. The chip
+ * shows only with `controls=on`; without the guides param guides stay off.
  */
 export function useGuides(params: Record<string, string>): {
   guides: boolean;

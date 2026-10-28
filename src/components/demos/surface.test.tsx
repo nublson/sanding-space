@@ -21,9 +21,9 @@ describe("Surface controls", () => {
     expect(canvasLabel(container)).toBe(TODAY);
   });
 
-  it("starts on Pressure with pressure=on", () => {
+  it("starts on Pressure with pressure=on and controls=on", () => {
     const { container } = render(
-      <Surface name="surface" params={{ pressure: "on" }} />,
+      <Surface name="surface" params={{ pressure: "on", controls: "on" }} />,
     );
     expect(screen.getByRole("radio", { name: "Pressure" })).toBeChecked();
     expect(canvasLabel(container)).toContain("Press harder");
@@ -31,7 +31,10 @@ describe("Surface controls", () => {
 
   it("shows both controls, off, for unknown values", () => {
     render(
-      <Surface name="surface" params={{ pressure: "maybe", guides: "yes" }} />,
+      <Surface
+        name="surface"
+        params={{ pressure: "maybe", guides: "yes", controls: "on" }}
+      />,
     );
     expect(screen.getByRole("radio", { name: "Press" })).toBeChecked();
     expect(screen.getByRole("button", { name: "Guides" })).toHaveAttribute(
@@ -41,7 +44,9 @@ describe("Surface controls", () => {
   });
 
   it("shows only the Guides chip with guides=on", () => {
-    render(<Surface name="surface" params={{ guides: "on" }} />);
+    render(
+      <Surface name="surface" params={{ guides: "on", controls: "on" }} />,
+    );
     expect(screen.getByRole("button", { name: "Guides" })).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -49,9 +54,9 @@ describe("Surface controls", () => {
     expect(screen.queryByRole("radiogroup", { name: "Press mode" })).toBeNull();
   });
 
-  it("locks Pressure with no switch when controls=off", () => {
+  it("locks Pressure with no switch by default", () => {
     const { container } = render(
-      <Surface name="surface" params={{ pressure: "on", controls: "off" }} />,
+      <Surface name="surface" params={{ pressure: "on" }} />,
     );
     expect(screen.queryByRole("radiogroup", { name: "Press mode" })).toBeNull();
     expect(canvasLabel(container)).toContain("Press harder");

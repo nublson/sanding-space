@@ -107,7 +107,7 @@ describe("useGuides", () => {
   });
 
   it("starts on with guides=on", () => {
-    render(<Harness params={{ guides: "on" }} />);
+    render(<Harness params={{ guides: "on", controls: "on" }} />);
     expect(screen.getByRole("button", { name: "Guides" })).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -115,14 +115,14 @@ describe("useGuides", () => {
     expect(screen.getByRole("status")).toHaveTextContent("true");
   });
 
-  it("keeps guides on but hides the chip with controls=off", () => {
-    render(<Harness params={{ guides: "on", controls: "off" }} />);
+  it("keeps guides on but hides the chip without controls=on", () => {
+    render(<Harness params={{ guides: "on" }} />);
     expect(screen.queryByRole("button", { name: "Guides" })).toBeNull();
     expect(screen.getByRole("status")).toHaveTextContent("true");
   });
 
   it("shows the control, off, for an unknown value, and toggles", async () => {
-    render(<Harness params={{ guides: "yes" }} />);
+    render(<Harness params={{ guides: "yes", controls: "on" }} />);
     const chip = screen.getByRole("button", { name: "Guides" });
     expect(chip).toHaveAttribute("aria-pressed", "false");
     await userEvent.click(chip);
@@ -131,11 +131,11 @@ describe("useGuides", () => {
 });
 
 describe("showsControls", () => {
-  it("shows controls unless controls=off", () => {
-    expect(showsControls({})).toBe(true);
-    expect(showsControls({ controls: "on" })).toBe(true);
-    expect(showsControls({ controls: "maybe" })).toBe(true);
+  it("hides controls unless controls=on", () => {
+    expect(showsControls({})).toBe(false);
     expect(showsControls({ controls: "off" })).toBe(false);
+    expect(showsControls({ controls: "maybe" })).toBe(false);
+    expect(showsControls({ controls: "on" })).toBe(true);
   });
 });
 
