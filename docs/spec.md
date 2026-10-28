@@ -245,6 +245,8 @@ Inside the demo page, a `ResizeObserver` on the demo root posts its height to th
 parent.postMessage({ type: "sanding:resize", name, height }, "*")
 ```
 
+It also posts notionic's `{ type: "notionic:resize", height }`, so a notionic site that loads `sanding.space` as a live embed (`embeds={["sanding.space"]}`, notionic 0.16+) fits the frame to the demo with no script of ours.
+
 `public/embed.js` (small, no dependencies) listens for `sanding:resize` messages, matches `event.source` to iframes marked `data-sanding`, and sets their height. Verify the message origin is `https://sanding.space`.
 
 Copy-paste embed code:
