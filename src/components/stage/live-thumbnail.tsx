@@ -1,5 +1,5 @@
 import { ViewTransition } from "react";
-import { DemoStage } from "@/components/stage/demo-stage";
+import { DemoStage, essayStageHeight } from "@/components/stage/demo-stage";
 import { InViewMount } from "@/components/stage/in-view-mount";
 import { demos, resolveDemo } from "@/lib/demos";
 
@@ -19,7 +19,7 @@ export function LiveThumbnail({
 }: {
   demo: string | null;
   essaySlug: string;
-  size: "hero" | "card";
+  size: "essay" | "hero" | "card";
   /** Render as a non-interactive preview, for thumbnails inside links. */
   preview?: boolean;
 }) {
@@ -27,7 +27,7 @@ export function LiveThumbnail({
   const Demo = name ? demos[name] : undefined;
   return (
     <ViewTransition name={`demo-${essaySlug}`}>
-      <DemoStage size={size} preview={preview}>
+      <DemoStage size={size} height={essayStageHeight(name)} preview={preview}>
         {name && Demo && (
           <InViewMount>
             <Demo name={name} params={{}} />
