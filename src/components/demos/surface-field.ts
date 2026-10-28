@@ -205,6 +205,23 @@ export function smoothVelocity(
   return current + (sample - current) * k;
 }
 
+/** What started the current press, or null when nothing is pressed. */
+export type PressedBy = "pointer" | "key" | null;
+
+/**
+ * The pen pressure to keep after a pointer event. Only a press the pointer
+ * started reads it, so a pen hovering past a keyboard press can't zero it.
+ */
+export function penPressureFor(
+  current: number | null,
+  event: { pointerType: string; pressure: number },
+  pressedBy: PressedBy,
+): number | null {
+  if (pressedBy !== "pointer") return current;
+  // Only pens report real pressure; mouse and touch report a flat 0.5.
+  return event.pointerType === "pen" ? event.pressure : null;
+}
+
 /** The press depth to ease toward this frame. */
 export function pressTarget(input: {
   down: boolean;

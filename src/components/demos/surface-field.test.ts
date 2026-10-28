@@ -6,6 +6,7 @@ import {
   isMoving,
   maxSpeed,
   type Pointer,
+  penPressureFor,
   pressTarget,
   reach,
   restX,
@@ -240,5 +241,25 @@ describe("easePress in pressure mode", () => {
     const next = easePress(1, 0.3, FRAME, "pressure");
     expect(next).toBeLessThan(1);
     expect(next).toBeGreaterThan(0.3);
+  });
+});
+
+describe("penPressureFor", () => {
+  const pen = { pointerType: "pen", pressure: 0 };
+  it("ignores a hovering pen while the keyboard holds the press", () => {
+    expect(penPressureFor(null, pen, "key")).toBeNull();
+  });
+  it("reads a pen that started the press", () => {
+    expect(
+      penPressureFor(null, { pointerType: "pen", pressure: 0.6 }, "pointer"),
+    ).toBe(0.6);
+  });
+  it("has no pressure for a mouse or touch press", () => {
+    expect(
+      penPressureFor(null, { pointerType: "mouse", pressure: 0.5 }, "pointer"),
+    ).toBeNull();
+  });
+  it("keeps the last value when nothing is pressed", () => {
+    expect(penPressureFor(0.4, pen, null)).toBe(0.4);
   });
 });

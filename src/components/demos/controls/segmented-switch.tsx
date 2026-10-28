@@ -41,7 +41,7 @@ export function SegmentedSwitch<T extends string>({
         <Radio.Root
           key={option.value}
           value={option.value}
-          className="relative cursor-pointer rounded-full px-4 py-2 text-muted-foreground text-sm outline-none transition-colors duration-150 ease-(--ease-out) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-checked:text-foreground"
+          className="relative inline-flex cursor-pointer items-center rounded-full px-4 py-2 pointer-coarse:min-h-11 text-muted-foreground text-sm outline-none transition-colors duration-150 ease-(--ease-out) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-checked:text-foreground"
         >
           {option.value === value ? (
             // Under reduced motion the pill fades in place instead of sliding.

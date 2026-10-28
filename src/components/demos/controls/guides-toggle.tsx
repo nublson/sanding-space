@@ -19,7 +19,7 @@ export function GuidesToggle({
         playSound(next ? "toggle-on" : "toggle-off");
         onChange(next);
       }}
-      className="inline-flex items-center gap-1.5 rounded-full border border-border border-dashed px-3.5 py-1.5 text-muted-foreground text-sm outline-none transition-colors duration-150 ease-(--ease-out) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-pressed:border-foreground/40 data-pressed:bg-foreground/7 data-pressed:text-foreground"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border border-dashed px-3.5 py-1.5 pointer-coarse:min-h-11 text-muted-foreground text-sm outline-none transition-colors duration-150 ease-(--ease-out) hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-pressed:border-foreground/40 data-pressed:bg-foreground/7 data-pressed:text-foreground"
     >
       <Crosshair aria-hidden className="size-4" />
       Guides

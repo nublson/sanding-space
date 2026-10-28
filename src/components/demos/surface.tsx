@@ -14,7 +14,9 @@ import {
   type Field,
   maxSpeed,
   type Pointer,
+  type PressedBy,
   type PressMode,
+  penPressureFor,
   pressTarget,
   reach,
   restX,
@@ -37,8 +39,8 @@ const MODE_OPTIONS = [
 const KEY_STEP = 12;
 /** How long, s, the field may hold still under a steady pointer before the loop idles. */
 const QUIET_TIME = 0.2;
-/** The guides' value label; the canvas never loads this face on its own. */
-const GUIDE_FONT = '12px "Geist Mono", ui-monospace, monospace';
+/** Fallbacks for the guides' value label, after the site's mono face. */
+const GUIDE_FONT_FALLBACK = "ui-monospace, monospace";
 /** Dots are drawn in this many brightness steps, one fill each. */
 const ALPHA_STEPS = 8;
 
@@ -54,6 +56,8 @@ type Input = {
   heldFor: number;
   /** A pen's pressure, or null for pointers that don't report it. */
   penPressure: number | null;
+  /** What started the current press, so other inputs can't change its pressure. */
+  pressedBy: PressedBy;
 };
 
 export default function Surface({ params }: DemoProps) {
@@ -87,6 +91,7 @@ export default function Surface({ params }: DemoProps) {
     let dpr = 1;
     let field: Field = createField(0, 0);
     let color = "currentColor";
+    let guideFont = `12px ${GUIDE_FONT_FALLBACK}`;
     let press = 0;
     let frame = 0;
     let lastFrame = 0;
@@ -105,11 +110,16 @@ export default function Surface({ params }: DemoProps) {
       key: null,
       heldFor: 0,
       penPressure: null,
+      pressedBy: null,
     };
 
     function readColor() {
       // Any CSS colour works as a fill style; alpha comes from globalAlpha.
-      color = getComputedStyle(canvas as HTMLCanvasElement).color;
+      const style = getComputedStyle(canvas as HTMLCanvasElement);
+      color = style.color;
+      // next/font names the face; its generated family lives in this variable.
+      const mono = style.getPropertyValue("--font-geist-mono").trim();
+      guideFont = `12px ${mono ? `${mono}, ` : ""}${GUIDE_FONT_FALLBACK}`;
     }
 
     function resize() {
@@ -182,11 +192,12 @@ export default function Surface({ params }: DemoProps) {
       if (!monoRequested) {
         // Fetch the face only once guides draw, then redraw in it.
         monoRequested = true;
-        document.fonts?.load(GUIDE_FONT).then(() => {
+        // The canvas never loads a face on its own.
+        document.fonts?.load(guideFont).then(() => {
           if (!disposed) draw();
         });
       }
-      c.font = GUIDE_FONT;
+      c.font = guideFont;
       c.fillStyle = color;
       // Upper right of the ring, kept inside the stage.
       const out = radius * Math.SQRT1_2 + 6;
@@ -250,8 +261,7 @@ export default function Surface({ params }: DemoProps) {
     }
 
     function readPressure(e: PointerEvent) {
-      // Only pens report real pressure; mouse and touch report a flat 0.5.
-      input.penPressure = e.pointerType === "pen" ? e.pressure : null;
+      input.penPressure = penPressureFor(input.penPressure, e, input.pressedBy);
     }
 
     function local(e: PointerEvent): { x: number; y: number } {
@@ -274,6 +284,7 @@ export default function Surface({ params }: DemoProps) {
     function leave() {
       input.pointer = null;
       input.down = false;
+      input.pressedBy = null;
       wake();
     }
 
@@ -287,6 +298,7 @@ export default function Surface({ params }: DemoProps) {
       if (!e.isPrimary || e.button !== 0) return;
       input.down = true;
       input.heldFor = 0;
+      input.pressedBy = "pointer";
       readPressure(e);
       const { x, y } = local(e);
       moveTo(x, y);
@@ -300,6 +312,7 @@ export default function Surface({ params }: DemoProps) {
     function onPointerUp(e: PointerEvent) {
       if (!e.isPrimary) return;
       input.down = false;
+      input.pressedBy = null;
       // Touch ends with no further events: let the surface settle.
       if (e.pointerType !== "mouse") leave();
       else wake();
@@ -335,6 +348,7 @@ export default function Surface({ params }: DemoProps) {
         moveTo(cursor.x, cursor.y);
         input.down = true;
         input.heldFor = 0;
+        input.pressedBy = "key";
         input.penPressure = null;
         playSound("tap");
         wake();
@@ -343,6 +357,7 @@ export default function Surface({ params }: DemoProps) {
     function onKeyUp(e: KeyboardEvent) {
       if (e.key === " " || e.key === "Enter") {
         input.down = false;
+        input.pressedBy = null;
         wake();
       }
     }
