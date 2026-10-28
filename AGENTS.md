@@ -79,6 +79,7 @@ Decided in [docs/spec.md §11](docs/spec.md). The visual system is the author's 
 - **Resource visibility**: a Resources row shows only with `Visible = true`, a name, a URL and a Category that is one of the options. A database without a Visible column shows every row. Categories show only when they have at least one such row.
 - **Demo names are permanent.** Renaming = add the old name to `aliases` (308 redirect, keep the query string). Demos are never deleted; retired ones render a "This demo has moved" card.
 - **Frame params** `theme`, `bg`, `chrome` are consumed by the demo route and never passed to the demo. Demos must not use those param names.
+- **Demo param presets** (`guides`) mean the same control in every demo (`useGuides` in `src/components/demos/controls`); what turning one on shows is up to each demo. Demos may use a preset name only with that meaning.
 - **Headers**: `/demos/:path*` gets `frame-ancestors *` (no `X-Frame-Options`); everything else gets `frame-ancestors 'self'`.
 - Pages without demos must ship no demo JavaScript; a demo page ships only its own demo.
 - The linked Essays database view at the end of a section page body must render nothing.
