@@ -25,6 +25,7 @@ Demo params (everything except the reserved frame params `theme`, `bg`, `chrome`
 | Preset | Control | Values | Surface shows | A Button demo might show |
 |---|---|---|---|---|
 | `guides` | `GuidesToggle` chip, top slot | `on`, `off` (unknown → `off`) | Reach ring + press value | Dashed padding boxes, labelled gaps |
+| `controls` | None; hides every control | `off` hides, anything else shows | Locks the states the other params set, e.g. `?pressure=on&controls=off` | Same |
 
 Each preset has a hook in the kit that reads the param and owns the state and the control, so demos never re-implement it:
 
@@ -46,6 +47,7 @@ URL examples:
 | `/demos/surface?pressure=off` | Field + switch, starting on Press |
 | `/demos/surface?guides=on` | Field + Guides chip, starting on |
 | `/demos/surface?pressure=on&guides=on` | Field + both controls, both starting on |
+| `/demos/surface?pressure=on&controls=off` | Field locked to Pressure, no switch |
 
 ## Non-goals
 

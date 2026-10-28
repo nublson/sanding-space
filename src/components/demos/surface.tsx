@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { readChoice } from "@/lib/params";
 import { playSound } from "@/lib/sounds";
 import { DemoLayout } from "./controls/demo-layout";
+import { showsControls } from "./controls/presets";
 import { SegmentedSwitch } from "./controls/segmented-switch";
 import { useGuides } from "./controls/use-guides";
 import {
@@ -428,7 +429,7 @@ export default function Surface({ params }: DemoProps) {
       <DemoLayout
         top={control}
         bottom={
-          pressure === undefined ? null : (
+          pressure === undefined || !showsControls(params) ? null : (
             <SegmentedSwitch
               label="Press mode"
               options={MODE_OPTIONS}

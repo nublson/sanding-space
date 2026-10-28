@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { playSound } from "@/lib/sounds";
 import { DemoLayout } from "./demo-layout";
 import { GuidesToggle } from "./guides-toggle";
+import { showsControls } from "./presets";
 import { SegmentedSwitch } from "./segmented-switch";
 import { useGuides } from "./use-guides";
 
@@ -114,12 +115,27 @@ describe("useGuides", () => {
     expect(screen.getByRole("status")).toHaveTextContent("true");
   });
 
+  it("keeps guides on but hides the chip with controls=off", () => {
+    render(<Harness params={{ guides: "on", controls: "off" }} />);
+    expect(screen.queryByRole("button", { name: "Guides" })).toBeNull();
+    expect(screen.getByRole("status")).toHaveTextContent("true");
+  });
+
   it("shows the control, off, for an unknown value, and toggles", async () => {
     render(<Harness params={{ guides: "yes" }} />);
     const chip = screen.getByRole("button", { name: "Guides" });
     expect(chip).toHaveAttribute("aria-pressed", "false");
     await userEvent.click(chip);
     expect(screen.getByRole("status")).toHaveTextContent("true");
+  });
+});
+
+describe("showsControls", () => {
+  it("shows controls unless controls=off", () => {
+    expect(showsControls({})).toBe(true);
+    expect(showsControls({ controls: "on" })).toBe(true);
+    expect(showsControls({ controls: "maybe" })).toBe(true);
+    expect(showsControls({ controls: "off" })).toBe(false);
   });
 });
 

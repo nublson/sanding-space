@@ -48,4 +48,12 @@ describe("Surface controls", () => {
     );
     expect(screen.queryByRole("radiogroup", { name: "Press mode" })).toBeNull();
   });
+
+  it("locks Pressure with no switch when controls=off", () => {
+    const { container } = render(
+      <Surface name="surface" params={{ pressure: "on", controls: "off" }} />,
+    );
+    expect(screen.queryByRole("radiogroup", { name: "Press mode" })).toBeNull();
+    expect(canvasLabel(container)).toContain("Press harder");
+  });
 });
