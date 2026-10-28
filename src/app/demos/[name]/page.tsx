@@ -56,14 +56,16 @@ export function Frame({
   return (
     <div
       className={cn(
-        "flex min-h-dvh items-center justify-center",
+        "flex min-h-dvh items-stretch",
         frame.theme === "light" ? "light" : "dark",
         frame.theme === "system" && "theme-system",
         frame.bg === "default" && "bg-background text-foreground",
       )}
     >
-      {/* The measured root is never shorter than the registry height, so
-          embed.js keeps the stage size; taller content grows it. */}
+      {/* The demo fills its frame: the whole window standalone, the iframe
+          when embedded. The measured root is never shorter than the registry
+          height, so a fresh embed opens at that size and taller content grows
+          it; filling an iframe reports its own height, so nothing loops. */}
       <ResizeReporter
         name={name}
         minHeight={entry.height}

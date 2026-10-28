@@ -84,4 +84,13 @@ describe("demo page", () => {
     const root = container.querySelector("[data-resize-root]");
     expect(root).toHaveStyle({ minHeight: "320px" });
   });
+
+  it("stretches the demo to fill the frame instead of centring a strip", async () => {
+    const { container } = await frame("test-demo");
+    expect(container.firstElementChild).toHaveClass(
+      "min-h-dvh",
+      "items-stretch",
+    );
+    expect(container.firstElementChild).not.toHaveClass("items-center");
+  });
 });

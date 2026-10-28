@@ -222,7 +222,7 @@ Rules (decided):
 
 ### 6.4 `/demos/[name]` page
 
-- Chromeless: the demo centered on a stage, nothing else. There is no attribution mark (decided 2026-10-28; `chrome` stays a reserved param so old `?chrome=0` embeds never reach a demo).
+- Chromeless: the demo fills its frame (the whole window standalone, the iframe when embedded), nothing else. The registry height is only the minimum and the size a fresh embed opens at. There is no attribution mark (decided 2026-10-28; `chrome` stays a reserved param so old `?chrome=0` embeds never reach a demo).
 - Prerender every demo with `generateStaticParams` over the registry.
 - Only that demo's JavaScript ships.
 - Apply `theme` and `bg`. With `bg=transparent`, `html` and `body` must be transparent.
