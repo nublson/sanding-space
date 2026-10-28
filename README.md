@@ -133,3 +133,13 @@ curl -X POST https://sanding.space/api/revalidate \
 ## Git
 
 Branch off `develop` and open PRs into it. `main` is production.
+
+### notionic updates
+
+New notionic releases arrive as pull requests. The notionic Update workflow (`.github/workflows/notionic-update.yml`) runs daily at 06:23 UTC, and on demand from the Actions tab. When npm has a newer notionic than the `develop` lockfile, it runs `pnpm add notionic@<latest>` on the `deps/notionic` branch and opens a PR into `develop`, or updates the one already open. A release that `develop` already has closes the stale PR. If a run pushes the branch but fails before the PR or its checks, the next run opens the PR or dispatches the checks again. To skip a release, close its PR: the workflow leaves it closed and waits for the next one.
+
+A PR opened with `GITHUB_TOKEN` doesn't start `pull_request` workflows, so the workflow dispatches PR Checks on the branch itself. Review the release notes linked in the PR, then merge it like any other once the checks pass.
+
+`pnpm-workspace.yaml` excludes notionic from pnpm's minimum release age, so a release from the same day installs. Other dependencies still wait a day.
+
+The workflow needs **Allow GitHub Actions to create and approve pull requests** turned on in Settings → Actions → General → Workflow permissions.
