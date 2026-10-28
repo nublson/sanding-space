@@ -41,6 +41,24 @@ describe("ResizeReporter", () => {
     );
   });
 
+  it("also posts notionic's resize message, for notionic live embeds", () => {
+    const post = vi.fn();
+    vi.spyOn(window, "parent", "get").mockReturnValue({
+      postMessage: post,
+    } as unknown as Window);
+    vi.spyOn(window, "top", "get").mockReturnValue({} as Window);
+    render(
+      <ResizeReporter name="button-press-scale" minHeight={320}>
+        <p>x</p>
+      </ResizeReporter>,
+    );
+    fire();
+    expect(post).toHaveBeenCalledWith(
+      { type: "notionic:resize", height: 320 },
+      "*",
+    );
+  });
+
   it("sets the root's min-height from the given entry height", () => {
     const { container } = render(
       <ResizeReporter name="button-press-scale" minHeight={320}>

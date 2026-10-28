@@ -74,6 +74,8 @@ Every demo has a permanent standalone URL: `https://sanding.space/demos/<name>`.
 
 `embed.js` resizes iframes marked `data-sanding` to the demo's height. The demo never reports less than its registry `height`, and taller content grows the iframe. Without the script, the inline height is used. `embed.js` only accepts messages from `https://sanding.space` (plus the page's own origin when it runs on `localhost`), so auto-height doesn't work for iframes pointing at preview deployments.
 
+On a site built with notionic 0.16 or later, skip the snippet: list the host in `embeds` (`<NotionRenderer embeds={["sanding.space"]} />`) and embed the demo URL. The demo also posts notionic's `notionic:resize` message, so the frame fits its height without `embed.js`.
+
 ## Deployment
 
 Vercel builds only when it makes sense. `vercel.json` runs `scripts/vercel-wait-github-ci.mjs` as the ignored-build step:
@@ -136,7 +138,7 @@ Branch off `develop` and open PRs into it. `main` is production.
 
 ### notionic updates
 
-New notionic releases arrive as pull requests. The notionic Update workflow (`.github/workflows/notionic-update.yml`) runs daily at 06:23 UTC, and on demand from the Actions tab. When npm has a newer notionic than the `develop` lockfile, it runs `pnpm add notionic@<latest>` on the `deps/notionic` branch and opens a PR into `develop`, or updates the one already open. A release that `develop` already has closes the stale PR. If a run pushes the branch but fails before the PR or its checks, the next run opens the PR or dispatches the checks again. To skip a release, close its PR: the workflow leaves it closed and waits for the next one.
+New notionic releases arrive as pull requests. The notionic Update workflow (`.github/workflows/notionic-update.yml`) runs only on demand, from the Actions tab (Run workflow on `develop`). When npm has a newer notionic than the `develop` lockfile, it runs `pnpm add notionic@<latest>` on the `deps/notionic` branch and opens a PR into `develop`, or updates the one already open. A release that `develop` already has closes the stale PR. If a run pushes the branch but fails before the PR or its checks, running it again opens the PR or dispatches the checks. To skip a release, close its PR: the workflow leaves it closed until a newer release.
 
 A PR opened with `GITHUB_TOKEN` doesn't start `pull_request` workflows, so the workflow dispatches PR Checks on the branch itself. Review the release notes linked in the PR, then merge it like any other once the checks pass.
 

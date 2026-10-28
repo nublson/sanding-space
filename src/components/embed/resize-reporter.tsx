@@ -19,15 +19,12 @@ export function ResizeReporter({
   useEffect(() => {
     const el = ref.current;
     if (!el || window.self === window.top) return;
+    // Two parents listen: our embed.js (sanding:resize) and notionic's live
+    // embeds (notionic:resize), which fit any frame whose host the page allows.
     const report = () => {
-      window.parent.postMessage(
-        {
-          type: "sanding:resize",
-          name,
-          height: Math.round(el.getBoundingClientRect().height),
-        },
-        "*",
-      );
+      const height = Math.round(el.getBoundingClientRect().height);
+      window.parent.postMessage({ type: "sanding:resize", name, height }, "*");
+      window.parent.postMessage({ type: "notionic:resize", height }, "*");
     };
     const observer = new ResizeObserver(report);
     observer.observe(el);
