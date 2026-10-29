@@ -20,6 +20,7 @@ The full build brief is [docs/spec.md](docs/spec.md). Read it before working on 
 - **Sections** group essays: Principles, Foundations, Interaction, Motion, Components, Systems, Product. Read them from Notion; never hardcode the list.
 - **Demos** are React components in the repo (`components/demos/<name>.tsx`), registered in `lib/demos.ts`. In Notion they are `/embed` blocks whose URL ends in `/demos/<name>`; the query string becomes the demo's `params`.
 - Every demo has a permanent, standalone, chromeless, embeddable URL: `sanding.space/demos/<name>`.
+- Section cards show a demo live, unless it has a static thumbnail in `src/components/demos/thumbnails/` (CSS only, may play on card hover). Give one to a demo that is too tall or too busy to read at card size.
 
 ## Naming
 

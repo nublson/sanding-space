@@ -7,6 +7,9 @@ vi.mock("@/lib/demo-meta", async (orig) =>
 vi.mock("@/components/demos/lazy-demo", async () =>
   (await import("@/test/fake-demos")).mockLazyDemo(),
 );
+vi.mock("@/components/demos/thumbnails", () => ({
+  demoThumbnails: { "test-demo": () => <p>Static thumbnail</p> },
+}));
 
 let fire: () => void = () => {};
 beforeEach(() => {
@@ -41,5 +44,19 @@ describe("LiveThumbnail", () => {
     expect(container.firstElementChild).toBeEmptyDOMElement();
     rerender(<LiveThumbnail demo={null} essaySlug="x" size="card" />);
     expect(container.firstElementChild).toBeEmptyDOMElement();
+  });
+  it("draws a demo's static thumbnail in cards, never the live demo", () => {
+    render(
+      <LiveThumbnail demo="test-demo" essaySlug="x" size="card" preview />,
+    );
+    act(() => fire());
+    expect(screen.getByText("Static thumbnail")).toBeInTheDocument();
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+  it("keeps the live demo on the essay stage", async () => {
+    render(<LiveThumbnail demo="test-demo" essaySlug="x" size="essay" />);
+    act(() => fire());
+    expect(await screen.findByRole("button")).toBeInTheDocument();
+    expect(screen.queryByText("Static thumbnail")).toBeNull();
   });
 });

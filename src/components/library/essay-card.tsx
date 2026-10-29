@@ -95,7 +95,7 @@ export function EssayCard({
     <Link
       href={`/${essay.slug}`}
       data-sound="page"
-      className="press -m-2 block rounded-[18px] p-2 pointer-fine:hover:bg-card"
+      className="group press -m-2 block rounded-[18px] p-2 pointer-fine:hover:bg-card"
     >
       <LiveThumbnail
         demo={essay.coverDemo}
