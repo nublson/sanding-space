@@ -1,11 +1,24 @@
 export type DemoMeta = {
   title: string;
+  /** One line for link previews and listings; `demoDescription` fills in a default. */
+  description?: string;
   /** The essay that explains this demo. Optional: a demo can ship before its essay. */
   essay?: string;
   height: number;
   aliases?: string[];
   retired?: boolean;
 };
+
+const DEFAULT_DESCRIPTION =
+  "A live, interactive demo. Try it here, then embed it anywhere on the web.";
+const RETIRED_DESCRIPTION =
+  "This demo has moved. Its page links to where it lives now.";
+
+/** The one line that describes a demo wherever it is listed or previewed. */
+export function demoDescription(entry: DemoMeta): string {
+  if (entry.retired) return RETIRED_DESCRIPTION;
+  return entry.description ?? DEFAULT_DESCRIPTION;
+}
 
 // Names are permanent: rename with `aliases`, retire with `retired`. Each entry
 // also needs a loader in src/components/demos/lazy-demo.tsx.

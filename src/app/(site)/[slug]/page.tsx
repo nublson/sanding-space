@@ -16,6 +16,7 @@ import { demos } from "@/lib/demos";
 import {
   AUTHOR,
   absoluteUrl,
+  oembedDiscovery,
   pageMetadata,
   SITE_NAME,
   SITE_URL,
@@ -48,7 +49,6 @@ async function essayMetadata(slug: string): Promise<Metadata> {
   // The not-found boundary renders under this route, so its title lives here.
   if (!entry) return { title: { absolute: title("Not found") } };
   const { essay, section } = entry;
-  const url = `${SITE_URL}/${essay.slug}`;
   const base = pageMetadata({
     name: essay.title,
     description: essay.summary || undefined,
@@ -66,9 +66,7 @@ async function essayMetadata(slug: string): Promise<Metadata> {
     ...base,
     alternates: {
       ...base.alternates,
-      types: {
-        "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(url)}&format=json`,
-      },
+      types: oembedDiscovery(`/${essay.slug}`),
     },
   };
 }

@@ -31,6 +31,18 @@ export function absoluteUrl(path: string): string {
 }
 
 /**
+ * The oEmbed discovery link for a page (`alternates.types`), so editors can
+ * turn a pasted link into the live demo or an essay card.
+ */
+export function oembedDiscovery(
+  path: string,
+): NonNullable<NonNullable<Metadata["alternates"]>["types"]> {
+  return {
+    "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(absoluteUrl(path))}&format=json`,
+  };
+}
+
+/**
  * Per-page metadata: an absolute title, the canonical URL, and Open Graph and
  * Twitter fields that carry the same title and description. Images come from
  * the route's opengraph-image file, so they are never set here.

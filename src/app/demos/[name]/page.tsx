@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ResizeReporter } from "@/components/embed/resize-reporter";
-import { resolveDemo } from "@/lib/demo-meta";
+import { demoDescription, resolveDemo } from "@/lib/demo-meta";
 import { demos, registry } from "@/lib/demos";
 import { type FrameParams, splitParams } from "@/lib/frame-params";
-import { pageMetadata, SITE_URL } from "@/lib/site";
+import { oembedDiscovery, pageMetadata } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -18,12 +18,10 @@ export function generateStaticParams() {
   return names.length ? names.map((name) => ({ name })) : [{ name: "__none" }];
 }
 
-export const DEMO_DESCRIPTION =
-  "A live, interactive demo. Try it here, then embed it anywhere on the web.";
-
 // The same Open Graph and Twitter fields as every other page (shared links
 // preview with the demo's own title, copy, URL and card), plus oEmbed
-// discovery so editors can turn a pasted link into the live demo.
+// discovery. A retired demo renders a "moved" card, so its preview says so
+// and shows the site card instead of its own.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { name } = await params;
   const resolved = resolveDemo(name);
@@ -31,18 +29,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const path = `/demos/${name}`;
   const base = pageMetadata({
     name: resolved.entry.title,
-    description: DEMO_DESCRIPTION,
+    description: demoDescription(resolved.entry),
     path,
-    ownImage: true,
+    ownImage: !resolved.entry.retired,
   });
   return {
     ...base,
-    alternates: {
-      ...base.alternates,
-      types: {
-        "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(`${SITE_URL}${path}`)}&format=json`,
-      },
-    },
+    alternates: { ...base.alternates, types: oembedDiscovery(path) },
   };
 }
 

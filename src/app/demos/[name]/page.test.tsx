@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import DemoPage, {
-  DEMO_DESCRIPTION,
-  DemoFrame,
-  generateMetadata,
-} from "@/app/demos/[name]/page";
+import DemoPage, { DemoFrame, generateMetadata } from "@/app/demos/[name]/page";
 import { SITE_URL } from "@/lib/site";
+import { fakeDemoMeta } from "@/test/fake-demos";
 
 const { notFound } = vi.hoisted(() => ({
   notFound: vi.fn(() => {
@@ -103,17 +100,38 @@ describe("demo page", () => {
     const meta = await generateMetadata(props("test-demo"));
     const url = `${SITE_URL}/demos/test-demo`;
     const og = meta.openGraph as Record<string, unknown>;
-    expect(og.title).toMatch(/ · Sanding Space$/);
-    expect(og.title).not.toBe("Sanding Space");
-    expect(og.description).toBe(DEMO_DESCRIPTION);
+    expect(og.title).toBe("Test demo · Sanding Space");
+    expect(og.description).toBe(
+      "A live, interactive demo. Try it here, then embed it anywhere on the web.",
+    );
     expect(og.url).toBe(url);
     expect(meta.twitter?.title).toBe(og.title);
     // Left to the route's opengraph-image file: the key must be absent.
     expect("images" in og).toBe(false);
+    expect("images" in (meta.twitter ?? {})).toBe(false);
     expect(meta.alternates?.canonical).toBe(url);
     expect(meta.alternates?.types?.["application/json+oembed"]).toContain(
       encodeURIComponent(url),
     );
+  });
+
+  it("previews a retired demo as moved, with the site card", async () => {
+    fakeDemoMeta["retired-demo"] = {
+      title: "Retired demo",
+      height: 200,
+      retired: true,
+    };
+    try {
+      const meta = await generateMetadata(props("retired-demo"));
+      const og = meta.openGraph as Record<string, unknown>;
+      expect(og.title).toBe("Retired demo · Sanding Space");
+      expect(og.description).toMatch(/moved/);
+      expect(og.images).toEqual([
+        expect.objectContaining({ url: `${SITE_URL}/opengraph-image` }),
+      ]);
+    } finally {
+      delete fakeDemoMeta["retired-demo"];
+    }
   });
 
   it("returns no metadata for an unknown demo", async () => {
