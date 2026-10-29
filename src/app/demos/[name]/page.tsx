@@ -5,7 +5,7 @@ import { ResizeReporter } from "@/components/embed/resize-reporter";
 import { resolveDemo } from "@/lib/demo-meta";
 import { demos, registry } from "@/lib/demos";
 import { type FrameParams, splitParams } from "@/lib/frame-params";
-import { SITE_URL, title } from "@/lib/site";
+import { pageMetadata, SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -18,16 +18,29 @@ export function generateStaticParams() {
   return names.length ? names.map((name) => ({ name })) : [{ name: "__none" }];
 }
 
+export const DEMO_DESCRIPTION =
+  "A live, interactive demo. Try it here, then embed it anywhere on the web.";
+
+// The same Open Graph and Twitter fields as every other page (shared links
+// preview with the demo's own title, copy, URL and card), plus oEmbed
+// discovery so editors can turn a pasted link into the live demo.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { name } = await params;
   const resolved = resolveDemo(name);
   if (resolved.kind !== "demo") return {};
+  const path = `/demos/${name}`;
+  const base = pageMetadata({
+    name: resolved.entry.title,
+    description: DEMO_DESCRIPTION,
+    path,
+    ownImage: true,
+  });
   return {
-    title: { absolute: title(resolved.entry.title) },
+    ...base,
     alternates: {
-      canonical: `${SITE_URL}/demos/${name}`,
+      ...base.alternates,
       types: {
-        "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(`${SITE_URL}/demos/${name}`)}&format=json`,
+        "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(`${SITE_URL}${path}`)}&format=json`,
       },
     },
   };
