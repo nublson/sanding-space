@@ -59,11 +59,14 @@ function ResourceRow({ resource }: { resource: Resource }) {
             height={16}
             loading="lazy"
             decoding="async"
-            className="size-4 rounded-[3px] outline outline-(--image-outline) -outline-offset-1"
+            // notionic's favicon edge: it follows the icon's own shape, so a
+            // round or transparent icon gets no box round its corners.
+            className="size-4 rounded-[3px] [filter:drop-shadow(0_0_0.5px_var(--notionic-image-edge))]"
           />
         )}
       </span>
-      <span className="text-pretty text-base/6 text-muted-foreground max-md:text-sm/5">
+      {/* One line per resource: the description is cut with an ellipsis. */}
+      <span className="min-w-0 truncate text-base/6 text-muted-foreground max-md:text-sm/5">
         <span className="font-medium text-foreground">{resource.name}</span>
         {/* Real spaces around the dot, so the accessible name reads
             "Name Description" and the dot is only visual. */}
