@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ResizeReporter } from "@/components/embed/resize-reporter";
-import { resolveDemo } from "@/lib/demo-meta";
+import { demoDescription, resolveDemo } from "@/lib/demo-meta";
 import { demos, registry } from "@/lib/demos";
 import { type FrameParams, splitParams } from "@/lib/frame-params";
-import { SITE_URL, title } from "@/lib/site";
+import { oembedDiscovery, pageMetadata } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -18,18 +18,24 @@ export function generateStaticParams() {
   return names.length ? names.map((name) => ({ name })) : [{ name: "__none" }];
 }
 
+// The same Open Graph and Twitter fields as every other page (shared links
+// preview with the demo's own title, copy, URL and card), plus oEmbed
+// discovery. A retired demo renders a "moved" card, so its preview says so
+// and shows the site card instead of its own.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { name } = await params;
   const resolved = resolveDemo(name);
   if (resolved.kind !== "demo") return {};
+  const path = `/demos/${name}`;
+  const base = pageMetadata({
+    name: resolved.entry.title,
+    description: demoDescription(resolved.entry),
+    path,
+    ownImage: !resolved.entry.retired,
+  });
   return {
-    title: { absolute: title(resolved.entry.title) },
-    alternates: {
-      canonical: `${SITE_URL}/demos/${name}`,
-      types: {
-        "application/json+oembed": `${SITE_URL}/api/oembed?url=${encodeURIComponent(`${SITE_URL}/demos/${name}`)}&format=json`,
-      },
-    },
+    ...base,
+    alternates: { ...base.alternates, types: oembedDiscovery(path) },
   };
 }
 
