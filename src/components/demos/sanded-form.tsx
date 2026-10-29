@@ -194,9 +194,10 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
             </Label>
             {note && (
               <span
+                aria-hidden={!back || undefined}
                 className={cn(
-                  "text-end font-mono text-muted-foreground text-xs/4",
-                  !back && "invisible",
+                  "text-end font-mono text-muted-foreground text-xs/4 transition-opacity duration-200 ease-(--ease-out)",
+                  !back && "opacity-0",
                 )}
               >
                 {note}
@@ -270,16 +271,23 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
       ) : (
         <p className="min-h-5 text-muted-foreground text-xs/5">{status}</p>
       )}
-      <ul
+      {/* The notes fold away with "Show the back" off, so the card has no
+          empty space to keep for them: rows 0fr to 1fr, with the -mt-2 and
+          pt-2 pair cancelling the column's gap while folded. Under reduced
+          motion the height snaps and only the fade runs. */}
+      <div
+        aria-hidden={!back || undefined}
         className={cn(
-          "font-mono text-muted-foreground text-xs/4",
-          !back && "invisible",
+          "-mt-2 grid transition-[grid-template-rows,opacity] duration-200 ease-(--ease-out) motion-reduce:transition-opacity",
+          back ? "grid-rows-[1fr]" : "grid-rows-[0fr] opacity-0",
         )}
       >
-        {notes.action.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
+        <ul className="min-h-0 overflow-hidden pt-2 font-mono text-muted-foreground text-xs/4">
+          {notes.action.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 
@@ -327,7 +335,7 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
   );
 }
 
-/** Under each card: a dark cross for the rough form, a blue check for the sanded one. */
+/** Under each card: a dark cross for the rough form, a green check for the sanded one. */
 function Verdict({ right }: { right: boolean }) {
   const Icon = right ? Check : X;
   return (
@@ -336,7 +344,7 @@ function Verdict({ right }: { right: boolean }) {
       aria-label={right ? "Right" : "Wrong"}
       className={cn(
         "flex size-5 items-center justify-center rounded-full",
-        right ? "bg-blue-500 text-white" : "bg-foreground/80 text-background",
+        right ? "bg-green-600 text-white" : "bg-foreground/80 text-background",
       )}
     >
       <Icon aria-hidden className="size-3" strokeWidth={3} />
