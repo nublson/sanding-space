@@ -1,6 +1,6 @@
 "use client";
 
-import { FlipHorizontal2 } from "lucide-react";
+import { Check, FlipHorizontal2, X } from "lucide-react";
 import type { DemoProps } from "notionic";
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,7 @@ const NOTES: Record<
   }
 > = {
   rough: {
-    label: "label: no focus",
+    label: "unlinked",
     phone: "no spaces",
     tab: { email: 1, phone: 2, name: 3 },
     action: [
@@ -83,7 +83,7 @@ const NOTES: Record<
     ],
   },
   sanded: {
-    label: "label: focuses",
+    label: "linked",
     phone: "spaces OK",
     tab: { name: 1, email: 2, phone: 3 },
     action: [
@@ -289,7 +289,7 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
         e.preventDefault();
         submit();
       }}
-      className="flex min-w-0 flex-1 flex-col gap-3"
+      className="flex min-w-0 flex-col gap-3"
     >
       {heading}
       {body}
@@ -297,11 +297,28 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
   ) : (
     <fieldset
       aria-labelledby={`${id}-heading`}
-      className="flex min-w-0 flex-1 flex-col gap-3"
+      className="flex min-w-0 flex-col gap-3"
     >
       {heading}
       {body}
     </fieldset>
+  );
+}
+
+/** Under each card: a dark cross for the rough form, a blue check for the sanded one. */
+function Verdict({ right }: { right: boolean }) {
+  const Icon = right ? Check : X;
+  return (
+    <span
+      role="img"
+      aria-label={right ? "Right" : "Wrong"}
+      className={cn(
+        "flex size-5 items-center justify-center rounded-full",
+        right ? "bg-blue-500 text-white" : "bg-foreground/80 text-background",
+      )}
+    >
+      <Icon aria-hidden className="size-3" strokeWidth={3} />
+    </span>
   );
 }
 
@@ -337,9 +354,18 @@ export default function SandedForm({ params }: DemoProps) {
         }
       >
         <div className="flex h-full items-center justify-center px-4">
-          <div className="flex w-full max-w-[560px] gap-4 sm:gap-8">
-            <SignupForm variant="rough" back={back} />
-            <SignupForm variant="sanded" back={back} />
+          <div className="flex w-full max-w-[600px] gap-3 sm:gap-8">
+            {(["rough", "sanded"] as const).map((variant) => (
+              <div
+                key={variant}
+                className="flex min-w-0 flex-1 flex-col items-center gap-3"
+              >
+                <div className="w-full rounded-xl border border-border bg-card p-3 sm:p-4">
+                  <SignupForm variant={variant} back={back} />
+                </div>
+                <Verdict right={variant === "sanded"} />
+              </div>
+            ))}
           </div>
         </div>
       </DemoLayout>
