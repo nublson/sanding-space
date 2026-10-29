@@ -23,6 +23,12 @@ export function demoDescription(entry: DemoMeta): string {
 // Names are permanent: rename with `aliases`, retire with `retired`. Each entry
 // also needs a loader in src/components/demos/lazy-demo.tsx.
 export const demoMeta: Record<string, DemoMeta> = {
+  "sanded-form": {
+    title: "Sanded Form",
+    description: "Two forms that look the same. Fill in both, keyboard first.",
+    essay: "sand-the-back",
+    height: 540,
+  },
   "search-expand": { title: "Search Expand", height: 280 },
   surface: { title: "Surface", height: 420 },
 };
