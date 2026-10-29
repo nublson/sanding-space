@@ -23,7 +23,7 @@ export function DemoStage({
   preview = false,
   children,
 }: {
-  /** `essay` is a fixed height; cards keep an aspect ratio, `hero` 2:1, `card` 4:3. */
+  /** `essay` is at least `height` tall; cards keep an aspect ratio, `hero` 2:1, `card` 4:3. */
   size: "essay" | "hero" | "card";
   /** The essay stage's height in px, from `essayStageHeight`. */
   height?: number;
@@ -37,7 +37,9 @@ export function DemoStage({
       aria-hidden={preview ? "true" : undefined}
       // A live demo owns its gestures: no sidebar swipe starts here.
       data-swipe-ignore={preview ? undefined : ""}
-      style={size === "essay" ? { height: `${height}px` } : undefined}
+      // A floor, not a fixed size: content taller than the registry height
+      // (a demo that stacks on a phone) grows the stage, as it grows an embed.
+      style={size === "essay" ? { minHeight: `${height}px` } : undefined}
       className={cn(
         "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border bg-card",
         size === "hero" && "aspect-[2/1]",

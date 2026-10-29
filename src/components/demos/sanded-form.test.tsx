@@ -14,8 +14,8 @@ const VALID = {
 function forms() {
   render(<SandedForm name="sanded-form" params={{}} />);
   return {
-    rough: screen.getByRole("group", { name: "A" }),
-    sanded: screen.getByRole("form", { name: "B" }),
+    rough: screen.getByRole("group", { name: "Form A" }),
+    sanded: screen.getByRole("form", { name: "Form B" }),
   };
 }
 
@@ -42,6 +42,13 @@ describe("SandedForm", () => {
     expect(
       within(rough).getByRole("textbox", { name: "Email" }),
     ).not.toHaveFocus();
+  });
+
+  it("blocks B's native submit until React hydrates", () => {
+    // React's function-action guard: a native submit before hydration throws
+    // instead of putting the fields in the URL.
+    const { sanded } = forms();
+    expect(sanded.getAttribute("action")).toMatch(/^javascript:/);
   });
 
   it("tabs through B in layout order and through A out of it", () => {
@@ -96,13 +103,14 @@ describe("SandedForm", () => {
     const email = within(sanded).getByRole("textbox", { name: "Email" });
     expect(email).toHaveFocus();
     expect(email).toHaveAttribute("aria-invalid", "true");
-    expect(email).toHaveAccessibleDescription("Enter a valid email.");
+    expect(email).toHaveAccessibleDescription(
+      "Enter an email like ana@example.com.",
+    );
     expect(within(sanded).getByRole("textbox", { name: "Name" })).toHaveValue(
       "Ana",
     );
-    expect(within(sanded).getByRole("status")).toHaveTextContent(
-      "Fix 2 fields.",
-    );
+    // Focus on the field reads its error; no second, form-level message.
+    expect(within(sanded).getByRole("status")).toBeEmptyDOMElement();
     expect(within(rough).getByRole("textbox", { name: "Name" })).toHaveValue(
       "",
     );
@@ -130,6 +138,10 @@ describe("SandedForm", () => {
       fireEvent.click(button);
       fireEvent.click(button);
     }
+    // B's button stays focusable but reads as unavailable while it sends.
+    expect(
+      within(sanded).getByRole("button", { name: "Sign up" }),
+    ).toHaveAttribute("aria-disabled", "true");
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(within(rough).getByText("Signed up 2 times.")).toBeInTheDocument();
     expect(within(sanded).getByText("You're signed up.")).toBeInTheDocument();

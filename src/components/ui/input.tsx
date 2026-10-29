@@ -10,7 +10,7 @@ function Input({
       data-slot="input"
       className={cn(
         // 16px on touch screens, so iOS doesn't zoom the page on focus.
-        "h-9 w-full min-w-0 rounded-lg border border-input bg-transparent px-3 text-foreground text-sm any-pointer-coarse:text-base outline-none transition-colors duration-150 ease-(--ease-out) placeholder:text-muted-foreground hover:border-ring/60 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive data-invalid:border-destructive [&::-webkit-search-cancel-button]:appearance-none",
+        "h-9 w-full min-w-0 rounded-lg border border-input bg-transparent px-3 text-foreground text-sm any-pointer-coarse:text-base outline-none transition-colors duration-150 ease-(--ease-out) placeholder:text-muted-foreground hover:border-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive data-invalid:border-destructive [&::-webkit-search-cancel-button]:appearance-none",
         className,
       )}
       {...props}

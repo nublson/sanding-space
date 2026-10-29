@@ -79,7 +79,7 @@ body {
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.94 0 0);
-  --input: oklch(0.922 0 0);
+  --input: oklch(0.62 0 0); /* field border, 3:1 on card and background */
   --ring: oklch(0.556 0 0); /* focus ring, 4.5:1 on background */
   --image-outline: oklch(0 0 0 / 0.1);
 }
@@ -103,7 +103,7 @@ body {
   --accent-foreground: oklch(0.946 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.248 0 0);
-  --input: oklch(0.27 0 0);
+  --input: oklch(0.52 0 0); /* field border, 3:1 on card and background */
   --ring: oklch(0.7 0 0);
   --image-outline: oklch(1 0 0 / 0.1);
 }
@@ -129,7 +129,7 @@ body {
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
     --border: oklch(0.94 0 0);
-    --input: oklch(0.922 0 0);
+    --input: oklch(0.62 0 0);
     --ring: oklch(0.556 0 0);
     --image-outline: oklch(0 0 0 / 0.1);
   }

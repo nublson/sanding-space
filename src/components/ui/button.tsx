@@ -34,7 +34,7 @@ function Button({
     <ButtonPrimitive
       data-slot="button"
       className={cn(
-        "inline-flex shrink-0 select-none items-center justify-center rounded-lg text-muted-foreground outline-none transition-[color,background-color,scale,opacity] duration-150 ease-(--ease-out) hover:bg-muted/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50 motion-reduce:active:scale-100 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "inline-flex shrink-0 select-none items-center justify-center rounded-lg text-muted-foreground outline-none transition-[color,background-color,scale,opacity] duration-150 ease-(--ease-out) hover:bg-muted/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50 data-disabled:pointer-events-none data-disabled:opacity-50 data-disabled:active:scale-100 motion-reduce:active:scale-100 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         sizes[size],
         variants[variant],
         className,

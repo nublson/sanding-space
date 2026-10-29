@@ -1,8 +1,8 @@
 "use client";
 
-import { Check, FlipHorizontal2, X } from "lucide-react";
+import { Check, FlipHorizontal2, LoaderCircle, X } from "lucide-react";
 import type { DemoProps } from "notionic";
-import { type FormEvent, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,10 +23,18 @@ const FIELDS: {
   label: string;
   type: string;
   autoComplete: string;
+  /** Shown under the field until an error takes its place. */
+  hint?: string;
 }[] = [
   { key: "name", label: "Name", type: "text", autoComplete: "name" },
   { key: "email", label: "Email", type: "email", autoComplete: "email" },
-  { key: "phone", label: "Phone", type: "tel", autoComplete: "tel" },
+  {
+    key: "phone",
+    label: "Phone",
+    type: "tel",
+    autoComplete: "tel",
+    hint: "7 to 15 digits.",
+  },
 ];
 const EMPTY: Values = { name: "", email: "", phone: "" };
 /** How long a pretend signup takes, ms: long enough to click twice. */
@@ -52,7 +60,8 @@ const PHONE = /^\+?\d{7,15}$/;
 export function validate(values: Values, variant: Variant): Errors {
   const errors: Errors = {};
   if (!values.name.trim()) errors.name = "Enter your name.";
-  if (!EMAIL.test(values.email.trim())) errors.email = "Enter a valid email.";
+  if (!EMAIL.test(values.email.trim()))
+    errors.email = "Enter an email like ana@example.com.";
   const phone =
     variant === "sanded"
       ? values.phone.replace(/[\s().-]/g, "")
@@ -151,18 +160,17 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
     );
   }
 
-  const invalidCount = Object.keys(errors).length;
-  const status = failed
-    ? sanded
-      ? `Fix ${invalidCount === 1 ? "1 field" : `${invalidCount} fields`}.`
-      : "Something went wrong."
-    : sanded && busy
-      ? "Signing up…"
-      : sends === 1
-        ? "You're signed up."
-        : sends > 1
-          ? `Signed up ${sends} times.`
-          : "";
+  // B says nothing on error: focusing the first wrong field reads its error.
+  const status =
+    failed && !sanded
+      ? "Something went wrong."
+      : sanded && busy
+        ? "Signing up…"
+        : sends === 1
+          ? "You're signed up."
+          : sends > 1
+            ? `Signed up ${sends} times.`
+            : "";
 
   const fields = (sanded ? FIELDS.map((f) => f.key) : ROUGH_DOM_ORDER).map(
     (key) => {
@@ -187,7 +195,7 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
             {note && (
               <span
                 className={cn(
-                  "truncate font-mono text-[11px]/4 text-muted-foreground",
+                  "text-end font-mono text-muted-foreground text-xs/4",
                   !back && "invisible",
                 )}
               >
@@ -204,24 +212,31 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
               name={key}
               type={field.type}
               autoComplete={field.autoComplete}
+              required
               value={values[key]}
               onValueChange={(value) => edit(key, value)}
               aria-labelledby={sanded ? undefined : labelId}
               aria-invalid={error ? true : undefined}
-              aria-describedby={error ? errorId : undefined}
+              aria-describedby={error || field.hint ? errorId : undefined}
               className={cn(back && "pr-8")}
             />
             {back && (
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 font-mono text-[11px] text-muted-foreground"
+                className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 font-mono text-muted-foreground text-xs"
               >
                 ⇥{notes.tab[key]}
               </span>
             )}
           </div>
-          <p id={errorId} className="h-4 truncate text-destructive text-xs/4">
-            {error}
+          <p
+            id={errorId}
+            className={cn(
+              "min-h-4 text-xs/4",
+              error ? "text-destructive" : "text-muted-foreground",
+            )}
+          >
+            {error ?? field.hint}
           </p>
         </div>
       );
@@ -234,48 +249,56 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
         type={sanded ? "submit" : "button"}
         size="md"
         variant="solid"
-        aria-disabled={sanded && busy ? true : undefined}
+        // Focusable while it sends, so focus stays put; Base UI blocks clicks.
+        disabled={sanded && busy}
+        focusableWhenDisabled
         onClick={sanded ? undefined : submit}
         className="w-full"
       >
         Sign up
+        {sanded && busy && (
+          <LoaderCircle aria-hidden className="motion-safe:animate-spin" />
+        )}
       </Button>
       {sanded ? (
         <output
           aria-live="polite"
-          className="block h-5 truncate text-muted-foreground text-xs/5"
+          className="block min-h-5 text-muted-foreground text-xs/5"
         >
           {status}
         </output>
       ) : (
-        <p className="h-5 truncate text-muted-foreground text-xs/5">{status}</p>
+        <p className="min-h-5 text-muted-foreground text-xs/5">{status}</p>
       )}
       <ul
         className={cn(
-          "font-mono text-[11px]/4 text-muted-foreground",
+          "font-mono text-muted-foreground text-xs/4",
           !back && "invisible",
         )}
       >
         {notes.action.map((line) => (
-          <li key={line} className="truncate">
-            {line}
-          </li>
+          <li key={line}>{line}</li>
         ))}
       </ul>
     </>
   );
 
   const heading = (
-    <p
-      id={`${id}-heading`}
-      className="font-mono text-muted-foreground text-xs/4"
-    >
-      {sanded ? "B" : "A"}
-    </p>
+    <div className="flex items-baseline justify-between gap-2">
+      <p
+        aria-hidden="true"
+        className="font-mono text-muted-foreground text-xs/4"
+      >
+        {sanded ? "B" : "A"}
+      </p>
+      <p className="text-end text-muted-foreground text-xs/4">
+        All fields required
+      </p>
+    </div>
   );
   const body = (
     <>
-      <div className="flex flex-col gap-1">{fields}</div>
+      <div className="flex flex-col gap-3">{fields}</div>
       <div className="flex flex-col gap-2">{action}</div>
     </>
   );
@@ -284,11 +307,10 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
   return sanded ? (
     <form
       noValidate
-      aria-labelledby={`${id}-heading`}
-      onSubmit={(e: FormEvent) => {
-        e.preventDefault();
-        submit();
-      }}
+      aria-label={`Form ${sanded ? "B" : "A"}`}
+      // A function action, not onSubmit: until the page hydrates, React
+      // blocks the browser's own submit, which would put the fields in the URL.
+      action={() => submit()}
       className="flex min-w-0 flex-col gap-3"
     >
       {heading}
@@ -296,7 +318,7 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
     </form>
   ) : (
     <fieldset
-      aria-labelledby={`${id}-heading`}
+      aria-label={`Form ${sanded ? "B" : "A"}`}
       className="flex min-w-0 flex-col gap-3"
     >
       {heading}
@@ -353,14 +375,15 @@ export default function SandedForm({ params }: DemoProps) {
           )
         }
       >
-        <div className="flex h-full items-center justify-center px-4">
-          <div className="flex w-full max-w-[600px] gap-3 sm:gap-8">
+        <div className="@container flex h-full items-center justify-center px-4">
+          {/* Stacked until the frame fits both side by side. */}
+          <div className="flex w-full max-w-[600px] flex-col gap-6 @lg:flex-row @lg:gap-8">
             {(["rough", "sanded"] as const).map((variant) => (
               <div
                 key={variant}
                 className="flex min-w-0 flex-1 flex-col items-center gap-3"
               >
-                <div className="w-full rounded-xl border border-border bg-card p-3 sm:p-4">
+                <div className="w-full rounded-[25px] border border-border bg-card p-4">
                   <SignupForm variant={variant} back={back} />
                 </div>
                 <Verdict right={variant === "sanded"} />
