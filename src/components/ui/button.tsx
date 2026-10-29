@@ -4,11 +4,13 @@ import { cn } from "@/lib/utils";
 const sizes = {
   icon: "size-8",
   "icon-sm": "size-7",
+  text: "h-7 gap-1.5 px-2 text-sm/5",
 } as const;
 
 /**
  * A quiet icon button: muted ink and no fill until hovered. Size it with
- * `size`; the icon inside draws at 16px unless it sets its own size.
+ * `size` (`text` for an icon and a label); the icon inside draws at 16px
+ * unless it sets its own size.
  */
 function Button({
   className,
