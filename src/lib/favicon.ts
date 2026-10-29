@@ -1,8 +1,4 @@
-/**
- * Favicons for external links. The icon is served by our own /api/favicon
- * route, which fetches it server-side through a trusted icon service, so
- * readers never request a third party and the CDN caches each host's icon.
- */
+/** Hostnames of external links, for looking up and matching favicons. */
 const HOST = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,63}$/i;
 
 /** A valid hostname (no scheme, port or path), or null. */
@@ -22,8 +18,4 @@ export function hostOf(href: string): string | null {
   } catch {
     return null;
   }
-}
-
-export function faviconUrl(host: string): string {
-  return `/api/favicon?host=${encodeURIComponent(host)}`;
 }

@@ -1,4 +1,4 @@
-import { faviconUrl, hostOf, parseHost } from "./favicon";
+import { hostOf, parseHost } from "./favicon";
 
 test("parseHost accepts hostnames only", () => {
   expect(parseHost("nublson.com")).toBe("nublson.com");
@@ -15,8 +15,4 @@ test("hostOf reads absolute http(s) URLs", () => {
   expect(hostOf("https://nublson.com/about?x=1")).toBe("nublson.com");
   expect(hostOf("/introduction")).toBeNull();
   expect(hostOf("mailto:hi@example.com")).toBeNull();
-});
-
-test("faviconUrl points at the proxy", () => {
-  expect(faviconUrl("nublson.com")).toBe("/api/favicon?host=nublson.com");
 });

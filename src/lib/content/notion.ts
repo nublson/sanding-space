@@ -4,8 +4,11 @@ import type { NotionBlock } from "notionic";
 import {
   type FetchBlocksOptions,
   fetchBlocks,
+  fetchLinkFavicon,
   fetchPage,
+  type LinkFaviconOptions,
 } from "notionic/fetch";
+import { hostOf } from "../favicon";
 import { showPreviews } from "../site";
 import {
   ABOUT,
@@ -47,9 +50,8 @@ function client(): Client {
  * URLs the linked sites choose; notionic refuses private addresses, and the
  * site runs on Vercel functions with no private network to reach.
  */
-const FETCH_OPTIONS: FetchBlocksOptions = {
-  linkFavicons: { siteIcons: true },
-};
+const LINK_FAVICONS: LinkFaviconOptions = { siteIcons: true };
+const FETCH_OPTIONS: FetchBlocksOptions = { linkFavicons: LINK_FAVICONS };
 
 export async function getLibrary(): Promise<Library> {
   "use cache";
@@ -80,10 +82,42 @@ export async function getResources(): Promise<Resources> {
   if (!isFullDataSource(dataSource)) {
     throw new Error("Resources data source is not fully readable");
   }
-  return buildResources(
-    parseResourcesSchema(dataSource),
-    rows.map(parseResource),
+  return withFavicons(
+    buildResources(parseResourcesSchema(dataSource), rows.map(parseResource)),
   );
+}
+
+/**
+ * Each resource with its site's own icon, looked up once per host the same
+ * way as link favicons in essays, and cached with the resources.
+ */
+async function withFavicons(resources: Resources): Promise<Resources> {
+  const hosts = new Set(
+    resources.categories.flatMap((c) =>
+      c.resources.flatMap((r) => hostOf(r.url) ?? []),
+    ),
+  );
+  const icons = new Map(
+    await Promise.all(
+      [...hosts].map(
+        async (host) =>
+          [
+            host,
+            await fetchLinkFavicon(host, LINK_FAVICONS).catch(() => null),
+          ] as const,
+      ),
+    ),
+  );
+  return {
+    ...resources,
+    categories: resources.categories.map((category) => ({
+      ...category,
+      resources: category.resources.map((resource) => ({
+        ...resource,
+        favicon: icons.get(hostOf(resource.url) ?? "") ?? null,
+      })),
+    })),
+  };
 }
 
 export type StandalonePageContent = {
