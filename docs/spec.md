@@ -104,7 +104,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 
 - `Published`: essay page is live, listed normally.
 - `Soon`: listed in the index and sidebar with a "Soon" treatment (muted, not clickable), no essay page (404 or not generated).
-- `Preview`: behaves exactly like `Published` locally, in `next dev` and on Vercel preview deployments, and like `Draft` in production (`VERCEL_ENV=production`). Used to review an essay before publishing it (decided).
+- `Preview`: behaves exactly like `Published` locally, in `next dev` and on Vercel preview deployments, and like `Soon` in production (`VERCEL_ENV=production`): listed as a muted, disabled card with no page. Used to review an essay before publishing it (decided).
 - `Draft`: invisible on the site. Optionally viewable via Next.js draft mode for previewing.
 
 A section is shown only if `Visible = true` **and** it has at least one `Published` or `Soon` essay (decided). Empty visible sections are hidden everywhere (index, sidebar, `/sections/<slug>` returns 404).

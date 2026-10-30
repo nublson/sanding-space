@@ -17,12 +17,15 @@ export function LiveThumbnail({
   essaySlug,
   size,
   preview = false,
+  bleed = false,
 }: {
   demo: string | null;
   essaySlug: string;
   size: "essay" | "hero" | "card";
   /** Render as a non-interactive preview, for thumbnails inside links. */
   preview?: boolean;
+  /** Edge to edge on phones, for the essay page's stage. */
+  bleed?: boolean;
 }) {
   const name = targetName(demo);
   const Demo = name ? demos[name] : undefined;
@@ -31,7 +34,12 @@ export function LiveThumbnail({
   const Thumbnail = preview && name ? demoThumbnails[name] : undefined;
   return (
     <ViewTransition name={`demo-${essaySlug}`}>
-      <DemoStage size={size} height={essayStageHeight(name)} preview={preview}>
+      <DemoStage
+        size={size}
+        height={essayStageHeight(name)}
+        preview={preview}
+        bleed={bleed}
+      >
         {Thumbnail ? (
           <Thumbnail />
         ) : (

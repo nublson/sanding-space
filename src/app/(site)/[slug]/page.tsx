@@ -149,13 +149,12 @@ async function EssayContent({ params }: Props) {
           )}
         </div>
       </header>
-      <div className="max-sm:-mx-4">
-        <LiveThumbnail
-          demo={essay.coverDemo}
-          essaySlug={essay.slug}
-          size="essay"
-        />
-      </div>
+      <LiveThumbnail
+        demo={essay.coverDemo}
+        essaySlug={essay.slug}
+        size="essay"
+        bleed
+      />
       <div className="border-t border-border pt-12 text-pretty text-muted-foreground">
         <NotionRenderer
           blocks={blocks}
@@ -178,9 +177,7 @@ function EssaySkeleton() {
         <div className="h-8" />
         <div className="h-[38px] max-md:h-[34px]" />
       </div>
-      <div className="max-sm:-mx-4">
-        <DemoStage size="essay" />
-      </div>
+      <DemoStage size="essay" bleed />
     </div>
   );
 }

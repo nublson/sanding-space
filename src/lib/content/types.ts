@@ -1,4 +1,4 @@
-/** Preview is Published outside Vercel production and Draft in it (see showPreviews). */
+/** Preview is Published outside Vercel production and Soon in it (see showPreviews). */
 export type EssayStatus = "Published" | "Preview" | "Soon" | "Draft";
 export type Section = {
   id: string;
