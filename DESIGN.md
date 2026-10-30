@@ -88,7 +88,7 @@ All components are the project's own, written on **Base UI** primitives in `src/
 * **Toggle (`Toggle`):** a **dashed pill chip** in Hairline with Pencil grey text and a 16px icon. Pressed: the dash firms to Chalk at 40%, the fill is Chalk at 7%, the text is Chalk. This is the standard demo on/off control, for example the Guides chip.
 * **Toggle group (`ToggleGroup`):** a row of 32px round icon buttons (44px on touch) at 70% opacity; the pressed one sits at full ink on a Chalk 10% disc. Arrow keys move between items.
 * **Segmented switch (demo control):** two pill radio options, 16px side padding, Pencil grey text; a Chalk 7% pill slides to the active option with a short, bounce-free spring (300ms). Tab lands on the active option.
-* **Demo stage (`DemoStage`):** the one frame every demo lives in. Raised grain fill, 1px Hairline, 10px radius, content centered. Essay stages take the demo's registered height (420px without one); section cards hold a 2:1 (hero) or 4:3 (grid) aspect ratio. On phones the essay stage bleeds edge to edge and drops its corners. Caption 13/20 Pumice, centered, 10px below.
+* **Demo stage (`DemoStage`):** the one frame every demo lives in. Raised grain fill, 1px Hairline, 10px radius, content centered. Essay stages take the demo's registered height (420px without one); section cards hold a 2:1 (hero) or 4:3 (grid) aspect ratio. On phones the essay stage bleeds edge to edge and drops its corners. Caption 14/20 Pumice (13/20 below 768px), centered, 10px below.
 * **Soon stage:** the same frame unfilled, with a dashed Field edge stroke at 50% alpha, the demo's static thumbnail at 40% opacity if it has one, and a "Soon" pill top-left (12px Geist Mono, Pumice, dashed outline). Not a link, no cursor, no sound.
 * **Essay card:** no border, no fill at rest. On fine pointers the hover reveals a 50% Raised grain halo extending 8px beyond the stage at an 18px radius. Title Inter 500 Chalk, summary Pumice. Press scales the whole card to 98% and plays `page`.
 * **Sidebar:** 192px column, 160px of content, sticky, starting 128px from the top. Wordmark is the 20px shaving mark plus "Sanding Space" in Inter 500. Rows are 32px tall (44px on touch), full-width hit areas. Sections in Pumice, the current one in Chalk with its Question beneath in 14/20 Pumice. Essays hang behind a 1px Hairline guide line, Published in Pencil grey, Soon in Pumice as plain text, and the current essay in Chalk with a 2 × 14px Chalk bar sitting on the guide line. The footer is Resources, About and a 32px mute button. No scrollbars anywhere: the list fades 2.5rem at whichever edge still has content.
@@ -115,10 +115,10 @@ Motion is CSS first, with React `<ViewTransition>` for route changes. `motion/re
 |---|---|---|
 | First load | page blocks rise 6px and fade in, staggered 60ms | 500ms |
 | Route change | crossfade of the main column | 200ms |
-| Card → essay | the thumbnail morphs into the essay stage (shared element) | 350ms |
-| Current essay changes | the sidebar bar slides to the new row | 250ms |
+| Card → essay | the thumbnail morphs into the essay stage (shared element) | browser default, no explicit duration |
+| Current essay changes | the sidebar bar slides to the new row | browser default, no explicit duration |
 | Press on rows, cards | scale to 98% | 160ms |
-| Press on small buttons | scale to 96% | 160ms |
+| Press on small buttons (`Button`) | scale to 96% | 150ms |
 | Hover on links, buttons, cards | ink to Chalk, fill appears, arrows nudge | 150ms |
 | Mobile sidebar | content slides right on the push curve | ~400ms |
 | Streamed content | opacity-only fade, no shimmer | 200ms |
