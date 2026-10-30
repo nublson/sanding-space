@@ -131,10 +131,10 @@ describe("resolvePreview", () => {
       "Soon",
     ]);
   });
-  it("treats Preview as Draft in production", () => {
+  it("treats Preview as Soon in production", () => {
     const resolved = resolvePreview(essays, false);
     expect(resolved.map((e) => e.status)).toEqual([
-      "Draft",
+      "Soon",
       "Published",
       "Soon",
     ]);

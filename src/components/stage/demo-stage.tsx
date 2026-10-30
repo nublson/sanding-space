@@ -21,6 +21,7 @@ export function DemoStage({
   size,
   height = ESSAY_STAGE_HEIGHT,
   preview = false,
+  bleed = false,
   children,
 }: {
   /** `essay` is at least `height` tall; cards keep an aspect ratio, `hero` 2:1, `card` 4:3. */
@@ -29,6 +30,8 @@ export function DemoStage({
   height?: number;
   /** A non-interactive preview (inside a link): live, but not focusable or pressable. */
   preview?: boolean;
+  /** Edge to edge on phones (the essay page's stage, which bleeds out of the gutter). */
+  bleed?: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -43,9 +46,10 @@ export function DemoStage({
       style={size === "essay" ? { minHeight: `${height}px` } : undefined}
       className={cn(
         "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border bg-card",
-        // On phones the essay stage runs edge to edge (the page bleeds it
-        // out of the gutter), so it drops its corners and side borders.
-        size === "essay" && "max-sm:rounded-none max-sm:border-x-0",
+        // On phones the essay page's stage runs edge to edge, so it drops its
+        // corners and side borders; demos in a body keep theirs.
+        bleed &&
+          "max-sm:-mx-4 max-sm:w-auto max-sm:rounded-none max-sm:border-x-0",
         size === "hero" && "aspect-[2/1]",
         size === "card" && "aspect-[4/3]",
       )}
