@@ -1,22 +1,19 @@
 "use client";
 
-import { Share } from "lucide-react";
+import { LoaderCircle, RotateCw, Share } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 type State = "idle" | "loading" | "ready" | "error";
 
-const LABELS: Record<State, { text: string; aria: string }> = {
-  idle: { text: "Share story", aria: "Share this post as a story image" },
-  loading: { text: "Preparing…", aria: "Preparing the story image" },
-  ready: { text: "Tap to share", aria: "Story image ready. Share it" },
-  error: {
-    text: "Try again",
-    aria: "Couldn't make the story image. Try again",
-  },
+// An icon button: the name carries the state, and the icon shows it too
+// (a spinner while it prepares, a retry arrow after a failure).
+const LABELS: Record<State, string> = {
+  idle: "Share this post as a story image",
+  loading: "Preparing the story image",
+  ready: "Story image ready. Share it",
+  error: "Couldn't make the story image. Try again",
 };
-const STATES = Object.keys(LABELS) as State[];
 
 function download(file: File) {
   const url = URL.createObjectURL(file);
@@ -85,31 +82,26 @@ export function ShareStory({ slug }: { slug: string }) {
   return (
     <>
       <Button
-        size="text"
         data-sound="tap"
-        aria-label={LABELS[state].aria}
+        aria-label={LABELS[state]}
         aria-busy={state === "loading"}
         onPointerEnter={prefetch}
         onTouchStart={prefetch}
         onFocus={prefetch}
         onClick={share}
-        className="-mr-2"
+        // The icon, not the hit area, lines up with the column's edge.
+        className="-mr-2 text-subtle-foreground pointer-coarse:-mr-3.5 pointer-coarse:size-11"
       >
-        <Share aria-hidden="true" />
-        {/* Every label in one cell, so the button keeps its widest width. */}
-        <span aria-hidden="true" className="grid">
-          {STATES.map((s) => (
-            <span
-              key={s}
-              className={cn(
-                "col-start-1 row-start-1",
-                s !== state && "invisible",
-              )}
-            >
-              {LABELS[s].text}
-            </span>
-          ))}
-        </span>
+        {state === "loading" ? (
+          <LoaderCircle
+            aria-hidden="true"
+            className="motion-safe:animate-spin"
+          />
+        ) : state === "error" ? (
+          <RotateCw aria-hidden="true" />
+        ) : (
+          <Share aria-hidden="true" />
+        )}
       </Button>
       <output aria-live="polite" className="sr-only">
         {state === "error" ? "Couldn't make the story image." : ""}

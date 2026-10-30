@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { readChoice } from "@/lib/params";
 import { playSound } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
@@ -23,19 +24,12 @@ const FIELDS: {
   label: string;
   type: string;
   autoComplete: string;
-  /** Shown under the field until an error takes its place. */
-  hint?: string;
 }[] = [
   { key: "name", label: "Name", type: "text", autoComplete: "name" },
   { key: "email", label: "Email", type: "email", autoComplete: "email" },
-  {
-    key: "phone",
-    label: "Phone",
-    type: "tel",
-    autoComplete: "tel",
-    hint: "7 to 15 digits.",
-  },
+  { key: "phone", label: "Phone", type: "tel", autoComplete: "tel" },
 ];
+const VARIANTS: Variant[] = ["rough", "sanded"];
 const EMPTY: Values = { name: "", email: "", phone: "" };
 /** How long a pretend signup takes, ms: long enough to click twice. */
 const SEND_MS = 700;
@@ -77,30 +71,17 @@ const NOTES: Record<
     label: string;
     phone: string;
     tab: Record<Field, number>;
-    action: string[];
   }
 > = {
   rough: {
     label: "unlinked",
     phone: "no spaces",
     tab: { email: 1, phone: 2, name: 3 },
-    action: [
-      "Enter: ignored",
-      "Error: wipes fields",
-      "Errors: silent",
-      "Clicks: each sends",
-    ],
   },
   sanded: {
     label: "linked",
     phone: "spaces OK",
     tab: { name: 1, email: 2, phone: 3 },
-    action: [
-      "Enter: submits",
-      "Error: kept, focused",
-      "Errors: announced",
-      "Clicks: one send",
-    ],
   },
 };
 
@@ -218,7 +199,7 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
               onValueChange={(value) => edit(key, value)}
               aria-labelledby={sanded ? undefined : labelId}
               aria-invalid={error ? true : undefined}
-              aria-describedby={error || field.hint ? errorId : undefined}
+              aria-describedby={error ? errorId : undefined}
               className={cn(back && "pr-8")}
             />
             {back && (
@@ -230,15 +211,21 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
               </span>
             )}
           </div>
-          <p
-            id={errorId}
+          {/* The error line folds away while the field is fine, the same way
+              as the status line: -mt-1.5 cancels the column's gap, the
+              padding sits inside the clip. */}
+          <div
             className={cn(
-              "min-h-4 text-xs/4",
-              error ? "text-destructive" : "text-muted-foreground",
+              "-mt-1.5 grid transition-[grid-template-rows,opacity] duration-200 ease-(--ease-out) motion-reduce:transition-opacity",
+              error ? "grid-rows-[1fr]" : "grid-rows-[0fr] opacity-0",
             )}
           >
-            {error ?? field.hint}
-          </p>
+            <div className="min-h-0 overflow-hidden">
+              <p id={errorId} className="pt-1.5 text-destructive text-xs/4">
+                {error}
+              </p>
+            </div>
+          </div>
         </div>
       );
     },
@@ -261,49 +248,33 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
           <LoaderCircle aria-hidden className="motion-safe:animate-spin" />
         )}
       </Button>
-      {sanded ? (
-        <output
-          aria-live="polite"
-          className="block min-h-5 text-muted-foreground text-xs/5"
-        >
-          {status}
-        </output>
-      ) : (
-        <p className="min-h-5 text-muted-foreground text-xs/5">{status}</p>
-      )}
-      {/* The notes fold away with "Show the back" off, so the card has no
-          empty space to keep for them: rows 0fr to 1fr, with the -mt-2 and
-          pt-2 pair cancelling the column's gap while folded. Under reduced
-          motion the height snaps and only the fade runs. */}
+      {/* The status line folds away while it is empty, so the card has no
+          blank line under the button: rows 0fr to 1fr, the -mt-2 cancelling
+          the column's gap and the padding inside the clip. B's live region
+          stays mounted (only clipped), so its announcements still land.
+          Under reduced motion the height snaps and only the fade runs. */}
       <div
-        aria-hidden={!back || undefined}
         className={cn(
           "-mt-2 grid transition-[grid-template-rows,opacity] duration-200 ease-(--ease-out) motion-reduce:transition-opacity",
-          back ? "grid-rows-[1fr]" : "grid-rows-[0fr] opacity-0",
+          status ? "grid-rows-[1fr]" : "grid-rows-[0fr] opacity-0",
         )}
       >
-        <ul className="min-h-0 overflow-hidden pt-2 font-mono text-muted-foreground text-xs/4">
-          {notes.action.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
+        <div className="min-h-0 overflow-hidden">
+          {sanded ? (
+            <output
+              aria-live="polite"
+              className="block pt-2 text-muted-foreground text-xs/5"
+            >
+              {status}
+            </output>
+          ) : (
+            <p className="pt-2 text-muted-foreground text-xs/5">{status}</p>
+          )}
+        </div>
       </div>
     </>
   );
 
-  const heading = (
-    <div className="flex items-baseline justify-between gap-2">
-      <p
-        aria-hidden="true"
-        className="font-mono text-muted-foreground text-xs/4"
-      >
-        {sanded ? "B" : "A"}
-      </p>
-      <p className="text-end text-muted-foreground text-xs/4">
-        All fields required
-      </p>
-    </div>
-  );
   const body = (
     <>
       <div className="flex flex-col gap-3">{fields}</div>
@@ -321,7 +292,6 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
       action={() => submit()}
       className="flex min-w-0 flex-col gap-3"
     >
-      {heading}
       {body}
     </form>
   ) : (
@@ -329,19 +299,29 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
       aria-label={`Form ${sanded ? "B" : "A"}`}
       className="flex min-w-0 flex-col gap-3"
     >
-      {heading}
       {body}
     </fieldset>
   );
 }
 
-/** Under each card: a dark cross for the rough form, a green check for the sanded one. */
-function Verdict({ right }: { right: boolean }) {
+/**
+ * Under each card: a dark cross for the rough form, a green check for the
+ * sanded one. `decorative` when a control around it carries the name.
+ */
+function Verdict({
+  right,
+  decorative = false,
+}: {
+  right: boolean;
+  decorative?: boolean;
+}) {
   const Icon = right ? Check : X;
+  const name = decorative
+    ? ({ "aria-hidden": true } as const)
+    : ({ role: "img", "aria-label": right ? "Right" : "Wrong" } as const);
   return (
     <span
-      role="img"
-      aria-label={right ? "Right" : "Wrong"}
+      {...name}
       className={cn(
         "flex size-5 items-center justify-center rounded-full",
         right ? "bg-green-600 text-white" : "bg-foreground/80 text-background",
@@ -357,11 +337,14 @@ function Verdict({ right }: { right: boolean }) {
  * their fields, Tab jumps, Enter does nothing, the phone field rejects
  * spaces, an error wipes every field and the button sends on every click.
  * B is sanded: it fixes all six, announces errors and focuses the first
- * wrong field. "Show the back" (`?back=on`) annotates each difference.
+ * wrong field. "Show the back" (`?back=on`) annotates each difference. A
+ * narrow frame shows one form at a time; the verdicts switch between them.
  */
 export default function SandedForm({ params }: DemoProps) {
   const initial = readChoice(params, "back", ["off", "on"], "off");
   const [back, setBack] = useState(initial === "on");
+  // Which form a narrow frame shows; wide frames show both.
+  const [shown, setShown] = useState<Variant>("rough");
 
   return (
     <div data-stream className="flex w-full self-stretch">
@@ -384,19 +367,53 @@ export default function SandedForm({ params }: DemoProps) {
         }
       >
         <div className="@container flex h-full items-center justify-center px-4">
-          {/* Stacked until the frame fits both side by side. */}
-          <div className="flex w-full max-w-[600px] flex-col gap-6 @lg:flex-row @lg:gap-8">
-            {(["rough", "sanded"] as const).map((variant) => (
+          {/* Wide (from 512px, a desktop column): both cards side by side,
+              each verdict under its card. The grid keeps the cards one
+              height, so the verdicts share a line whatever each card shows.
+              Narrow (phones and tablets): one card at a time, and the
+              verdicts become the switch between them. */}
+          <div className="grid w-full max-w-[600px] gap-y-3 @lg:grid-cols-2 @lg:gap-x-8">
+            {VARIANTS.map((variant) => (
               <div
                 key={variant}
-                className="flex min-w-0 flex-1 flex-col items-center gap-3"
+                className={cn(
+                  // A tint, not a surface token: the card reads as raised on
+                  // the essay stage (card) and in an embed (background) alike.
+                  "min-w-0 rounded-[25px] border border-border bg-foreground/4 p-4",
+                  variant !== shown && "@max-lg:hidden",
+                )}
               >
-                <div className="w-full rounded-[25px] border border-border bg-card p-4">
-                  <SignupForm variant={variant} back={back} />
-                </div>
+                <SignupForm variant={variant} back={back} />
+              </div>
+            ))}
+            {VARIANTS.map((variant) => (
+              <div key={variant} className="hidden justify-center @lg:flex">
                 <Verdict right={variant === "sanded"} />
               </div>
             ))}
+            <ToggleGroup
+              aria-label="Form to show"
+              value={[shown]}
+              onValueChange={([next]) => {
+                // One is always shown: pressing the current one keeps it.
+                if (!next || next === shown) return;
+                playSound("tap");
+                setShown(next);
+              }}
+              className="justify-self-center @lg:hidden"
+            >
+              {VARIANTS.map((variant) => (
+                <ToggleGroupItem
+                  key={variant}
+                  value={variant}
+                  aria-label={
+                    variant === "sanded" ? "Form B, right" : "Form A, wrong"
+                  }
+                >
+                  <Verdict right={variant === "sanded"} decorative />
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
         </div>
       </DemoLayout>

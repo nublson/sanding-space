@@ -153,8 +153,27 @@ describe("SandedForm", () => {
     expect(
       screen.getByRole("button", { name: "Show the back" }),
     ).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Clicks: each sends")).toBeVisible();
-    expect(screen.getByText("Clicks: one send")).toBeVisible();
+    expect(screen.getByText("unlinked")).toBeVisible();
+    expect(screen.getByText("linked")).toBeVisible();
+  });
+
+  it("switches the form a narrow frame shows with the verdicts", async () => {
+    forms();
+    const card = (name: string) =>
+      screen.getByRole(name === "Form A" ? "group" : "form", { name })
+        .parentElement as HTMLElement;
+    const a = screen.getByRole("button", { name: "Form A, wrong" });
+    const b = screen.getByRole("button", { name: "Form B, right" });
+    expect(a).toHaveAttribute("aria-pressed", "true");
+    expect(card("Form B")).toHaveClass("@max-lg:hidden");
+    await userEvent.click(b);
+    expect(b).toHaveAttribute("aria-pressed", "true");
+    expect(a).toHaveAttribute("aria-pressed", "false");
+    expect(card("Form A")).toHaveClass("@max-lg:hidden");
+    expect(card("Form B")).not.toHaveClass("@max-lg:hidden");
+    // Pressing the shown one again keeps it shown.
+    await userEvent.click(b);
+    expect(b).toHaveAttribute("aria-pressed", "true");
   });
 
   it("hides the toggle with controls=off", () => {

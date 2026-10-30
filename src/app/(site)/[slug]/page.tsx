@@ -125,9 +125,10 @@ async function EssayContent({ params }: Props) {
     <article data-stream className="article-layout flex flex-col gap-12">
       <JsonLd data={articleJsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
-      <header className="flex flex-col gap-3">
-        {/* h-5 keeps the eyebrow row as tall as the skeleton's. */}
-        <div className="flex h-5 items-center justify-between gap-4">
+      <header className="flex flex-col gap-1.5">
+        {/* As tall as the sidebar wordmark row (h-8), so the eyebrow sits on
+            its centre line and baseline; the skeleton keeps the same row. */}
+        <div className="flex h-8 items-center justify-between gap-4">
           <Link
             href={`/sections/${section.slug}`}
             data-sound="page"
@@ -137,14 +138,16 @@ async function EssayContent({ params }: Props) {
           </Link>
           <ShareStory slug={essay.slug} />
         </div>
-        <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground max-md:text-[28px]/[34px]">
-          {essay.title}
-        </h1>
-        {essay.summary && (
-          <p className="text-lg/7 text-pretty text-muted-foreground max-md:text-base/[26px]">
-            {essay.summary}
-          </p>
-        )}
+        <div className="flex flex-col gap-3">
+          <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground max-md:text-[28px]/[34px]">
+            {essay.title}
+          </h1>
+          {essay.summary && (
+            <p className="text-lg/7 text-pretty text-muted-foreground max-md:text-base/[26px]">
+              {essay.summary}
+            </p>
+          )}
+        </div>
       </header>
       <div className="max-sm:-mx-4">
         <LiveThumbnail
@@ -171,9 +174,9 @@ async function EssayContent({ params }: Props) {
 function EssaySkeleton() {
   return (
     <div data-skeleton aria-hidden="true" className="flex flex-col gap-12">
-      <div className="flex flex-col gap-3">
-        <div className="h-5" />
-        <div className="h-[38px]" />
+      <div className="flex flex-col gap-1.5">
+        <div className="h-8" />
+        <div className="h-[38px] max-md:h-[34px]" />
       </div>
       <div className="max-sm:-mx-4">
         <DemoStage size="essay" />

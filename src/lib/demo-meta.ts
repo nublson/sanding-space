@@ -27,7 +27,7 @@ export const demoMeta: Record<string, DemoMeta> = {
     title: "Sanded Form",
     description: "Two forms that look the same. Fill in both, keyboard first.",
     essay: "sand-the-back",
-    height: 600,
+    height: 480,
   },
   "search-expand": { title: "Search Expand", height: 280 },
   surface: { title: "Surface", height: 420 },

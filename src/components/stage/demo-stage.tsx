@@ -38,10 +38,14 @@ export function DemoStage({
       // A live demo owns its gestures: no sidebar swipe starts here.
       data-swipe-ignore={preview ? undefined : ""}
       // A floor, not a fixed size: content taller than the registry height
-      // (a demo that stacks on a phone) grows the stage, as it grows an embed.
+      // (a demo whose content grows, say on a phone) grows the stage, as it
+      // grows an embed.
       style={size === "essay" ? { minHeight: `${height}px` } : undefined}
       className={cn(
         "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border bg-card",
+        // On phones the essay stage runs edge to edge (the page bleeds it
+        // out of the gutter), so it drops its corners and side borders.
+        size === "essay" && "max-sm:rounded-none max-sm:border-x-0",
         size === "hero" && "aspect-[2/1]",
         size === "card" && "aspect-[4/3]",
       )}
