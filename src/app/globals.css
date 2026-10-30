@@ -327,15 +327,6 @@ body {
   color: var(--muted-foreground);
   line-height: 26px;
 }
-/*
- * Text blocks stop at 33em (528px, about 70 characters a line); demos,
- * embeds, images, code and tables keep the full 672px column. Below md the
- * column is narrower than the cap, so it has no effect there.
- */
-.notionic
-> :is(p, ul, ol, blockquote, div:has(> :is(h2, h3, h4, h5)), details) {
-  max-width: 33em;
-}
 @media (max-width: 767.98px) {
   .notionic {
     line-height: 22px;
