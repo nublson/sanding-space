@@ -1,6 +1,5 @@
 import { SectionHeading } from "@/components/library/section-block";
 import type { Resource, ResourceCategory } from "@/lib/content/types";
-import { faviconUrl, hostOf } from "@/lib/favicon";
 
 /**
  * The Resources page body: each category under its own heading, its
@@ -39,7 +38,6 @@ export function ResourceList({
 }
 
 function ResourceRow({ resource }: { resource: Resource }) {
-  const host = hostOf(resource.url);
   return (
     <a
       href={resource.url}
@@ -50,20 +48,23 @@ function ResourceRow({ resource }: { resource: Resource }) {
     >
       {/* A 20px box centered on the first line (24px, 20px below md). */}
       <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center max-md:mt-0">
-        {host && (
-          // biome-ignore lint/performance/noImgElement: a 16px icon from our own proxy; next/image adds nothing here
+        {resource.favicon && (
+          // biome-ignore lint/performance/noImgElement: a 16px data URL; next/image adds nothing here
           <img
-            src={faviconUrl(host)}
+            src={resource.favicon}
             alt=""
             width={16}
             height={16}
             loading="lazy"
             decoding="async"
-            className="size-4 rounded-[3px] outline outline-(--image-outline) -outline-offset-1"
+            // notionic's favicon edge: it follows the icon's own shape, so a
+            // round or transparent icon gets no box round its corners.
+            className="size-4 rounded-[3px] object-contain [filter:drop-shadow(0_0_0.5px_var(--notionic-image-edge))]"
           />
         )}
       </span>
-      <span className="text-pretty text-base/6 text-muted-foreground max-md:text-sm/5">
+      {/* One line per resource: the description is cut with an ellipsis. */}
+      <span className="min-w-0 truncate text-base/6 text-muted-foreground max-md:text-sm/5">
         <span className="font-medium text-foreground">{resource.name}</span>
         {/* Real spaces around the dot, so the accessible name reads
             "Name Description" and the dot is only visual. */}

@@ -1,4 +1,5 @@
 import { ViewTransition } from "react";
+import { demoThumbnails } from "@/components/demos/thumbnails";
 import { DemoStage, essayStageHeight } from "@/components/stage/demo-stage";
 import { InViewMount } from "@/components/stage/in-view-mount";
 import { demos, resolveDemo } from "@/lib/demos";
@@ -25,13 +26,21 @@ export function LiveThumbnail({
 }) {
   const name = targetName(demo);
   const Demo = name ? demos[name] : undefined;
+  // In a card, a demo with a static thumbnail draws that instead: no demo
+  // JavaScript, and nothing cropped by the card's shape.
+  const Thumbnail = preview && name ? demoThumbnails[name] : undefined;
   return (
     <ViewTransition name={`demo-${essaySlug}`}>
       <DemoStage size={size} height={essayStageHeight(name)} preview={preview}>
-        {name && Demo && (
-          <InViewMount>
-            <Demo name={name} params={{}} />
-          </InViewMount>
+        {Thumbnail ? (
+          <Thumbnail />
+        ) : (
+          name &&
+          Demo && (
+            <InViewMount>
+              <Demo name={name} params={{}} />
+            </InViewMount>
+          )
         )}
       </DemoStage>
     </ViewTransition>

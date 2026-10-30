@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import type { DemoProps } from "notionic";
 import { describe, expect, it } from "vitest";
 import { lazyDemoNames } from "@/components/demos/lazy-demo";
+import { demoThumbnails } from "@/components/demos/thumbnails";
 import { demoMeta } from "./demo-meta";
 import {
   type DemoEntry,
@@ -113,5 +114,9 @@ describe("demo component map", () => {
   });
   it("has a lazy loader for every demo", () => {
     expect([...lazyDemoNames].sort()).toEqual(Object.keys(demoMeta).sort());
+  });
+  it("draws thumbnails only for registered demos", () => {
+    for (const name of Object.keys(demoThumbnails))
+      expect(Object.keys(demoMeta)).toContain(name);
   });
 });

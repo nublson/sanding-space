@@ -7,6 +7,7 @@ import type { ComponentType } from "react";
 // Each demo is its own chunk, loaded only on pages that render it. Only a
 // Client Component's dynamic import code-splits, so the map lives here.
 const loaders: Record<string, ComponentType<DemoProps>> = {
+  "sanded-form": dynamic(() => import("./sanded-form")),
   "search-expand": dynamic(() => import("./search-expand")),
   surface: dynamic(() => import("./surface")),
 };

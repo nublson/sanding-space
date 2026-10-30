@@ -38,6 +38,7 @@ const resources: Resources = {
           url: "https://craft.gustavofior.com",
           description: "",
           order: 1,
+          favicon: "data:image/png;base64,iVBORw0KGgo=",
         },
       ],
     },
@@ -90,10 +91,7 @@ describe("resources page", () => {
     expect(craft).toHaveAccessibleName("Craft (opens in a new tab)");
     const icon = craft.querySelector("img");
     expect(icon).toHaveAttribute("alt", "");
-    expect(icon).toHaveAttribute(
-      "src",
-      "/api/favicon?host=craft.gustavofior.com",
-    );
+    expect(icon).toHaveAttribute("src", "data:image/png;base64,iVBORw0KGgo=");
   });
 
   it("falls back to the site description without an intro", async () => {

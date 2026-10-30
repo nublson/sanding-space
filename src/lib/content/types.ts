@@ -35,6 +35,8 @@ export type Resource = {
   url: string;
   description: string;
   order: number;
+  /** The site's icon as a data URL, once looked up; null when it has none. */
+  favicon?: string | null;
 };
 /**
  * A row of the Resources database as parsed: a Resource plus its Category

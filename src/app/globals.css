@@ -77,9 +77,10 @@ body {
   --subtle-foreground: oklch(0.55 0 0); /* 4.65:1 on background */
   --accent: oklch(0.961 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* red-700, not 600: error text keeps 4.5:1 on a tinted card. */
+  --destructive: oklch(0.505 0.213 27.518);
   --border: oklch(0.94 0 0);
-  --input: oklch(0.922 0 0);
+  --input: oklch(0.62 0 0); /* field border, 3:1 on card and background */
   --ring: oklch(0.556 0 0); /* focus ring, 4.5:1 on background */
   --image-outline: oklch(0 0 0 / 0.1);
 }
@@ -103,7 +104,7 @@ body {
   --accent-foreground: oklch(0.946 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.248 0 0);
-  --input: oklch(0.27 0 0);
+  --input: oklch(0.53 0 0); /* field border, 3:1 on card, background, tints */
   --ring: oklch(0.7 0 0);
   --image-outline: oklch(1 0 0 / 0.1);
 }
@@ -127,9 +128,9 @@ body {
     --subtle-foreground: oklch(0.55 0 0);
     --accent: oklch(0.961 0 0);
     --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
+    --destructive: oklch(0.505 0.213 27.518);
     --border: oklch(0.94 0 0);
-    --input: oklch(0.922 0 0);
+    --input: oklch(0.62 0 0);
     --ring: oklch(0.556 0 0);
     --image-outline: oklch(0 0 0 / 0.1);
   }
@@ -318,14 +319,22 @@ body {
 }
 
 /*
- * Reading text runs at the body size, 16px on a 26px line, across the full
- * 672px column (about 85 characters), so text and stages share one right
- * edge. Body copy is muted; headings and
- * bold carry the foreground ink, so structure reads at a glance (spec §11).
+ * Reading text runs at the body size, 16px on a 26px line. Body copy is
+ * muted; headings and bold carry the foreground ink, so structure reads at a
+ * glance (spec §11).
  */
 .notionic {
   color: var(--muted-foreground);
   line-height: 26px;
+}
+/*
+ * Text blocks stop at 33em (528px, about 70 characters a line); demos,
+ * embeds, images, code and tables keep the full 672px column. Below md the
+ * column is narrower than the cap, so it has no effect there.
+ */
+.notionic
+> :is(p, ul, ol, blockquote, div:has(> :is(h2, h3, h4, h5)), details) {
+  max-width: 33em;
 }
 @media (max-width: 767.98px) {
   .notionic {
@@ -335,34 +344,42 @@ body {
 .notionic :is(h2, h3, h4, h5, strong, b) {
   color: var(--foreground);
 }
+/* notionic keeps the heading anchor visible on touch (there is no hover to
+   reveal it); one step quieter there, so it doesn't read as heading text. */
+@media (pointer: coarse) {
+  .notionic > :is(div, details) a[href^="#"][aria-label^="Link to section"] {
+    color: var(--subtle-foreground);
+  }
+}
 /* Inline code at 0.875em of the body, so it follows the mobile step. */
 .notionic :not(pre) > code {
   font-size: 0.875em;
 }
 
 /*
- * Notion body headings share the page title's size: Inter 500 at 16/24 for
- * h2 and h3 (14/20 below md), one step down for h4 and h5. They are told
- * apart from the body by weight, the foreground ink and the space above.
+ * Notion body headings sit a step above the body: Inter 500 at 18/28 for h2
+ * and h3 (16/26 below md), and the body size for h4 and h5 (16/24, 14/20
+ * below md), told apart by weight and the foreground ink. Never smaller
+ * than the text under them.
  */
 .notionic > :is(div:has(> :is(h2, h3)), details:has(> summary > :is(h2, h3))) {
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 18px;
+  line-height: 28px;
 }
 .notionic > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 16px;
+  line-height: 24px;
 }
 @media (max-width: 767.98px) {
   .notionic
     > :is(div:has(> :is(h2, h3)), details:has(> summary > :is(h2, h3))) {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 26px;
   }
   .notionic
     > :is(div:has(> :is(h4, h5)), details:has(> summary > :is(h4, h5))) {
-    font-size: 12px;
-    line-height: 18px;
+    font-size: 14px;
+    line-height: 20px;
   }
 }
 .notionic

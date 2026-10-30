@@ -24,17 +24,19 @@ describe("essayStageHeight", () => {
 });
 
 describe("DemoStage", () => {
-  it("gives the essay stage a fixed height instead of an aspect ratio", () => {
+  it("gives the essay stage a minimum height instead of an aspect ratio", () => {
     const { container } = render(<DemoStage size="essay" height={320} />);
     const stage = container.firstElementChild as HTMLElement;
-    expect(stage.style.height).toBe("320px");
+    // A floor, so a demo that stacks taller on a phone grows the stage.
+    expect(stage.style.minHeight).toBe("320px");
+    expect(stage.style.height).toBe("");
     expect(stage.className).not.toMatch(/aspect-/);
   });
 
   it("keeps the aspect ratio on cards", () => {
     const hero = render(<DemoStage size="hero" />).container.firstElementChild;
     expect(hero).toHaveClass("aspect-[2/1]");
-    expect((hero as HTMLElement).style.height).toBe("");
+    expect((hero as HTMLElement).style.minHeight).toBe("");
     const card = render(<DemoStage size="card" />).container.firstElementChild;
     expect(card).toHaveClass("aspect-[4/3]");
   });
@@ -48,6 +50,6 @@ describe("SiteDemoFrame", () => {
       </SiteDemoFrame>,
     );
     const stage = container.querySelector("figure > div") as HTMLElement;
-    expect(stage.style.height).toBe("200px");
+    expect(stage.style.minHeight).toBe("200px");
   });
 });
