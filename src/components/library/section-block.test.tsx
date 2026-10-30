@@ -6,6 +6,7 @@ vi.mock("@/components/stage/live-thumbnail", () => ({
   LiveThumbnail: ({ essaySlug }: { essaySlug: string }) => (
     <div data-testid="thumb">{essaySlug}</div>
   ),
+  demoThumbnail: () => undefined,
 }));
 
 const essay = (o: Partial<Essay>): Essay => ({

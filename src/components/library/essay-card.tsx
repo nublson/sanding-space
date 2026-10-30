@@ -4,7 +4,10 @@ import {
   SkeletonLines,
 } from "@/components/skeleton-line";
 import { DemoStage } from "@/components/stage/demo-stage";
-import { LiveThumbnail } from "@/components/stage/live-thumbnail";
+import {
+  demoThumbnail,
+  LiveThumbnail,
+} from "@/components/stage/live-thumbnail";
 import type { Essay } from "@/lib/content/types";
 
 export type TitleLevel = 2 | 3 | 4;
@@ -84,9 +87,16 @@ export function EssayCard({
   titleLevel?: TitleLevel;
 }) {
   if (essay.status === "Soon") {
+    // A Soon card has no page and runs no demo, but a static thumbnail is
+    // CSS only, so it shows, dimmed, and still plays on hover (the card is a
+    // `group`); without one the stage stays empty. It takes the same hover
+    // fill as a linked card, but no press, sound or pointer cursor.
+    const Thumbnail = demoThumbnail(essay.coverDemo);
     return (
-      <div className="cursor-default">
-        <DemoStage size={size} />
+      <div className="group -m-2 cursor-default rounded-[18px] p-2 pointer-fine:hover:bg-muted/50">
+        <DemoStage size={size} preview soon>
+          {Thumbnail && <Thumbnail />}
+        </DemoStage>
         {textBlock(true, essay, titleLevel)}
       </div>
     );
