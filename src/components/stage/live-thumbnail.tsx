@@ -12,6 +12,12 @@ function targetName(demo: string | null): string | null {
   return null;
 }
 
+/** A demo's static card thumbnail, if it has one (aliases resolved). */
+export function demoThumbnail(demo: string | null) {
+  const name = targetName(demo);
+  return name ? demoThumbnails[name] : undefined;
+}
+
 export function LiveThumbnail({
   demo,
   essaySlug,
@@ -31,7 +37,7 @@ export function LiveThumbnail({
   const Demo = name ? demos[name] : undefined;
   // In a card, a demo with a static thumbnail draws that instead: no demo
   // JavaScript, and nothing cropped by the card's shape.
-  const Thumbnail = preview && name ? demoThumbnails[name] : undefined;
+  const Thumbnail = preview ? demoThumbnail(demo) : undefined;
   return (
     <ViewTransition name={`demo-${essaySlug}`}>
       <DemoStage

@@ -4,6 +4,10 @@ import type { Essay } from "@/lib/content/types";
 
 vi.mock("@/components/stage/live-thumbnail", () => ({
   LiveThumbnail: () => <div data-testid="thumb" />,
+  demoThumbnail: (demo: string | null) =>
+    demo === "with-thumbnail"
+      ? () => <div data-testid="static-thumb" />
+      : undefined,
 }));
 
 const essay = (o: Partial<Essay>): Essay => ({
@@ -26,7 +30,25 @@ describe("EssayCard", () => {
   it("renders a Soon essay without a link", () => {
     render(<EssayCard essay={essay({ status: "Soon" })} />);
     expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.queryByText("Soon")).toBeNull();
+  });
+  it("labels a Soon card's stage, out of the accessibility tree", () => {
+    render(<EssayCard essay={essay({ status: "Soon" })} />);
+    const label = screen.getByText("Soon");
+    expect(label.closest("[aria-hidden='true']")).not.toBeNull();
+  });
+  it("draws a Soon essay's static thumbnail, never its live demo", () => {
+    render(
+      <EssayCard
+        essay={essay({ status: "Soon", coverDemo: "with-thumbnail" })}
+      />,
+    );
+    expect(screen.getByTestId("static-thumb")).toBeInTheDocument();
+    expect(screen.queryByTestId("thumb")).toBeNull();
+  });
+  it("leaves a Soon essay's stage empty without a static thumbnail", () => {
+    render(<EssayCard essay={essay({ status: "Soon" })} />);
+    expect(screen.queryByTestId("static-thumb")).toBeNull();
+    expect(screen.queryByTestId("thumb")).toBeNull();
   });
   it("links a Published essay", () => {
     render(<EssayCard essay={essay({})} />);

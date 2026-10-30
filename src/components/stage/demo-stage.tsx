@@ -22,6 +22,7 @@ export function DemoStage({
   height = ESSAY_STAGE_HEIGHT,
   preview = false,
   bleed = false,
+  soon = false,
   children,
 }: {
   /** `essay` is at least `height` tall; cards keep an aspect ratio, `hero` 2:1, `card` 4:3. */
@@ -32,6 +33,8 @@ export function DemoStage({
   preview?: boolean;
   /** Edge to edge on phones (the essay page's stage, which bleeds out of the gutter). */
   bleed?: boolean;
+  /** A Soon essay's card: an unfilled, dashed stage with a "Soon" label and its thumbnail dimmed, so it reads as not ready at rest. */
+  soon?: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -45,7 +48,8 @@ export function DemoStage({
       // grows an embed.
       style={size === "essay" ? { minHeight: `${height}px` } : undefined}
       className={cn(
-        "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border bg-card",
+        "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border",
+        soon ? "border-dashed border-input/50" : "bg-card",
         // On phones the essay page's stage runs edge to edge, so it drops its
         // corners and side borders; demos in a body keep theirs.
         bleed &&
@@ -54,7 +58,20 @@ export function DemoStage({
         size === "card" && "aspect-[4/3]",
       )}
     >
-      {children}
+      {soon ? (
+        <>
+          <div className="flex size-full items-center justify-center opacity-40">
+            {children}
+          </div>
+          {/* Decorative: the stage is aria-hidden, and the card's title
+              names the status for screen readers. */}
+          <span className="absolute top-3 left-3 rounded-full border border-input/50 border-dashed px-2 py-0.5 font-mono text-subtle-foreground text-xs">
+            Soon
+          </span>
+        </>
+      ) : (
+        children
+      )}
     </div>
   );
 }

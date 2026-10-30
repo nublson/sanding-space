@@ -356,7 +356,7 @@ The earlier index (every section with its intro paragraph and cards) is replaced
 
 ### 9.3 Section page `/sections/<slug>`
 
-The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then its **first essay by `Order`** as a large card and the remaining essays in a 3-column card grid (`SectionBlock`) (decided). The large slot is not limited to `Published`: a `Soon` first essay shows a large empty stage and is not a link. A Soon card carries no badge: the empty stage and the muted title and summary say it, and the title ends with a screen-reader-only "(coming soon)" (decided).
+The section name, its **full** intro (Notion page body, skipping the linked Essays database view), then its **first essay by `Order`** as a large card and the remaining essays in a 3-column card grid (`SectionBlock`) (decided). The large slot is not limited to `Published`: a `Soon` first essay is not a link. A Soon card says so at rest: an unfilled, dashed stage with a small "Soon" label in its top-left corner (the demo's static thumbnail dimmed behind it, if it has one), muted title and summary, and a screen-reader-only "(coming soon)" at the end of the title; the label is decorative, inside the aria-hidden stage (decided 2026-10-30, replacing the earlier no-badge rule).
 
 ### 9.4 Essay `/<slug>`
 
@@ -455,7 +455,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 
 **Demo stage** (one component everywhere): `card` background, 1px `border`, 10px radius, demo centered. Essay stages (the cover and inline demos) take the demo's registry `height`, the size a fresh embed opens at, so a demo is the same size in an essay and in an embed; without a registered demo they are 420px (decided 2026-10-28). Section cards keep an aspect ratio: large card 2:1, card thumbnail 4:3. Caption 13/20 `subtle-foreground`, centered, 10px below.
 
-**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 16 medium `foreground`, summary 14/22 `subtle-foreground`. Soon cards: empty stage, title and summary in `subtle-foreground`, no badge; no hover, press, sound or pointer cursor.
+**Essay card**: no border at rest. Hover (fine pointers only) fills `card` on an area extending 8px past the thumbnail with an 18px radius (10 + 8, concentric). Title 16 medium `foreground`, summary 14/22 `subtle-foreground`. Soon cards: the stage drops its `card` fill for a dashed `input`/50 border, and shows the cover demo's static thumbnail (if any) at 40% opacity, never a live demo; a "Soon" label top-left, 12px Geist Mono `subtle-foreground` in a dashed `input`/50 pill; title and summary in `subtle-foreground`; the same hover fill as a linked card and the thumbnail's hover animation, but no press, sound or pointer cursor.
 
 ### 11.4 Sound
 
