@@ -6,6 +6,8 @@ const sizes = {
   "icon-sm": "size-7",
   text: "h-7 gap-1.5 px-2 text-sm/5",
   md: "h-9 gap-2 px-4 text-sm",
+  // Toggle's dashed chip, for a one-shot action among a demo's toggles.
+  chip: "gap-1.5 rounded-full border border-border border-dashed px-3.5 py-1.5 pointer-coarse:min-h-11 text-sm hover:bg-transparent",
 } as const;
 
 const variants = {
