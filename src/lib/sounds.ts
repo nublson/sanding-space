@@ -74,11 +74,6 @@ const definitions: Record<SoundName, SoundDefinition> = {
   },
 };
 
-// Defined lazily so importing this module on the server never touches the
-// Web Audio API.
-const players: Partial<Record<SoundName, ReturnType<typeof defineSound>>> = {};
-const lastPlayed: Partial<Record<SoundName, number>> = {};
-
 export function isMuted(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -102,16 +97,32 @@ export function applySavedMute(): void {
   if (isMuted()) setMasterVolume(0);
 }
 
+/**
+ * A sound's player: defined on first play, so importing this module on the
+ * server never touches the Web Audio API. It stays silent while the site is
+ * muted, and the same sound can't restart within the throttle. Demos make
+ * their own sounds with it.
+ */
+export function soundPlayer(definition: SoundDefinition): () => void {
+  let play: ReturnType<typeof defineSound> | undefined;
+  let last: number | undefined;
+  return () => {
+    if (typeof window === "undefined" || isMuted()) return;
+    const now = Date.now();
+    if (last !== undefined && now - last < THROTTLE_MS) return;
+    last = now;
+    play ??= defineSound(definition);
+    play(PLAY_OPTIONS);
+  };
+}
+
+const players = Object.fromEntries(
+  Object.entries(definitions).map(([name, definition]) => [
+    name,
+    soundPlayer(definition),
+  ]),
+) as Record<SoundName, () => void>;
+
 export function playSound(name: SoundName): void {
-  if (typeof window === "undefined" || isMuted()) return;
-  const now = Date.now();
-  const last = lastPlayed[name];
-  if (last !== undefined && now - last < THROTTLE_MS) return;
-  lastPlayed[name] = now;
-  let player = players[name];
-  if (!player) {
-    player = defineSound(definitions[name]);
-    players[name] = player;
-  }
-  player(PLAY_OPTIONS);
+  players[name]();
 }
