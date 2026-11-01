@@ -2,9 +2,15 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PaperCuts from "./paper-cuts";
 
+/** Each `soundPlayer` the demo makes, in order: the thud first. */
+const players = vi.hoisted(() => [] as ReturnType<typeof vi.fn>[]);
 vi.mock("@/lib/sounds", () => ({
   playSound: vi.fn(),
-  soundPlayer: () => vi.fn(),
+  soundPlayer: () => {
+    const player = vi.fn();
+    players.push(player);
+    return player;
+  },
 }));
 
 function setup() {
@@ -73,6 +79,20 @@ describe("PaperCuts", () => {
     expect(
       screen.getByRole("dialog", { name: "Settings" }),
     ).toBeInTheDocument();
+  });
+
+  it("counts the avatar jump without a sound on hover", async () => {
+    const user = setup();
+    const thud = players[0];
+    thud.mockClear();
+    await user.hover(screen.getByRole("dialog", { name: "Settings" }));
+    wait(700);
+    expect(counter()).toBe("Cuts 1");
+    expect(thud).not.toHaveBeenCalled();
+
+    // A cut you act into still thuds.
+    await rename(user, "Ana Souza");
+    expect(thud).toHaveBeenCalledOnce();
   });
 
   it("starts the run over from the switch", async () => {

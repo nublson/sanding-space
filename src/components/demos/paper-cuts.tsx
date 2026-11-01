@@ -79,7 +79,7 @@ function Panel({
   run: Run;
   /** Ease in on mount: a fresh run, never the first load. */
   enter: boolean;
-  onCut: () => void;
+  onCut: (options?: { silent?: boolean }) => void;
 }) {
   const sanded = run === "sanded";
   const id = useId();
@@ -131,7 +131,9 @@ function Panel({
       const busy =
         pointerInside.current ||
         panel.current?.contains(document.activeElement);
-      if (!sanded && busy) onCut();
+      // Counted but silent: reaching the panel by hover or focus makes no
+      // sound, only the jump does.
+      if (!sanded && busy) onCut({ silent: true });
     }, AVATAR_MS);
   }
 
@@ -372,8 +374,8 @@ export default function PaperCuts({ params }: DemoProps) {
   const [attempt, setAttempt] = useState(0);
   const [total, setTotal] = useState(0);
 
-  function cut() {
-    playThud();
+  function cut({ silent = false } = {}) {
+    if (!silent) playThud();
     setTotal((n) => n + 1);
   }
 

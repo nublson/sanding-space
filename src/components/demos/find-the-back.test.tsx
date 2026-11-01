@@ -130,6 +130,19 @@ describe("FindTheBack", () => {
     expect(email()).toHaveValue("ana@example.com");
   });
 
+  it("keeps the address when sanded while away", async () => {
+    const user = setup();
+    await habit(user, "Go back");
+    wait(900);
+    expect(counter()).toBe("1/6");
+    await user.type(email(), "ana@example.com");
+    await habit(user, "Go back");
+    // Sanded mid-trip: coming back must honour it.
+    await sand(user, "Go back");
+    wait(900);
+    expect(email()).toHaveValue("ana@example.com");
+  });
+
   it("wipes the address on an error until sanded", async () => {
     const user = setup();
     await habit(user, "Make it fail");

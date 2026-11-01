@@ -129,6 +129,8 @@ export default function FindTheBack({ params }: DemoProps) {
   );
   const [found, setFound] = useState<Flags>(NONE);
   const [sanded, setSanded] = useState<Flags>(NONE);
+  /** `sanded` as it is now, for timers started before a Sand press. */
+  const sandedNow = useRef<Flags>(NONE);
   const [email, setEmail] = useState(
     only === "paste" ? PASTED : only && only !== "reader" ? TYPED : "",
   );
@@ -193,7 +195,7 @@ export default function FindTheBack({ params }: DemoProps) {
       setAway(true);
       later(() => {
         setAway(false);
-        if (sanded.back) return;
+        if (sandedNow.current.back) return;
         edit("");
         find("back");
       }, AWAY_MS);
@@ -223,7 +225,7 @@ export default function FindTheBack({ params }: DemoProps) {
         if (fail) {
           playSound("toggle-off");
           setStatus("failed");
-          if (sanded.fail) return;
+          if (sandedNow.current.fail) return;
           setEmail("");
           find("fail");
           return;
@@ -231,7 +233,7 @@ export default function FindTheBack({ params }: DemoProps) {
         playSound("tap");
         setSends((n) => n + 1);
         setStatus("subscribed");
-        if (slow && !sanded.slow) find("slow");
+        if (slow && !sandedNow.current.slow) find("slow");
       },
       slow ? SLOW_MS : SEND_MS,
     );
@@ -239,7 +241,8 @@ export default function FindTheBack({ params }: DemoProps) {
 
   function sand(key: Habit) {
     playSand();
-    setSanded((now) => ({ ...now, [key]: true }));
+    sandedNow.current = { ...sandedNow.current, [key]: true };
+    setSanded(sandedNow.current);
     setLast(key);
   }
 
@@ -328,13 +331,6 @@ export default function FindTheBack({ params }: DemoProps) {
             aria-label="Signup"
             className="relative m-auto w-full max-w-[340px] rounded-[25px] border border-border bg-foreground/4 p-4"
           >
-            {/* No mouse: the pointer can't reach the form. */}
-            {active.mouse ? (
-              <div
-                aria-hidden
-                className="absolute inset-0 z-10 cursor-not-allowed rounded-[inherit]"
-              />
-            ) : null}
             <p
               aria-hidden={!away}
               className={cn(
@@ -347,10 +343,18 @@ export default function FindTheBack({ params }: DemoProps) {
             <div
               inert={away}
               className={cn(
-                "flex flex-col gap-3 transition-opacity duration-150 ease-(--ease-out)",
+                "relative flex flex-col gap-3 transition-opacity duration-150 ease-(--ease-out)",
                 away && "opacity-0",
               )}
             >
+              {/* No mouse: the pointer can't reach the form, though the Sand
+                  buttons below it stay in reach. */}
+              {active.mouse ? (
+                <div
+                  aria-hidden
+                  className="absolute inset-0 z-10 cursor-not-allowed"
+                />
+              ) : null}
               <div className="flex flex-col gap-0.5">
                 <h2 className="font-medium text-base">Field notes</h2>
                 <p className="text-muted-foreground text-xs/5">
