@@ -445,7 +445,7 @@ Radius `--radius: 0.625rem` with the portfolio's `--radius-*` scale. Easing `--e
 - Mobile header (56px, fixed): the sidebar toggle (lucide `PanelLeft`, 16px, 1.5 stroke, in a 44px button), then the same lockup on the mobile scale: 18px mark + Inter 14 medium on a 28px line, linking to the Introduction. Nothing on the right.
 - Rows 32px tall (44px on touch), full-width hit area. Section names `subtle-foreground`; current section `foreground`.
 - Question: 14/20, `subtle-foreground`, under the current section.
-- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links), current essay `foreground` with a 2px × 14px `foreground` bar on the guide line.
+- Essays behind a 1px `border` guide line: Published `muted-foreground`, Soon `subtle-foreground` (plain text, not links, a screen-reader-only "(coming soon)", and the guide line dashed `input` beside them), current essay `foreground` with a 2px × 14px `foreground` bar on the guide line. Link rows go `foreground` on hover (150 ms `--ease-out`); Soon rows don't.
 - Footer: 1px `border` top, About link (`.link`) and a 32px mute button (lucide `Volume2` / `VolumeX`).
 - Scrollbars are hidden site-wide. The list between wordmark and footer is the only part of the sidebar that scrolls, with a 2.5rem scroll fade on whichever edge still has content (craft.gustavofior.com/scroll-fades). Below md the list starts under the 56px header and carries the 64px rest offset as padding, so items can scroll up to the header and dissolve. Code blocks and tables in Notion bodies use the same fade horizontally.
 

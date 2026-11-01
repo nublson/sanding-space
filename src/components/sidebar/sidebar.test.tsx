@@ -84,7 +84,8 @@ describe("Sidebar", () => {
   it("soon essays are plain text", () => {
     setup();
     expect(screen.getByText("Hover intent")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Hover intent" })).toBeNull();
+    expect(screen.getByText("(coming soon)")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Hover intent/ })).toBeNull();
   });
 
   it("current essay is marked", () => {
