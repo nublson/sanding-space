@@ -16,6 +16,11 @@ const SIDEBAR_NAV = ["sidebar-nav"];
 const row =
   "flex min-h-8 w-full items-center py-1 leading-6 max-md:min-h-7 max-md:leading-5 pointer-coarse:min-h-11";
 
+// Every row that links brightens to the ink on hover, like the footer's
+// .link, so a pointer can tell a link from a Soon row before pressing.
+const rowLink =
+  "transition-colors duration-150 ease-(--ease-out) hover:text-foreground";
+
 // The footer's pages, Resources above About.
 const FOOTER_PAGES = [RESOURCES, ABOUT];
 const footerLink =
@@ -69,6 +74,7 @@ export function Sidebar({
           aria-current={introductionCurrent ? "page" : undefined}
           className={cn(
             row,
+            rowLink,
             "mb-4 text-base max-md:text-sm",
             introductionCurrent ? "text-foreground" : "text-subtle-foreground",
           )}
@@ -90,6 +96,7 @@ export function Sidebar({
                   }
                   className={cn(
                     row,
+                    rowLink,
                     "text-base max-md:text-sm",
                     current ? "text-foreground" : "text-subtle-foreground",
                   )}
@@ -126,6 +133,7 @@ export function Sidebar({
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
                                   row,
+                                  rowLink,
                                   "relative ps-3 text-base max-md:text-sm",
                                   active
                                     ? "text-foreground"
@@ -143,13 +151,20 @@ export function Sidebar({
                                 {essay.title}
                               </Link>
                             ) : (
+                              // Not a link: beside it the guide line turns
+                              // dashed, the Soon cards' "not ready" stroke,
+                              // so the row says so without relying on the
+                              // slightly dimmer ink.
                               <span
                                 className={cn(
                                   row,
-                                  "ps-3 text-base text-subtle-foreground max-md:text-sm",
+                                  "-ms-px cursor-default border-input border-l border-dashed ps-3 text-base text-subtle-foreground max-md:text-sm",
                                 )}
                               >
                                 {essay.title}
+                                <span className="sr-only">
+                                  {" (coming soon)"}
+                                </span>
                               </span>
                             )}
                           </li>
