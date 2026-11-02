@@ -490,10 +490,12 @@ export default function FindTheBack({ params }: DemoProps) {
                           )}
                           {found[key] ? (
                             // One button throughout, so focus stays put as it
-                            // turns into "Sanded".
+                            // turns into "Sanded". Disabled, it still takes the
+                            // pointer, so a click on it never reaches the habit
+                            // underneath.
                             <Button
                               size="text"
-                              className="absolute end-1 top-1/2 -translate-y-1/2 justify-end pointer-coarse:h-10 transition-opacity duration-200 ease-(--ease-out) starting:opacity-0"
+                              className="absolute end-1 top-1/2 -translate-y-1/2 justify-end pointer-coarse:h-10 transition-opacity data-disabled:pointer-events-auto data-disabled:cursor-default data-disabled:hover:bg-transparent duration-200 ease-(--ease-out) starting:opacity-0"
                               aria-label={`${sanded[key] ? "Sanded" : "Sand"}: ${name}`}
                               disabled={sanded[key]}
                               focusableWhenDisabled
