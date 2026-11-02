@@ -12,6 +12,7 @@ import {
   ServerCrash,
   Snail,
 } from "lucide-react";
+import { MotionConfig, motion } from "motion/react";
 import type { DemoProps } from "notionic";
 import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,21 @@ const NONE: Flags = {
   fail: false,
 };
 
+/**
+ * Rows slide aside as a found edge or the transcript adds a line, rather than
+ * jumping. Motion only, so `reducedMotion="user"` turns it into a snap.
+ */
+const SLIDE = { type: "spring", duration: 0.3, bounce: 0 } as const;
+
+/**
+ * A habit's row: its toggle (or action) stretched to a list item. The card's
+ * tint hides `border-border`, so the dashed edge uses the field border, as a
+ * Soon stage does.
+ */
+const ROW = "flex w-full justify-start rounded-[9px] border-input/50 px-2.5";
+/** Lines an edge's text up with its habit's name: padding, border, icon, gap. */
+const EDGE_INDENT = "ps-[calc(--spacing(2.5)+1px+--spacing(4)+--spacing(1.5))]";
+
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** What the Paste habit drops in: a real address, with a copy's stray spaces. */
 const PASTED = " Nubelson@Example.com ";
@@ -113,8 +129,8 @@ const AWAY_MS = 900;
 /**
  * A newsletter signup and six habits real people bring to it: no mouse, a
  * screen reader, a slow network, a paste, going back, a failing server. Each
- * habit exposes one rough edge; once you hit it, a line under the form names
- * it, with a Sand button that fixes it in place. The counter above adds up
+ * habit is a row in the card; once you hit its rough edge, the row names it,
+ * with a Sand button that fixes it in place. The counter above adds up
  * the edges found. `?habit=paste` opens on one habit alone, for embedding a
  * single edge; `controls=off` hides its chip.
  */
@@ -262,6 +278,9 @@ export default function FindTheBack({ params }: DemoProps) {
             ? "Subscribing…"
             : "";
   const inputId = `${id}-email`;
+  const controls = showsControls(params, "on");
+  // With the controls hidden, a habit has a row only once its edge is found.
+  const rows = controls ? habits : habits.filter((habit) => found[habit.key]);
   // One step at a time: the task, then Sand, then try it again.
   const hint = habits.every((habit) => sanded[habit.key])
     ? only
@@ -278,210 +297,242 @@ export default function FindTheBack({ params }: DemoProps) {
           : HABITS.find((habit) => habit.key === last)?.task;
 
   return (
-    <div data-stream className="flex w-full self-stretch">
-      <DemoLayout
-        top={
-          <div className="flex flex-col items-center gap-0.5 px-4 text-center">
-            {/* Live, so each next step is read out as it changes. */}
-            <output aria-live="polite" className="text-pretty text-sm/5">
-              {hint}
-            </output>
-            <span className="font-mono text-muted-foreground text-xs/5">
-              Edges found{" "}
-              <span
-                key={count}
-                className="inline-block text-foreground tabular-nums transition-[scale,opacity] duration-300 ease-(--ease-out) starting:scale-150 starting:opacity-50 motion-reduce:starting:scale-100"
-              >
-                {count}/{habits.length}
-              </span>
-            </span>
-          </div>
-        }
-        bottom={
-          showsControls(params, "on") ? (
-            <fieldset
-              aria-label="Habits"
-              className="flex max-w-[460px] flex-wrap justify-center gap-2 px-4"
-            >
-              {habits.map(({ key, name, icon: Icon, action }) =>
-                action ? (
-                  <Button key={key} size="chip" onClick={() => act(key)}>
-                    <Icon aria-hidden />
-                    {name}
-                  </Button>
-                ) : (
-                  <Toggle
-                    key={key}
-                    pressed={active[key]}
-                    onPressedChange={(on) => setHabit(key, on)}
-                  >
-                    <Icon aria-hidden />
-                    {name}
-                  </Toggle>
-                ),
-              )}
-            </fieldset>
-          ) : null
-        }
-      >
-        {/* Centred while it fits; once every edge is listed on a short frame,
-            it scrolls instead of running under the controls. */}
-        <div className="absolute inset-0 flex overflow-y-auto overscroll-contain px-4 py-1">
-          <section
-            aria-label="Signup"
-            className="relative m-auto w-full max-w-[340px] rounded-[25px] border border-border bg-foreground/4 p-4"
-          >
-            <p
-              aria-hidden={!away}
-              className={cn(
-                "pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground text-sm transition-opacity duration-150 ease-(--ease-out)",
-                !away && "opacity-0",
-              )}
-            >
-              You left the page…
-            </p>
-            <div
-              inert={away}
-              className={cn(
-                "relative flex flex-col gap-3 transition-opacity duration-150 ease-(--ease-out)",
-                away && "opacity-0",
-              )}
-            >
-              {/* No mouse: the pointer can't reach the form, though the Sand
-                  buttons below it stay in reach. */}
-              {active.mouse ? (
-                <div
-                  aria-hidden
-                  className="absolute inset-0 z-10 cursor-not-allowed"
-                />
-              ) : null}
-              <div className="flex flex-col gap-0.5">
-                <h2 className="font-medium text-base">Field notes</h2>
-                <p className="text-muted-foreground text-xs/5">
-                  One essay a week. No spam.
-                </p>
-              </div>
-              <form
-                // A function action, not onSubmit, as in sanded-form.
-                action={() => submit()}
-                className="flex flex-col gap-1.5"
-              >
-                <Label htmlFor={inputId}>Email</Label>
-                <div className="flex gap-2">
-                  <Input
-                    ref={input}
-                    id={inputId}
-                    name="email"
-                    // Text, not email: an email field trims a paste on its own,
-                    // and the stray spaces are the point.
-                    type="text"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={email}
-                    onValueChange={edit}
-                    onKeyDown={(event) => {
-                      // Rough: Enter submits nothing, and Tab skips the button.
-                      if (sanded.mouse) return;
-                      const enter = event.key === "Enter";
-                      if (enter) event.preventDefault();
-                      if (active.mouse && (enter || event.key === "Tab"))
-                        find("mouse");
-                    }}
-                  />
-                  <Button
-                    type="submit"
-                    size="md"
-                    variant="solid"
-                    className="px-3"
-                    tabIndex={sanded.mouse ? undefined : -1}
-                    aria-label={sanded.reader ? "Subscribe" : undefined}
-                    // Sanded: focusable while it sends, and one send only.
-                    disabled={sanded.slow && sending}
-                    focusableWhenDisabled
-                  >
-                    {sanded.slow && sending ? (
-                      <LoaderCircle
-                        aria-hidden
-                        className="motion-safe:animate-spin"
-                      />
-                    ) : (
-                      <ArrowRight aria-hidden />
-                    )}
-                  </Button>
-                </div>
-              </form>
-              <output
-                aria-live="polite"
-                className="block min-h-5 text-muted-foreground text-xs/5"
-              >
-                {message}
+    <MotionConfig reducedMotion="user" transition={SLIDE}>
+      <div data-stream className="flex w-full self-stretch">
+        <DemoLayout
+          top={
+            <div className="flex flex-col items-center gap-0.5 px-4 text-center">
+              {/* Live, so each next step is read out as it changes. The region
+                stays put and only the text inside fades in, since a live
+                region that remounts may not be announced. */}
+              <output aria-live="polite" className="text-pretty text-sm/5">
+                <span
+                  key={hint}
+                  className="transition-opacity duration-150 ease-(--ease-out) starting:opacity-0"
+                >
+                  {hint}
+                </span>
               </output>
-              {active.reader ? (
-                <p className="flex items-start gap-2 rounded-[9px] bg-foreground/6 px-3 py-2.5 font-mono text-xs/5 transition-opacity duration-200 ease-(--ease-out) starting:opacity-0">
-                  <AudioLines
-                    aria-hidden
-                    className="size-4 shrink-0 text-muted-foreground"
-                  />
-                  <span>
-                    <span className="sr-only">A screen reader says: </span>
-                    “Field notes, heading. Email, edit text.{" "}
-                    {sanded.reader ? "Subscribe, button." : "button."}”
-                  </span>
-                </p>
-              ) : null}
+              <span className="font-mono text-muted-foreground text-xs/5">
+                Edges found{" "}
+                <span
+                  key={count}
+                  className="inline-block text-foreground tabular-nums transition-[scale,opacity] duration-300 ease-(--ease-out) starting:scale-150 starting:opacity-50 motion-reduce:starting:scale-100"
+                >
+                  {count}/{habits.length}
+                </span>
+              </span>
             </div>
-            {count > 0 ? (
-              <ul
-                aria-label="Rough edges"
-                className="mt-4 flex flex-col gap-2 border-border border-t pt-3"
-              >
-                {habits
-                  .filter((habit) => found[habit.key])
-                  .map(({ key, name, edge }) => (
-                    <li
-                      key={key}
-                      className="flex items-center gap-2 text-xs/5 transition-opacity duration-200 ease-(--ease-out) starting:opacity-0"
-                    >
-                      <span
-                        className={cn(
-                          "min-w-0 flex-1 transition-colors duration-200 ease-(--ease-out)",
-                          sanded[key] && "text-muted-foreground",
-                        )}
-                      >
-                        <span className="font-medium text-foreground">
-                          {name}:
-                        </span>{" "}
-                        {edge}
-                      </span>
-                      {/* One button throughout, so focus stays put as it
-                          turns into "Sanded". */}
+          }
+        >
+          {/* In flow, not pinned to the slot: on a phone the card stacks taller
+            than the registry height, and the stage grows with it. */}
+          <div className="flex size-full px-4 py-1">
+            <motion.section
+              layout="position"
+              aria-label="Signup"
+              className="relative m-auto w-full max-w-[360px] rounded-[25px] border border-border bg-foreground/4 p-4"
+            >
+              <div className="relative">
+                <p
+                  aria-hidden={!away}
+                  className={cn(
+                    "pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground text-sm transition-opacity duration-150 ease-(--ease-out)",
+                    !away && "opacity-0",
+                  )}
+                >
+                  You left the page…
+                </p>
+                <div
+                  inert={away}
+                  className={cn(
+                    "relative flex flex-col gap-3 transition-opacity duration-150 ease-(--ease-out)",
+                    away && "opacity-0",
+                  )}
+                >
+                  {/* No mouse: the pointer can't reach the form, though the habits
+                  below it stay in reach. */}
+                  {active.mouse ? (
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 z-10 cursor-not-allowed"
+                    />
+                  ) : null}
+                  <div className="flex flex-col gap-0.5">
+                    <h2 className="font-medium text-base">Field notes</h2>
+                    <p className="text-muted-foreground text-xs/5">
+                      One essay a week. No spam.
+                    </p>
+                  </div>
+                  <form
+                    // A function action, not onSubmit, as in sanded-form.
+                    action={() => submit()}
+                    className="flex flex-col gap-1.5"
+                  >
+                    <Label htmlFor={inputId}>Email</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        ref={input}
+                        id={inputId}
+                        name="email"
+                        // Text, not email: an email field trims a paste on its own,
+                        // and the stray spaces are the point.
+                        type="text"
+                        inputMode="email"
+                        autoComplete="email"
+                        value={email}
+                        onValueChange={edit}
+                        onKeyDown={(event) => {
+                          // Rough: Enter submits nothing, and Tab skips the button.
+                          if (sanded.mouse) return;
+                          const enter = event.key === "Enter";
+                          if (enter) event.preventDefault();
+                          if (active.mouse && (enter || event.key === "Tab"))
+                            find("mouse");
+                        }}
+                      />
                       <Button
-                        size="text"
-                        className="w-20 shrink-0 justify-end"
-                        aria-label={`${sanded[key] ? "Sanded" : "Sand"}: ${name}`}
-                        disabled={sanded[key]}
+                        type="submit"
+                        size="md"
+                        variant="solid"
+                        className="px-3"
+                        tabIndex={sanded.mouse ? undefined : -1}
+                        aria-label={sanded.reader ? "Subscribe" : undefined}
+                        // Sanded: focusable while it sends, and one send only.
+                        disabled={sanded.slow && sending}
                         focusableWhenDisabled
-                        onClick={() => sand(key)}
                       >
-                        {sanded[key] ? (
-                          <>
-                            <Check
-                              aria-hidden
-                              className="size-3.5 transition-[scale,opacity] duration-300 ease-(--ease-out) starting:scale-25 starting:opacity-0 motion-reduce:starting:scale-100"
-                            />
-                            Sanded
-                          </>
+                        {sanded.slow && sending ? (
+                          <LoaderCircle
+                            aria-hidden
+                            className="motion-safe:animate-spin"
+                          />
                         ) : (
-                          "Sand"
+                          <ArrowRight aria-hidden />
                         )}
                       </Button>
-                    </li>
-                  ))}
-              </ul>
-            ) : null}
-          </section>
-        </div>
-      </DemoLayout>
-    </div>
+                    </div>
+                  </form>
+                  <output
+                    aria-live="polite"
+                    className="block min-h-5 text-muted-foreground text-xs/5"
+                  >
+                    {message}
+                  </output>
+                  {active.reader ? (
+                    <p className="flex items-start gap-2 rounded-[9px] bg-foreground/6 px-3 py-2.5 font-mono text-xs/5 transition-opacity duration-200 ease-(--ease-out) starting:opacity-0">
+                      <AudioLines
+                        aria-hidden
+                        className="size-4 shrink-0 text-muted-foreground"
+                      />
+                      <span>
+                        <span className="sr-only">A screen reader says: </span>
+                        “Field notes, heading. Email, edit text.{" "}
+                        {sanded.reader ? "Subscribe, button." : "button."}”
+                      </span>
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              {rows.length > 0 ? (
+                // The habits live in the card, each beside the edge it exposes
+                // and its Sand button, so a phone needs no row of chips below.
+                <>
+                  <motion.p
+                    layout="position"
+                    id={`${id}-habits`}
+                    className="mt-5 mb-2 text-muted-foreground text-xs/5"
+                  >
+                    Habits
+                  </motion.p>
+                  <ul
+                    aria-labelledby={`${id}-habits`}
+                    className="flex flex-col gap-1"
+                  >
+                    {rows.map(({ key, name, edge, icon: Icon, action }) => (
+                      <motion.li
+                        key={key}
+                        layout="position"
+                        className="flex flex-col"
+                      >
+                        {/* Sand sits over the row's right end, so every row keeps
+                        the card's full width as edges are found. */}
+                        <div className="relative">
+                          {!controls ? (
+                            <span
+                              className={cn(
+                                ROW,
+                                found[key] && "pe-24",
+                                "items-center gap-1.5 border border-transparent py-1.5 text-muted-foreground text-sm [&_svg]:size-4 [&_svg]:shrink-0",
+                              )}
+                            >
+                              <Icon aria-hidden />
+                              {name}
+                            </span>
+                          ) : action ? (
+                            <Button
+                              size="chip"
+                              className={cn(ROW, found[key] && "pe-24")}
+                              onClick={() => act(key)}
+                            >
+                              <Icon aria-hidden />
+                              {name}
+                            </Button>
+                          ) : (
+                            <Toggle
+                              className={cn(ROW, found[key] && "pe-24")}
+                              pressed={active[key]}
+                              onPressedChange={(on) => setHabit(key, on)}
+                            >
+                              <Icon aria-hidden />
+                              {name}
+                            </Toggle>
+                          )}
+                          {found[key] ? (
+                            // One button throughout, so focus stays put as it
+                            // turns into "Sanded".
+                            <Button
+                              size="text"
+                              className="absolute end-1 top-1/2 -translate-y-1/2 justify-end pointer-coarse:h-10 transition-opacity duration-200 ease-(--ease-out) starting:opacity-0"
+                              aria-label={`${sanded[key] ? "Sanded" : "Sand"}: ${name}`}
+                              disabled={sanded[key]}
+                              focusableWhenDisabled
+                              onClick={() => sand(key)}
+                            >
+                              {sanded[key] ? (
+                                <>
+                                  <Check
+                                    aria-hidden
+                                    className="size-3.5 transition-[scale,opacity] duration-300 ease-(--ease-out) starting:scale-25 starting:opacity-0 motion-reduce:starting:scale-100"
+                                  />
+                                  Sanded
+                                </>
+                              ) : (
+                                "Sand"
+                              )}
+                            </Button>
+                          ) : null}
+                        </div>
+                        {found[key] ? (
+                          <p
+                            className={cn(
+                              EDGE_INDENT,
+                              "pt-0.5 pb-1.5 text-pretty text-xs/5 transition-[color,opacity] duration-200 ease-(--ease-out) starting:opacity-0",
+                              sanded[key] && "text-muted-foreground",
+                            )}
+                          >
+                            {edge}
+                          </p>
+                        ) : null}
+                      </motion.li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+            </motion.section>
+          </div>
+        </DemoLayout>
+      </div>
+    </MotionConfig>
   );
 }
