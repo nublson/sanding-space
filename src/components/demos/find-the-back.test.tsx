@@ -169,4 +169,15 @@ describe("FindTheBack", () => {
     expect(screen.queryByRole("button", { name: "No mouse" })).toBeNull();
     expect(counter()).toBe("0/1");
   });
+
+  it("lists a habit only once found with controls=off", async () => {
+    const user = setup({ habit: "paste", controls: "off" });
+    expect(screen.queryByRole("list", { name: "Habits" })).toBeNull();
+    await user.click(screen.getAllByRole("button")[0]);
+    expect(screen.queryByRole("button", { name: "Paste" })).toBeNull();
+    await sand(user, "Paste");
+    expect(
+      screen.getByRole("button", { name: "Sanded: Paste" }),
+    ).toBeInTheDocument();
+  });
 });
