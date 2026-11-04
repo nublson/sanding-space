@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type Styled<P> = Omit<P, "className"> & { className?: string };
 
 const item =
-  "flex h-8 pointer-coarse:h-11 cursor-default select-none items-center gap-2 rounded-lg px-2 text-muted-foreground text-sm outline-none data-highlighted:bg-muted/50 data-highlighted:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
+  "flex h-8 pointer-coarse:h-11 cursor-default select-none items-center gap-2 rounded-lg px-2 text-muted-foreground text-sm outline-none data-highlighted:bg-foreground/7 data-highlighted:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
 
 /** A menu's state: open it from a `MenuTrigger`, list its actions in a `MenuPopup`. */
 const Menu = MenuPrimitive.Root;
