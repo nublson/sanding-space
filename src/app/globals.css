@@ -348,6 +348,28 @@ body {
 }
 
 /*
+ * Code highlighting in the site's grays (no hue: the chrome is monochrome).
+ * Shiki's css-variables theme names each token's role; the ink steps carry
+ * the structure: keywords, tags and strings in foreground, names and plain
+ * text muted, punctuation and comments subtle, comments in italic.
+ */
+.code-tokens {
+  --shiki-foreground: var(--muted-foreground);
+  --shiki-token-keyword: var(--foreground);
+  --shiki-token-string-expression: var(--foreground);
+  --shiki-token-string: var(--foreground);
+  --shiki-token-link: var(--foreground);
+  --shiki-token-function: var(--muted-foreground);
+  --shiki-token-constant: var(--muted-foreground);
+  --shiki-token-parameter: var(--muted-foreground);
+  --shiki-token-punctuation: var(--subtle-foreground);
+  --shiki-token-comment: var(--subtle-foreground);
+}
+.code-tokens [style*="--shiki-token-comment"] {
+  font-style: italic;
+}
+
+/*
  * Notion body headings sit a step above the body: Inter 500 at 18/28 for h2
  * and h3 (16/26 below md), and the body size for h4 and h5 (16/24, 14/20
  * below md), told apart by weight and the foreground ink. Never smaller
