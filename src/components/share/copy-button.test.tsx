@@ -89,4 +89,18 @@ describe("CopyButton", () => {
 
     expect(onPrefetch).toHaveBeenCalledTimes(1);
   });
+
+  it("keeps every icon mounted and shows one at a time, for the cross-fade", async () => {
+    const button = renderButton(() => "x");
+    const shown = () =>
+      [...button.querySelectorAll("[data-icon]")]
+        .filter((icon) => icon.getAttribute("data-shown") === "true")
+        .map((icon) => icon.getAttribute("data-icon"));
+
+    expect(button.querySelectorAll("[data-icon]")).toHaveLength(3);
+    expect(shown()).toEqual(["idle"]);
+
+    await press(button);
+    expect(shown()).toEqual(["copied"]);
+  });
 });

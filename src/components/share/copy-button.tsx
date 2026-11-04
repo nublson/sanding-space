@@ -4,6 +4,7 @@ import { Check, type LucideIcon, RotateCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
+import { cn } from "@/lib/utils";
 
 type State = "idle" | "copied" | "error";
 
@@ -63,13 +64,29 @@ export function CopyButton({
         onClick={copy}
         className={className}
       >
-        {state === "copied" ? (
-          <Check aria-hidden="true" />
-        ) : state === "error" ? (
-          <RotateCw aria-hidden="true" />
-        ) : (
-          <Icon aria-hidden="true" />
-        )}
+        {/* All three stay mounted in one cell, so the swap cross-fades. */}
+        <span className="grid">
+          {(
+            [
+              ["idle", Icon],
+              ["copied", Check],
+              ["error", RotateCw],
+            ] as const
+          ).map(([key, Glyph]) => (
+            <Glyph
+              key={key}
+              aria-hidden="true"
+              data-icon={key}
+              data-shown={state === key}
+              className={cn(
+                "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
+                state === key
+                  ? "scale-100 opacity-100 blur-none"
+                  : "scale-25 opacity-0 blur-[4px]",
+              )}
+            />
+          ))}
+        </span>
       </Button>
       <output aria-live="polite" className="sr-only">
         {message}

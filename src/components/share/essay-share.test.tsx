@@ -202,7 +202,7 @@ describe("EssayShare", () => {
 
     await userEvent.click(storyItem());
     const ready = await screen.findByRole("menuitem", {
-      name: /story image ready/i,
+      name: "Story ready. Share it",
     });
     expect(screen.getByRole("menu")).toBeInTheDocument();
     await userEvent.click(ready);
@@ -223,9 +223,9 @@ describe("EssayShare", () => {
 
     fireEvent.click(storyItem());
     const retry = await screen.findByRole("menuitem", {
-      name: /couldn't make the story image/i,
+      name: "Couldn't make the story. Try again",
     });
-    expect(screen.getByText("Couldn't make the story image.")).toHaveAttribute(
+    expect(screen.getByText("Couldn't make the story.")).toHaveAttribute(
       "aria-live",
       "polite",
     );

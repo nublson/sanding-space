@@ -164,7 +164,7 @@ export function EssayShare({
         </MenuPopup>
       </Menu>
       <output aria-live="polite" className="sr-only">
-        {story.state === "error" ? "Couldn't make the story image." : ""}
+        {story.state === "error" ? "Couldn't make the story." : ""}
       </output>
     </div>
   );

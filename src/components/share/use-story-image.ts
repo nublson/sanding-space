@@ -8,9 +8,9 @@ type State = "idle" | "loading" | "ready" | "error";
 // after a failure show it too).
 const LABELS: Record<State, string> = {
   idle: "Share story",
-  loading: "Preparing the story image",
-  ready: "Story image ready. Share it",
-  error: "Couldn't make the story image. Try again",
+  loading: "Preparing the story",
+  ready: "Story ready. Share it",
+  error: "Couldn't make the story. Try again",
 };
 
 function download(file: File) {
