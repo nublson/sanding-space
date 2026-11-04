@@ -146,6 +146,18 @@ describe("EssayShare", () => {
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   });
 
+  it("keeps the story icons mounted and shows one, for the cross-fade", async () => {
+    renderShare();
+    await openMenu();
+    const icons = storyItem().querySelectorAll("[data-icon]");
+    expect(icons).toHaveLength(3);
+    expect(
+      [...icons]
+        .filter((icon) => icon.getAttribute("data-shown") === "true")
+        .map((icon) => icon.getAttribute("data-icon")),
+    ).toEqual(["idle"]);
+  });
+
   it("names the story item Share story", async () => {
     renderShare();
     await openMenu();

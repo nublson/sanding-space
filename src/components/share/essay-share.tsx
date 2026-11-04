@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/menu";
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
 import { agentPrompt, openInLinks } from "@/lib/share";
+import { cn } from "@/lib/utils";
 import { ClaudeIcon, CursorIcon, OpenAIIcon } from "./brand-icons";
 import { CopyButton } from "./copy-button";
 import { useStoryImage } from "./use-story-image";
@@ -156,16 +157,34 @@ export function EssayShare({
               aria-busy={story.state === "loading"}
               onClick={shareStory}
             >
-              {story.state === "loading" ? (
-                <LoaderCircle
-                  aria-hidden="true"
-                  className="motion-safe:animate-spin"
-                />
-              ) : story.state === "error" ? (
-                <RotateCw aria-hidden="true" />
-              ) : (
-                <Smartphone aria-hidden="true" />
-              )}
+              {/* All three stay mounted in one cell, so the swap cross-fades. */}
+              <span className="grid">
+                {(
+                  [
+                    [
+                      "idle",
+                      Smartphone,
+                      story.state === "idle" || story.state === "ready",
+                    ],
+                    ["loading", LoaderCircle, story.state === "loading"],
+                    ["error", RotateCw, story.state === "error"],
+                  ] as const
+                ).map(([key, Glyph, shown]) => (
+                  <Glyph
+                    key={key}
+                    aria-hidden="true"
+                    data-icon={key}
+                    data-shown={shown}
+                    className={cn(
+                      "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
+                      key === "loading" && "motion-safe:animate-spin",
+                      shown
+                        ? "scale-100 opacity-100 blur-none"
+                        : "scale-25 opacity-0 blur-[4px]",
+                    )}
+                  />
+                ))}
+              </span>
               {story.label}
             </MenuItem>
             {canShareLink && (
