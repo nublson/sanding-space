@@ -46,7 +46,7 @@ Next.js (App Router, RSC), TypeScript, Tailwind CSS v4 + shadcn/ui tokens (token
 | `/embed.js` | Auto-height helper script |
 | `/opengraph-image`, `/<slug>/opengraph-image` (essays, Introduction, About, Resources), `/sections/<slug>/opengraph-image`, `/demos/<name>/opengraph-image` | Generated Open Graph cards (`src/lib/og/image.tsx`) |
 | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
-| `/llms.txt`, `/api/markdown/<path>`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Agent surfaces (`src/lib/agents/`): any page as Markdown on `Accept: text/markdown` (rewrite in `next.config.ts`), MCP and A2A servers, discovery manifests |
+| `/llms.txt`, `/api/markdown/<path>`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Agent surfaces (`src/lib/agents/`): any page as Markdown on `Accept: text/markdown` (rewrite in `next.config.ts`; an essay's Markdown leads with its `Apply` brief, a Notion property never rendered on the site), MCP and A2A servers, discovery manifests |
 
 Reserved essay slugs: `demos`, `sections`, `api`, `about`, `resources`, `introduction`, `rss`, `og`, `embed.js`, `sitemap.xml`, `robots.txt`, `opengraph-image`, `favicon.ico`, `icon0.svg`, `icon1`, `icon2`, `apple-icon`, `manifest.webmanifest`, `llms.txt`, `auth.md`, `openapi.json`, `.well-known`. Add every new top-level route to this list (here and in the build checks).
 
@@ -56,7 +56,7 @@ Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not de
 
 - **Sidebar** (same component on every size): wordmark (links to `/introduction`), the fixed **Introduction** item, then sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), Resources and About (Resources above) + mute button in the footer. The current item comes from the URL.
 - **Introduction** (`/introduction`, the default page): laid out like a section page, the Notion page’s title as the heading and its body below. **Section page**: full intro, its first essay by Order as a large card (Soon included: dashed, unfilled stage with a "Soon" label and the static thumbnail dimmed if the demo has one, muted text, not a link), the rest in a 3-column card grid. The label sits in the aria-hidden stage; the title carries a screen-reader-only "(coming soon)".
-- **Essay**: section eyebrow, title, large demo stage with caption, then the body.
+- **Essay**: section eyebrow (with the share row at its end: Copy as Markdown, Copy link, Share menu), title, large demo stage with caption, then the body.
 - **Resources** (`/resources`): heading, the one-line intro, then each category (in the order of the Category property's options) as a heading over one row per resource: favicon, name, description, the row linking out in a new tab. Resources sort by Order within their category. The per-essay References block is out of the first milestone.
 - **Mobile**: same header with a sidebar toggle before the logo; the sidebar pushes the content right (no overlay).
 - Demo frame is **stage + caption only**; Replay / Copy link / Embed / Open are deferred.

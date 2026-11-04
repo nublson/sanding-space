@@ -94,6 +94,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 | Order | number | Order within its section |
 | Summary | text | Card text and meta description |
 | Cover demo | text | A demo name (e.g. `button-press-scale`) rendered live, scaled down, as the index card thumbnail |
+| Apply | text | Optional. The essay distilled into rules for an AI coding agent, written as Markdown-ish plain text (`- ` lists, backtick code). Never rendered on the site; leads the essay's Markdown under "Apply this to your code" (decided) |
 | Tags | multi-select | Cross-cutting topics: `Accessibility`, `Performance` |
 | Published | date | |
 | Updated | last edited time | Automatic |
@@ -143,7 +144,7 @@ The references block at the end of each essay (the resources an essay draws from
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
 | Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays, sections, the Introduction, About and Resources have their own, the root one is the fallback |
 | Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
-| Agent surfaces | `/llms.txt`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Any page as Markdown on `Accept: text/markdown`; MCP and A2A servers; discovery manifests (`src/lib/agents/`) |
+| Agent surfaces | `/llms.txt`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Any page as Markdown on `Accept: text/markdown` (essays lead with their Apply brief); MCP and A2A servers; discovery manifests (`src/lib/agents/`) |
 | oEmbed | `/api/oembed` | |
 | Embed helper | `/embed.js` | Auto-height script |
 
@@ -360,7 +361,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 
 ### 9.4 Essay `/<slug>`
 
-- Section name as a small eyebrow above the title.
+- Section name as a small eyebrow above the title; at the end of its row, three icon buttons: **Copy as Markdown** (the essay's Markdown, Apply brief first), **Copy link**, and **Share**, a menu with *Open in Claude / ChatGPT / Cursor* (a prefilled prompt pointing at the essay URL), *Share story image* (the 9:16 PNG, files only) and *Share link…* (the native sheet, where it exists) (decided 2026-11-04).
 - A large demo stage (the first demo in the body, or the `Cover demo`) with its caption centered below.
 - Essay body below a hairline; inline demos use the same stage + caption frame (§6.9), without actions.
 
