@@ -18,7 +18,8 @@ A reader should be able to hand an essay to their AI agent and have the agent ap
 
 - Type: rich text, on the Essays data source (`NOTION_ESSAYS_DATA_SOURCE_ID`). Optional.
 - Authoring convention: Markdown-ish plain text. A property cell has only inline formatting, so lists are lines starting with `- `, code is in backticks, and blank lines separate groups. The text is passed through as written; Notion's inline bold, code and link annotations are ignored (plain text only), so the convention is the whole format.
-- Notion splits long rich text into chunks of up to 2,000 characters; the parser joins every chunk, so there is no practical length cap. If the page object truncates the property (Notion returns at most 100 rich-text items inline), the parser reads it in full through the page-property endpoint.
+- Notion splits long rich text into chunks of up to 2,000 characters; the parser joins every chunk. Notion returns up to 100 items inline, so a plain-text cell reads in full up to about 200,000 characters without an extra page-property call.
+- Heading lines in the brief (`# ` or `## `) are demoted to `###`, so the page title stays the only `#` and the brief opens no section that competes with `## Essay`.
 - Suggested shape, not enforced:
 
   ```
@@ -67,7 +68,7 @@ The single share icon at the right of the eyebrow row (`src/app/(site)/[slug]/pa
 
 1. **Open in Claude**: `https://claude.ai/new?q=<prompt>`
 2. **Open in ChatGPT**: `https://chatgpt.com/?q=<prompt>`
-3. **Open in Cursor**: Cursor's prompt deep link with `<prompt>`. Verify its current URL format before building; drop the item if Cursor has no stable web-openable form.
+3. **Open in Cursor**: `https://cursor.com/link/prompt?text=<prompt>`, Cursor's documented web deeplink (the prompt is prefilled for review, never run automatically).
 4. Separator
 5. **Share story image**: today's `ShareStory` behavior (files only, so Instagram stays in the iOS sheet; download where files can't be shared; prefetch on menu open)
 6. **Share link…**: `navigator.share({ title, url })`; rendered only where `navigator.share` exists
