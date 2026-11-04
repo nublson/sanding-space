@@ -148,6 +148,17 @@ describe("essayMarkdown Apply brief", () => {
     expect(md.match(/^# /gm)).toHaveLength(1);
   });
 
+  it("leaves the brief out with apply: false, the page as a reader copies it", () => {
+    const md = essayMarkdown({
+      essay: essay({ apply: "- Scale to 0.97." }),
+      section: section([]),
+      blocks: [para("Hello.")],
+      pageHref: () => null,
+      apply: false,
+    });
+    expect(md).toBe(render(null));
+  });
+
   it("demotes headings inside the brief", () => {
     const md = render("# Rules\n## Look for\n### Fine");
     for (const line of ["### Rules", "### Look for", "### Fine"])

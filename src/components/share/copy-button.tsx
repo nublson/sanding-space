@@ -13,26 +13,10 @@ type State = "idle" | "copied" | "error";
 const FEEDBACK_MS = 1500;
 
 /**
- * An icon button that copies `source()` and says so: a check and "Copied",
- * or a retry arrow when it failed, both announced and gone after 1.5 s.
+ * Copies `source()` on `copy` and holds the outcome ("copied" or "error")
+ * for 1.5 s; a second copy within the window restarts it.
  */
-export function CopyButton({
-  label,
-  copiedLabel = "Copied",
-  failedLabel,
-  icon: Icon,
-  source,
-  onPrefetch,
-  className,
-}: {
-  label: string;
-  copiedLabel?: string;
-  failedLabel: string;
-  icon: LucideIcon;
-  source: () => string | Promise<string>;
-  onPrefetch?: () => void;
-  className?: string;
-}) {
+export function useCopy(source: () => string | Promise<string>) {
   const [state, setState] = useState<State>("idle");
   // Counts finished presses, so a second press within the window restarts
   // the feedback even when the state itself doesn't change.
@@ -56,6 +40,72 @@ export function CopyButton({
     setPresses((n) => n + 1);
   }
 
+  /** Back to idle at once, e.g. when the copy's menu closes. */
+  function reset() {
+    setState("idle");
+  }
+
+  return { state, copies: presses, copy, reset };
+}
+
+/** The idle icon, a check or a retry arrow, by the copy's state. */
+export function CopyIcon({
+  icon: Icon,
+  state,
+}: {
+  icon: LucideIcon;
+  state: State;
+}) {
+  return (
+    // All three stay mounted in one cell, so the swap cross-fades.
+    <span className="grid">
+      {(
+        [
+          ["idle", Icon],
+          ["copied", Check],
+          ["error", RotateCw],
+        ] as const
+      ).map(([key, Glyph]) => (
+        <Glyph
+          key={key}
+          aria-hidden="true"
+          data-icon={key}
+          data-shown={state === key}
+          className={cn(
+            "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
+            state === key
+              ? "scale-100 opacity-100 blur-none"
+              : "scale-25 opacity-0 blur-[4px]",
+          )}
+        />
+      ))}
+    </span>
+  );
+}
+
+/**
+ * An icon button that copies `source()` and says so: a check and "Copied",
+ * or a retry arrow when it failed, both announced and gone after 1.5 s.
+ */
+export function CopyButton({
+  label,
+  copiedLabel = "Copied",
+  failedLabel,
+  icon: Icon,
+  source,
+  onPrefetch,
+  className,
+}: {
+  label: string;
+  copiedLabel?: string;
+  failedLabel: string;
+  icon: LucideIcon;
+  source: () => string | Promise<string>;
+  onPrefetch?: () => void;
+  className?: string;
+}) {
+  const { state, copy } = useCopy(source);
+
   const message =
     state === "copied" ? copiedLabel : state === "error" ? failedLabel : "";
 
@@ -71,29 +121,7 @@ export function CopyButton({
           onClick={copy}
           className={className}
         >
-          {/* All three stay mounted in one cell, so the swap cross-fades. */}
-          <span className="grid">
-            {(
-              [
-                ["idle", Icon],
-                ["copied", Check],
-                ["error", RotateCw],
-              ] as const
-            ).map(([key, Glyph]) => (
-              <Glyph
-                key={key}
-                aria-hidden="true"
-                data-icon={key}
-                data-shown={state === key}
-                className={cn(
-                  "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
-                  state === key
-                    ? "scale-100 opacity-100 blur-none"
-                    : "scale-25 opacity-0 blur-[4px]",
-                )}
-              />
-            ))}
-          </span>
+          <CopyIcon icon={Icon} state={state} />
         </Button>
       </Tooltip>
       <output aria-live="polite" className="sr-only">

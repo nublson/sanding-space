@@ -23,13 +23,25 @@ const REFUSES_MARKDOWN = [
   },
 ];
 
+/** The same pages at their URL plus `.md` (`/button-press.md`), whatever the Accept header; `/auth.md` is its own route. */
+const MD_SOURCES = [
+  { source: "/:slug((?!auth\\.md$)[^/.]+).md", path: ":slug" },
+  { source: "/sections/:slug([^/.]+).md", path: "sections/:slug" },
+] as const;
+
 export function markdownRewrites() {
-  return PAGE_SOURCES.map(({ source, path }) => ({
-    source,
-    has: ACCEPTS_MARKDOWN,
-    missing: REFUSES_MARKDOWN,
-    destination: `/api/markdown/${path}`,
-  }));
+  return [
+    ...PAGE_SOURCES.map(({ source, path }) => ({
+      source,
+      has: ACCEPTS_MARKDOWN,
+      missing: REFUSES_MARKDOWN,
+      destination: `/api/markdown/${path}`,
+    })),
+    ...MD_SOURCES.map(({ source, path }) => ({
+      source,
+      destination: `/api/markdown/${path}`,
+    })),
+  ];
 }
 
 /** RFC 8288 links every response carries: the API catalog (RFC 9727), llms.txt and the sitemap. */

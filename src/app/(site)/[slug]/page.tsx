@@ -140,7 +140,7 @@ async function EssayContent({ params }: Props) {
             slug={essay.slug}
             title={essay.title}
             url={absoluteUrl(`/${essay.slug}`)}
-            hasApply={essay.apply !== null}
+            apply={essay.apply}
           />
         </div>
         <div className="flex flex-col gap-3">

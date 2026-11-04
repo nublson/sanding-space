@@ -8,7 +8,7 @@ async function rewrites() {
 }
 
 test("pages rewrite to the Markdown route only when Markdown is accepted", async () => {
-  const rules = await rewrites();
+  const rules = (await rewrites()).filter((rule) => rule.has);
   expect(rules).toEqual([
     expect.objectContaining({
       source: "/:slug([^/.]+)",
@@ -44,6 +44,20 @@ test("pages rewrite to the Markdown route only when Markdown is accepted", async
       false,
     );
   }
+});
+
+test("every page also answers as Markdown at its URL plus .md", async () => {
+  const rules = (await rewrites()).filter((rule) => !rule.has);
+  expect(rules).toEqual([
+    {
+      source: "/:slug((?!auth\\.md$)[^/.]+).md",
+      destination: "/api/markdown/:slug",
+    },
+    {
+      source: "/sections/:slug([^/.]+).md",
+      destination: "/api/markdown/sections/:slug",
+    },
+  ]);
 });
 
 test("every response links the API catalog; pages also link their Markdown", async () => {
