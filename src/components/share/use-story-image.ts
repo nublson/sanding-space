@@ -7,7 +7,7 @@ type State = "idle" | "loading" | "ready" | "error";
 // The name carries the state (a spinner while it prepares, a retry arrow
 // after a failure show it too).
 const LABELS: Record<State, string> = {
-  idle: "Share story image",
+  idle: "Share story",
   loading: "Preparing the story image",
   ready: "Story image ready. Share it",
   error: "Couldn't make the story image. Try again",

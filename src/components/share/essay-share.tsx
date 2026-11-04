@@ -1,14 +1,13 @@
 "use client";
 
 import {
-  ExternalLink,
   FileText,
-  Image,
   Link,
   LoaderCircle,
   RotateCw,
   Share,
   Share2,
+  Smartphone,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,10 +20,17 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { agentPrompt, openInLinks } from "@/lib/share";
+import { ClaudeIcon, CursorIcon, OpenAIIcon } from "./brand-icons";
 import { CopyButton } from "./copy-button";
 import { useStoryImage } from "./use-story-image";
 
 const button = "text-subtle-foreground pointer-coarse:size-11";
+
+const BRAND_ICONS = {
+  Claude: ClaudeIcon,
+  ChatGPT: OpenAIIcon,
+  Cursor: CursorIcon,
+} as const;
 
 /**
  * The essay header's share row: copy the essay as Markdown (which leads with
@@ -111,21 +117,25 @@ export function EssayShare({
             <Button data-sound="tap" aria-label="Share" className={button} />
           }
         >
-          <Share aria-hidden="true" />
+          <Share2 aria-hidden="true" />
         </MenuTrigger>
         <MenuPopup>
-          {openInLinks(agentPrompt(url, hasApply)).map((link) => (
-            <MenuLinkItem
-              key={link.name}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-sound="tap"
-            >
-              <ExternalLink aria-hidden="true" />
-              Open in {link.name}
-            </MenuLinkItem>
-          ))}
+          {openInLinks(agentPrompt(url, hasApply)).map((link) => {
+            const Icon = BRAND_ICONS[link.name];
+            return (
+              <MenuLinkItem
+                key={link.name}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-sound="tap"
+              >
+                <Icon />
+                Open in {link.name}{" "}
+                <span className="sr-only">(opens in a new tab)</span>
+              </MenuLinkItem>
+            );
+          })}
           <MenuSeparator />
           <MenuItem
             closeOnClick={false}
@@ -141,13 +151,13 @@ export function EssayShare({
             ) : story.state === "error" ? (
               <RotateCw aria-hidden="true" />
             ) : (
-              <Image aria-hidden="true" />
+              <Smartphone aria-hidden="true" />
             )}
             {story.label}
           </MenuItem>
           {canShareLink && (
             <MenuItem data-sound="tap" onClick={shareLink}>
-              <Share2 aria-hidden="true" />
+              <Share aria-hidden="true" />
               Share link…
             </MenuItem>
           )}

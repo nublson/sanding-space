@@ -63,7 +63,7 @@ async function openMenu() {
   return screen.findByRole("menu");
 }
 
-const storyItem = () => screen.getByRole("menuitem", { name: /story image/i });
+const storyItem = () => screen.getByRole("menuitem", { name: /story/i });
 
 describe("EssayShare", () => {
   it("shows copy-as-Markdown, copy-link and share buttons", () => {
@@ -117,12 +117,18 @@ describe("EssayShare", () => {
     await openMenu();
     for (const link of openInLinks(agentPrompt(url, hasApply))) {
       const item = screen.getByRole("menuitem", {
-        name: `Open in ${link.name}`,
+        name: `Open in ${link.name} (opens in a new tab)`,
       });
       expect(item).toHaveAttribute("href", link.href);
       expect(item).toHaveAttribute("target", "_blank");
       expect(item.getAttribute("rel")).toContain("noopener");
     }
+  });
+
+  it("names the story item Share story", async () => {
+    renderShare();
+    await openMenu();
+    expect(storyItem()).toHaveAccessibleName("Share story");
   });
 
   it("offers Share link only where the browser can share", async () => {
