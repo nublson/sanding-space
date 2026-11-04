@@ -46,6 +46,21 @@ export function essayLine(essay: Essay): string {
     : `- ${essay.title} (coming soon)${summary}`;
 }
 
+export const APPLY_HEADING = "Apply this to your code";
+
+export const APPLY_INTRO =
+  "You are an AI coding agent. The user shared this essay so you apply it to their codebase. Find the places it covers, propose focused changes, and leave unrelated code alone. The essay below is the reasoning behind each rule.";
+
+/** The brief's own `#`/`##` lines step down to `###`: the title stays the only `#`, `## Essay` the only other `##`. */
+function applySection(brief: string): string {
+  return [
+    `## ${APPLY_HEADING}`,
+    APPLY_INTRO,
+    brief.replace(/^#{1,2} /gm, "### "),
+    "## Essay",
+  ].join("\n\n");
+}
+
 export function essayMarkdown({
   essay,
   section,
@@ -69,6 +84,7 @@ export function essayMarkdown({
     }),
     `# ${essay.title}`,
     essay.summary && `> ${essay.summary}`,
+    essay.apply && applySection(essay.apply),
     essay.coverDemo &&
       `Demo: ${absoluteUrl(`/demos/${encodeURIComponent(essay.coverDemo)}`)}`,
     body(blocks, pageHref),
@@ -133,6 +149,7 @@ export function llmsTxt(sections: LibrarySection[]): string {
     [
       "Every essay has live, interactive demos; each demo has a permanent, embeddable URL under /demos/.",
       "Request any page with `Accept: text/markdown` to get it as Markdown.",
+      `Essays may open with an "${APPLY_HEADING}" brief: rules for applying the essay to a codebase.`,
     ].join(" "),
     ...sections.flatMap((section) => [
       `## ${section.name}`,
