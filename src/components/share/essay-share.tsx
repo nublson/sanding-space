@@ -80,12 +80,17 @@ export function EssayShare({
     if ((await story.share()) === "done") setOpen(false);
   }
 
+  // Like the story: the menu stays open behind the sheet and closes once
+  // it settles (shared or dismissed). Safari refusing a late tap keeps it
+  // open, so the next tap can share.
   async function shareLink() {
     try {
       await navigator.share({ title, url });
-    } catch {
-      // Dismissed, or refused: nothing to undo.
+    } catch (error) {
+      if ((error as { name?: string } | null)?.name === "NotAllowedError")
+        return;
     }
+    setOpen(false);
   }
 
   return (
@@ -164,7 +169,11 @@ export function EssayShare({
               {story.label}
             </MenuItem>
             {canShareLink && (
-              <MenuItem data-sound="tap" onClick={shareLink}>
+              <MenuItem
+                closeOnClick={false}
+                data-sound="tap"
+                onClick={shareLink}
+              >
                 <Share aria-hidden="true" />
                 Share…
               </MenuItem>

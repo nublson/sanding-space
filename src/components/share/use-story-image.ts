@@ -62,6 +62,8 @@ export function useStoryImage(slug: string) {
       setState("error");
       return "error";
     }
+    // The image is in hand: no "Preparing…" behind the open share sheet.
+    setState("idle");
     try {
       // Files only: a url or text drops Instagram from the iOS share sheet.
       if (navigator.share && navigator.canShare?.({ files: [image] }))

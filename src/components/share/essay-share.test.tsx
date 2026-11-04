@@ -167,6 +167,50 @@ describe("EssayShare", () => {
     expect(share).toHaveBeenCalledWith({ title: "Button Press", url });
   });
 
+  it.each([
+    ["shared", undefined],
+    ["dismissed", new DOMException("closed", "AbortError")],
+  ])("keeps the menu open while the share sheet is up, then closes it (%s)", async (_, outcome) => {
+    let settle: () => void = () => {};
+    const share = vi.fn(
+      () =>
+        new Promise<void>((resolve, reject) => {
+          settle = () => (outcome ? reject(outcome) : resolve());
+        }),
+    );
+    setNavigator(share);
+    renderShare();
+    await openMenu();
+
+    await userEvent.click(screen.getByRole("menuitem", { name: "Share…" }));
+    expect(share).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    settle();
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+  });
+
+  it("drops Preparing the story once the share sheet is up", async () => {
+    let finish: () => void = () => {};
+    const share = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    setNavigator(share);
+    renderShare();
+    await openMenu();
+
+    await userEvent.click(storyItem());
+    await waitFor(() => expect(share).toHaveBeenCalledTimes(1));
+    expect(storyItem()).toHaveAccessibleName("Share story");
+    expect(storyItem()).not.toHaveAttribute("aria-busy", "true");
+
+    finish();
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+  });
+
   it("shares the story PNG and closes the menu", async () => {
     const share = vi.fn().mockResolvedValue(undefined);
     setNavigator(share);
