@@ -361,7 +361,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 
 ### 9.4 Essay `/<slug>`
 
-- Section name as a small eyebrow above the title; at the end of its row, three icon buttons: **Copy as Markdown** (the essay's Markdown, Apply brief first), **Copy link**, and **Share**, a menu with *Open in Claude / ChatGPT / Cursor* (each with its brand mark in `currentColor`; a prefilled prompt pointing at the essay URL), *Share story* (the 9:16 PNG, files only) and *Share link…* (the native sheet, where it exists) (decided 2026-11-04).
+- Section name as a small eyebrow above the title; at the end of its row, three icon buttons: **Copy as Markdown** (the essay's Markdown, Apply brief first), **Copy link**, and **Share**, a menu with *Open in Claude / ChatGPT / Cursor* (each with its brand mark in `currentColor`; a prefilled prompt pointing at the essay URL), *Share story* (the 9:16 PNG, files only) and *Share…* (the system share sheet with title and URL, shown only where the browser has one) (decided 2026-11-04).
 - A large demo stage (the first demo in the body, or the `Cover demo`) with its caption centered below.
 - Essay body below a hairline; inline demos use the same stage + caption frame (§6.9), without actions.
 

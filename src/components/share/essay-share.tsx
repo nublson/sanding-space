@@ -158,7 +158,7 @@ export function EssayShare({
           {canShareLink && (
             <MenuItem data-sound="tap" onClick={shareLink}>
               <Share aria-hidden="true" />
-              Share link…
+              Share…
             </MenuItem>
           )}
         </MenuPopup>

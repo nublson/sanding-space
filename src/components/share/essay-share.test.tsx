@@ -140,10 +140,10 @@ describe("EssayShare", () => {
     expect(storyItem()).toHaveAccessibleName("Share story");
   });
 
-  it("offers Share link only where the browser can share", async () => {
+  it("offers Share… only where the browser can share", async () => {
     renderShare();
     await openMenu();
-    expect(screen.queryByRole("menuitem", { name: /share link/i })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Share…" })).toBeNull();
   });
 
   it("shares the title and URL through the share sheet", async () => {
@@ -152,7 +152,7 @@ describe("EssayShare", () => {
     renderShare();
     await openMenu();
     await userEvent.click(
-      screen.getByRole("menuitem", { name: /share link/i }),
+      screen.getByRole("menuitem", { name: "Share…" }),
     );
     expect(share).toHaveBeenCalledWith({ title: "Button Press", url });
   });

@@ -73,7 +73,7 @@ Each "Open in…" item shows its brand mark (Claude, OpenAI, Cursor; Simple Icon
 3. **Open in Cursor**: `https://cursor.com/link/prompt?text=<prompt>`, Cursor's documented web deeplink (the prompt is prefilled for review, never run automatically).
 4. Separator
 5. **Share story** (`Smartphone` icon): today's `ShareStory` behavior (files only, so Instagram stays in the iOS sheet; download where files can't be shared; prefetch on menu open)
-6. **Share link…**: `navigator.share({ title, url })`; rendered only where `navigator.share` exists
+6. **Share…** (`Share` icon): `navigator.share({ title, url })`; rendered only where `navigator.share` exists
 
 "Open in…" items are links that open in a new tab (`target="_blank" rel="noopener"`). The prompt, URL-encoded:
 
@@ -96,7 +96,7 @@ The popup is anchored to the trigger, aligned to the end edge, and collision-avo
 | Clipboard blocked or missing | Retry state and "Couldn't copy"; Copy link tries the `execCommand` fallback first |
 | Markdown fetch fails | Retry state; next press refetches |
 | Story image fails | Item shows the retry state as today; menu stays usable |
-| No `navigator.share` | "Share link…" not rendered; story image downloads |
+| No `navigator.share` | "Share…" not rendered; story image downloads |
 | Soon essays | No page, so no buttons |
 | Preview essays | Same as Published wherever they render |
 | Draft mode | Unchanged; the Markdown endpoint already follows draft mode |
@@ -107,7 +107,7 @@ Vitest, alongside the existing tests:
 
 - `parse.test.ts`: reads `Apply`; joins multi-chunk rich text; empty and missing → `null`.
 - `markdown.test.ts`: with a brief, the sections appear between the summary and the body in the order above; without one, output equals today's snapshot.
-- `essay-share.test.tsx`: Copy link writes the URL; Copy as Markdown writes the fetched body; Copied and retry states and their announcements; "Open in…" hrefs carry the encoded prompt for both brief and no-brief essays; "Share link…" hidden without `navigator.share`.
+- `essay-share.test.tsx`: Copy link writes the URL; Copy as Markdown writes the fetched body; Copied and retry states and their announcements; "Open in…" hrefs carry the encoded prompt for both brief and no-brief essays; "Share…" hidden without `navigator.share`.
 - `share-story.test.tsx` moved and updated for the hook and menu item.
 - Manual: Safari iOS copy from a cold tap, keyboard-only menu (open, arrow, Enter, Escape returns focus to the trigger), Lighthouse accessibility 100 on an essay page.
 
