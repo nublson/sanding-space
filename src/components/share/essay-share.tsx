@@ -19,6 +19,7 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
 import { agentPrompt, openInLinks } from "@/lib/share";
 import { ClaudeIcon, CursorIcon, OpenAIIcon } from "./brand-icons";
 import { CopyButton } from "./copy-button";
@@ -89,83 +90,91 @@ export function EssayShare({
 
   return (
     // The last icon, not its hit area, lines up with the column's edge.
-    <div className="-mr-2 pointer-coarse:-mr-3.5 flex items-center">
-      <CopyButton
-        label="Copy as Markdown"
-        failedLabel="Couldn't copy the Markdown. Try again"
-        icon={FileText}
-        source={loadMarkdown}
-        onPrefetch={prefetchMarkdown}
-        className={button}
-      />
-      <CopyButton
-        label="Copy link"
-        failedLabel="Couldn't copy the link. Try again"
-        icon={Link}
-        source={() => url}
-        className={button}
-      />
-      <Menu
-        open={open}
-        onOpenChange={(next) => {
-          setOpen(next);
-          if (next) story.prefetch();
-        }}
-      >
-        <MenuTrigger
-          render={
-            <Button data-sound="tap" aria-label="Share" className={button} />
-          }
+    <TooltipProvider>
+      <div className="-mr-2 pointer-coarse:-mr-3.5 flex items-center">
+        <CopyButton
+          label="Copy as Markdown"
+          failedLabel="Couldn't copy the Markdown. Try again"
+          icon={FileText}
+          source={loadMarkdown}
+          onPrefetch={prefetchMarkdown}
+          className={button}
+        />
+        <CopyButton
+          label="Copy link"
+          failedLabel="Couldn't copy the link. Try again"
+          icon={Link}
+          source={() => url}
+          className={button}
+        />
+        <Menu
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next);
+            if (next) story.prefetch();
+          }}
         >
-          <Share2 aria-hidden="true" />
-        </MenuTrigger>
-        <MenuPopup>
-          {openInLinks(agentPrompt(url, hasApply)).map((link) => {
-            const Icon = BRAND_ICONS[link.name];
-            return (
-              <MenuLinkItem
-                key={link.name}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-sound="tap"
-              >
-                <Icon />
-                Open in {link.name}{" "}
-                <span className="sr-only">(opens in a new tab)</span>
-              </MenuLinkItem>
-            );
-          })}
-          <MenuSeparator />
-          <MenuItem
-            closeOnClick={false}
-            data-sound="tap"
-            aria-busy={story.state === "loading"}
-            onClick={shareStory}
-          >
-            {story.state === "loading" ? (
-              <LoaderCircle
-                aria-hidden="true"
-                className="motion-safe:animate-spin"
-              />
-            ) : story.state === "error" ? (
-              <RotateCw aria-hidden="true" />
-            ) : (
-              <Smartphone aria-hidden="true" />
-            )}
-            {story.label}
-          </MenuItem>
-          {canShareLink && (
-            <MenuItem data-sound="tap" onClick={shareLink}>
-              <Share aria-hidden="true" />
-              Share…
+          <Tooltip label="Share">
+            <MenuTrigger
+              render={
+                <Button
+                  data-sound="tap"
+                  aria-label="Share"
+                  className={button}
+                />
+              }
+            >
+              <Share2 aria-hidden="true" />
+            </MenuTrigger>
+          </Tooltip>
+          <MenuPopup>
+            {openInLinks(agentPrompt(url, hasApply)).map((link) => {
+              const Icon = BRAND_ICONS[link.name];
+              return (
+                <MenuLinkItem
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-sound="tap"
+                >
+                  <Icon />
+                  Open in {link.name}{" "}
+                  <span className="sr-only">(opens in a new tab)</span>
+                </MenuLinkItem>
+              );
+            })}
+            <MenuSeparator />
+            <MenuItem
+              closeOnClick={false}
+              data-sound="tap"
+              aria-busy={story.state === "loading"}
+              onClick={shareStory}
+            >
+              {story.state === "loading" ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="motion-safe:animate-spin"
+                />
+              ) : story.state === "error" ? (
+                <RotateCw aria-hidden="true" />
+              ) : (
+                <Smartphone aria-hidden="true" />
+              )}
+              {story.label}
             </MenuItem>
-          )}
-        </MenuPopup>
-      </Menu>
-      <output aria-live="polite" className="sr-only">
-        {story.state === "error" ? "Couldn't make the story." : ""}
-      </output>
-    </div>
+            {canShareLink && (
+              <MenuItem data-sound="tap" onClick={shareLink}>
+                <Share aria-hidden="true" />
+                Share…
+              </MenuItem>
+            )}
+          </MenuPopup>
+        </Menu>
+        <output aria-live="polite" className="sr-only">
+          {story.state === "error" ? "Couldn't make the story." : ""}
+        </output>
+      </div>
+    </TooltipProvider>
   );
 }

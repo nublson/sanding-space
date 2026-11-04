@@ -72,6 +72,18 @@ describe("EssayShare", () => {
       expect(screen.getByRole("button", { name })).toBeInTheDocument();
   });
 
+  it.each([
+    "Copy as Markdown",
+    "Copy link",
+    "Share",
+  ])("labels the %s button with a tooltip", async (name) => {
+    renderShare();
+    await userEvent.hover(screen.getByRole("button", { name }));
+    expect(
+      await screen.findByText(name, { selector: "[data-slot=tooltip]" }),
+    ).toBeInTheDocument();
+  });
+
   it("copies the essay URL", async () => {
     renderShare();
     await userEvent.click(screen.getByRole("button", { name: "Copy link" }));

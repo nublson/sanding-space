@@ -3,6 +3,7 @@
 import { Check, type LucideIcon, RotateCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { copyText } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 
@@ -55,39 +56,41 @@ export function CopyButton({
 
   return (
     <>
-      <Button
-        data-sound="tap"
-        aria-label={message || label}
-        onPointerEnter={onPrefetch}
-        onTouchStart={onPrefetch}
-        onFocus={onPrefetch}
-        onClick={copy}
-        className={className}
-      >
-        {/* All three stay mounted in one cell, so the swap cross-fades. */}
-        <span className="grid">
-          {(
-            [
-              ["idle", Icon],
-              ["copied", Check],
-              ["error", RotateCw],
-            ] as const
-          ).map(([key, Glyph]) => (
-            <Glyph
-              key={key}
-              aria-hidden="true"
-              data-icon={key}
-              data-shown={state === key}
-              className={cn(
-                "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
-                state === key
-                  ? "scale-100 opacity-100 blur-none"
-                  : "scale-25 opacity-0 blur-[4px]",
-              )}
-            />
-          ))}
-        </span>
-      </Button>
+      <Tooltip label={message || label}>
+        <Button
+          data-sound="tap"
+          aria-label={message || label}
+          onPointerEnter={onPrefetch}
+          onTouchStart={onPrefetch}
+          onFocus={onPrefetch}
+          onClick={copy}
+          className={className}
+        >
+          {/* All three stay mounted in one cell, so the swap cross-fades. */}
+          <span className="grid">
+            {(
+              [
+                ["idle", Icon],
+                ["copied", Check],
+                ["error", RotateCw],
+              ] as const
+            ).map(([key, Glyph]) => (
+              <Glyph
+                key={key}
+                aria-hidden="true"
+                data-icon={key}
+                data-shown={state === key}
+                className={cn(
+                  "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
+                  state === key
+                    ? "scale-100 opacity-100 blur-none"
+                    : "scale-25 opacity-0 blur-[4px]",
+                )}
+              />
+            ))}
+          </span>
+        </Button>
+      </Tooltip>
       <output aria-live="polite" className="sr-only">
         {message}
       </output>
