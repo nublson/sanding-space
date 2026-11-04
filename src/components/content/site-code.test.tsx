@@ -51,10 +51,13 @@ describe("SiteCode", () => {
     expect(pre).toHaveTextContent("const a = 1;");
   });
 
-  it("colors tokens through the theme's CSS variables", async () => {
+  it("colors tokens with the theme's colors", async () => {
     await renderCode('const a = "b";');
     const keyword = screen.getByText("const");
-    expect(keyword.style.color).toBe("var(--shiki-token-keyword)");
+    const string = screen.getByText('"b"');
+    expect(keyword.style.color).toMatch(/^rgb/);
+    expect(string.style.color).toMatch(/^rgb/);
+    expect(keyword.style.color).not.toBe(string.style.color);
   });
 
   it("puts each source line on its own line", async () => {

@@ -15,22 +15,24 @@ describe("shikiLanguage", () => {
 });
 
 describe("highlightCode", () => {
-  it("returns one line of tokens per line, colored by the theme's variables", async () => {
+  it("returns one line of tokens per line, in the theme's colors", async () => {
     const lines = await highlightCode('const a = "b";\n// note', "typescript");
     expect(lines).toHaveLength(2);
     expect(lines[0].map((t) => t.content).join("")).toBe('const a = "b";');
-    expect(lines[0][0]).toEqual({
-      content: "const",
-      color: "var(--shiki-token-keyword)",
-      italic: false,
-    });
-    expect(lines[1]).toEqual([
-      {
-        content: "// note",
-        color: "var(--shiki-token-comment)",
-        italic: false,
-      },
-    ]);
+    expect(lines[0][0].content).toBe("const");
+    expect(lines[0][0].color).toMatch(/^#[0-9a-f]{6,8}$/i);
+    expect(lines[1]).toHaveLength(1);
+    expect(lines[1][0].content).toBe("// note");
+    expect(lines[1][0].color).toMatch(/^#[0-9a-f]{6,8}$/i);
+  });
+
+  it("tells JSX tags and strings apart by color", async () => {
+    const [line] = await highlightCode('<b c="d" />', "typescript");
+    const color = (content: string) =>
+      line.find((t) => t.content.includes(content))?.color;
+    expect(color("b")).toBeTruthy();
+    expect(color('"d"')).toBeTruthy();
+    expect(color("b")).not.toBe(color('"d"'));
   });
 
   it("returns plain lines for a language it doesn't load", async () => {

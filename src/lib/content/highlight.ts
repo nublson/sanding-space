@@ -1,21 +1,18 @@
 import {
   type BundledLanguage,
-  createCssVariablesTheme,
   createHighlighter,
   type Highlighter,
 } from "shiki";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 
 /**
- * Server-side syntax highlighting for Notion code blocks. The theme colors
- * nothing itself: every token carries a `--shiki-*` variable, and
- * `globals.css` maps those to the site's grays, so code stays monochrome.
+ * Server-side syntax highlighting for Notion code blocks, in Vesper: mostly
+ * grays with a peach accent (tags, functions) and a mint one (strings), made
+ * for a near-black surface like the code card. Code is the one place in an
+ * essay's text that carries color; the chrome around it stays monochrome.
  */
 
-const THEME = createCssVariablesTheme({
-  name: "css-variables",
-  variablePrefix: "--shiki-",
-});
+const THEME = "vesper";
 
 // Notion's language name → the grammar we load. Notion has no TSX or JSX,
 // and essays write JSX in TypeScript and JavaScript blocks.
@@ -37,7 +34,7 @@ export function shikiLanguage(notionLanguage: string): BundledLanguage | null {
 
 export type CodeToken = {
   content: string;
-  /** A `var(--shiki-…)` color, or null for plain text. */
+  /** The theme's color for the token (hex), or null for plain text. */
   color: string | null;
   italic: boolean;
 };
@@ -73,7 +70,7 @@ export async function highlightCode(
       );
   const { tokens } = (await getHighlighter()).codeToTokens(code, {
     lang,
-    theme: THEME.name as string,
+    theme: THEME,
   });
   return tokens.map((line) =>
     line.map((token) => ({

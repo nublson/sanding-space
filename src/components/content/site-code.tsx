@@ -7,7 +7,7 @@ import { CopyCode } from "./copy-code";
  * A Notion code block, highlighted on the server (no client JavaScript but
  * the copy button). Same frame as notionic's: the language above, the code
  * in a focusable `pre` that scrolls sideways, the caption below. Colors come
- * from `--shiki-*` variables mapped to the site's grays in `globals.css`.
+ * from the Vesper theme (`src/lib/content/highlight.ts`).
  */
 export async function SiteCode({ block, context }: BlockProps<"code">) {
   const { language, rich_text, caption } = block.code;
@@ -28,7 +28,7 @@ export async function SiteCode({ block, context }: BlockProps<"code">) {
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a scroller needs focus to scroll by keyboard
         tabIndex={0}
         aria-label={`Code, ${name}`}
-        className="code-tokens overflow-x-auto px-4 py-3 font-mono text-[0.8125rem] leading-relaxed focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+        className="overflow-x-auto px-4 py-3 font-mono text-[0.8125rem] leading-relaxed focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
       >
         <code>
           {lines.map((line, i) => (
