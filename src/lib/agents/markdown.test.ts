@@ -48,6 +48,7 @@ const essay = (o: Partial<Essay> = {}): Essay => ({
   order: 1,
   sectionId: "s",
   coverDemo: "surface",
+  apply: null,
   tags: [],
   published: "2026-01-01",
   updated: "2026-02-01",

@@ -42,6 +42,7 @@ describe("parseEssay", () => {
       order: 1,
       sectionId: normalizePageId(section.id),
       coverDemo: "button-press-scale",
+      apply: "- Scale to 0.97.\n- Never below 0.95.",
       tags: ["Accessibility"],
       published: "2026-03-01",
       updated: "2026-03-04T10:00:00.000Z",
@@ -49,19 +50,37 @@ describe("parseEssay", () => {
     });
   });
 
-  it("handles missing section, cover demo, order and date", () => {
+  it("handles missing section, cover demo, brief, order and date", () => {
     const page = structuredClone(essay) as unknown as {
       properties: Record<string, Record<string, unknown>>;
     };
     page.properties.Section.relation = [];
     page.properties["Cover demo"].rich_text = [];
+    page.properties.Apply.rich_text = [];
     page.properties.Order.number = null;
     page.properties.Published.date = null;
     const parsed = parseEssay(page as unknown as PageObjectResponse);
     expect(parsed.sectionId).toBeNull();
     expect(parsed.coverDemo).toBeNull();
+    expect(parsed.apply).toBeNull();
     expect(parsed.order).toBe(Number.POSITIVE_INFINITY);
     expect(parsed.published).toBeNull();
+  });
+
+  it("treats a blank Apply as no brief", () => {
+    const page = structuredClone(essay) as unknown as {
+      properties: Record<string, { rich_text: { plain_text: string }[] }>;
+    };
+    page.properties.Apply.rich_text = [{ plain_text: " \n " }];
+    expect(parseEssay(page as unknown as PageObjectResponse).apply).toBeNull();
+  });
+
+  it("reads an essay without an Apply column", () => {
+    const page = structuredClone(essay) as unknown as {
+      properties: Record<string, unknown>;
+    };
+    delete page.properties.Apply;
+    expect(parseEssay(page as unknown as PageObjectResponse).apply).toBeNull();
   });
 });
 
