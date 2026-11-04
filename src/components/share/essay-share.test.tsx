@@ -141,6 +141,24 @@ describe("EssayShare", () => {
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   });
 
+  it("resets Copy to LLM when the menu closes, so a reopened menu stays open", async () => {
+    renderShare();
+    await openMenu();
+    await userEvent.click(
+      screen.getByRole("menuitem", { name: "Copy to LLM" }),
+    );
+    await screen.findByRole("menuitem", { name: "Copied" });
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+
+    await openMenu();
+    expect(
+      screen.getByRole("menuitem", { name: "Copy to LLM" }),
+    ).toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
   it("keeps the menu open and offers a retry when Copy to LLM fails", async () => {
     vi.mocked(copyText).mockRejectedValueOnce(new Error("denied"));
     renderShare();

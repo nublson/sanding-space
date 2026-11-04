@@ -40,7 +40,12 @@ export function useCopy(source: () => string | Promise<string>) {
     setPresses((n) => n + 1);
   }
 
-  return { state, copy };
+  /** Back to idle at once, e.g. when the copy's menu closes. */
+  function reset() {
+    setState("idle");
+  }
+
+  return { state, copies: presses, copy, reset };
 }
 
 /** The idle icon, a check or a retry arrow, by the copy's state. */

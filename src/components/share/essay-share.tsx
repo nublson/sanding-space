@@ -64,12 +64,14 @@ export function EssayShare({
     setCanShareLink(typeof navigator.share === "function");
   }, []);
 
-  // "Copied" shows for a beat, then the menu gets out of the way.
+  // "Copied" shows for a beat, then the menu gets out of the way. Each copy
+  // restarts the beat; closing the menu cancels it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `llm.copies` restarts the timer
   useEffect(() => {
-    if (llm.state !== "copied") return;
+    if (!open || llm.state !== "copied") return;
     const timer = setTimeout(() => setOpen(false), CLOSE_AFTER_COPY_MS);
     return () => clearTimeout(timer);
-  }, [llm.state]);
+  }, [open, llm.state, llm.copies]);
 
   // The page itself: without the Apply brief that leads it for agents.
   function loadMarkdown(): Promise<string> {
@@ -130,6 +132,8 @@ export function EssayShare({
           onOpenChange={(next) => {
             setOpen(next);
             if (next) story.prefetch();
+            // Reopened, the item reads "Copy to LLM" again.
+            else llm.reset();
           }}
         >
           <Tooltip label="Share">
