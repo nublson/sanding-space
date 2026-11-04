@@ -9,7 +9,7 @@ export function SiteDemoFrame({
 }: DemoFrameProps) {
   return (
     <figure className="m-0">
-      <DemoStage size="essay" height={essayStageHeight(name)}>
+      <DemoStage size="essay" height={essayStageHeight(name)} bleed>
         {children}
       </DemoStage>
       {caption.length > 0 && (
