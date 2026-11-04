@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { copyText } from "@/lib/clipboard";
-import { agentPrompt, openInLinks } from "@/lib/share";
+import { llmPrompt } from "@/lib/share";
 import { EssayShare } from "./essay-share";
 
 vi.mock("@/lib/clipboard", () => ({ copyText: vi.fn() }));
@@ -47,13 +47,15 @@ afterEach(() => {
   setNavigator(undefined);
 });
 
-function renderShare(hasApply = true) {
+const apply = "- Scale to 0.97.";
+
+function renderShare() {
   render(
     <EssayShare
       slug="button-press"
       title="Button Press"
       url={url}
-      hasApply={hasApply}
+      apply={apply}
     />,
   );
 }
@@ -90,14 +92,16 @@ describe("EssayShare", () => {
     expect(copyText).toHaveBeenCalledWith(url);
   });
 
-  it("copies the Markdown, fetched once across prefetch and press", async () => {
+  it("copies the page's Markdown, without the Apply brief, fetched once across prefetch and press", async () => {
     renderShare();
     const button = screen.getByRole("button", { name: "Copy as Markdown" });
     fireEvent.focus(button);
     await userEvent.click(button);
 
     expect(markdownFetch).toHaveBeenCalledTimes(1);
-    expect(markdownFetch).toHaveBeenCalledWith("/api/markdown/button-press");
+    expect(markdownFetch).toHaveBeenCalledWith(
+      "/api/markdown/button-press?apply=off",
+    );
     await expect(vi.mocked(copyText).mock.calls[0][0]).resolves.toBe(
       "# Button Press\n",
     );
@@ -121,29 +125,47 @@ describe("EssayShare", () => {
     await screen.findByRole("button", { name: "Copied" });
   });
 
-  it.each([
-    true,
-    false,
-  ])("links to Claude, ChatGPT and Cursor with the prompt (brief: %s)", async (hasApply) => {
-    renderShare(hasApply);
-    await openMenu();
-    for (const link of openInLinks(agentPrompt(url, hasApply))) {
-      const item = screen.getByRole("menuitem", {
-        name: `Open in ${link.name} (opens in a new tab)`,
-      });
-      expect(item).toHaveAttribute("href", link.href);
-      expect(item).toHaveAttribute("target", "_blank");
-      expect(item.getAttribute("rel")).toContain("noopener");
-    }
-  });
-
-  it("closes the menu after an Open in… pick", async () => {
+  it("copies a prompt pointing at the essay's Markdown, then closes the menu", async () => {
     renderShare();
     await openMenu();
-    const claude = screen.getByRole("menuitem", { name: /open in claude/i });
-    claude.addEventListener("click", (event) => event.preventDefault());
-    await userEvent.click(claude);
+    await userEvent.click(
+      screen.getByRole("menuitem", { name: "Copy to LLM" }),
+    );
+
+    expect(copyText).toHaveBeenCalledWith(
+      llmPrompt("Button Press", url, apply),
+    );
+    expect(
+      await screen.findByRole("menuitem", { name: "Copied" }),
+    ).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+  });
+
+  it("keeps the menu open and offers a retry when Copy to LLM fails", async () => {
+    vi.mocked(copyText).mockRejectedValueOnce(new Error("denied"));
+    renderShare();
+    await openMenu();
+    await userEvent.click(
+      screen.getByRole("menuitem", { name: "Copy to LLM" }),
+    );
+
+    expect(
+      await screen.findByRole("menuitem", { name: "Couldn't copy. Try again" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
+  it("separates Copy to LLM from the share items", async () => {
+    renderShare();
+    const menu = await openMenu();
+    const items = [...menu.querySelectorAll("[data-slot]")].map((el) =>
+      el.getAttribute("data-slot"),
+    );
+    expect(items.slice(0, 3)).toEqual([
+      "menu-item",
+      "menu-separator",
+      "menu-item",
+    ]);
   });
 
   it("keeps the story icons mounted and shows one, for the cross-fade", async () => {

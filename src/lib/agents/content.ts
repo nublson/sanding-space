@@ -50,8 +50,12 @@ const SLUG_PATH = /^[^/.]+$/;
 /**
  * A page as Markdown, by its path without the leading slash ("introduction",
  * "sections/motion", "button-press"); null when no such page exists.
+ * `apply: false` leaves out an essay's Apply brief.
  */
-export async function pageMarkdown(path: string): Promise<string | null> {
+export async function pageMarkdown(
+  path: string,
+  { apply = true }: { apply?: boolean } = {},
+): Promise<string | null> {
   const library = await getLibrary();
   const href = pageHref(library);
 
@@ -77,7 +81,7 @@ export async function pageMarkdown(path: string): Promise<string | null> {
   const entry = findPublishedEssay(library, path);
   if (!entry) return null;
   const blocks = await getBlocks(entry.essay.id);
-  return essayMarkdown({ ...entry, blocks, pageHref: href });
+  return essayMarkdown({ ...entry, blocks, pageHref: href, apply });
 }
 
 export function essayItems(library: Library): EssayItem[] {

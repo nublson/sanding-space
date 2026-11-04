@@ -61,16 +61,19 @@ function applySection(brief: string): string {
   ].join("\n\n");
 }
 
+/** `apply: false` leaves out the Apply brief: the page itself, as a reader copies it. */
 export function essayMarkdown({
   essay,
   section,
   blocks,
   pageHref,
+  apply = true,
 }: {
   essay: Essay;
   section: LibrarySection;
   blocks: NotionBlock[];
   pageHref: PageHref;
+  apply?: boolean;
 }): string {
   return join([
     frontMatter({
@@ -84,7 +87,7 @@ export function essayMarkdown({
     }),
     `# ${essay.title}`,
     essay.summary && `> ${essay.summary}`,
-    essay.apply && applySection(essay.apply),
+    apply && essay.apply && applySection(essay.apply),
     essay.coverDemo &&
       `Demo: ${absoluteUrl(`/demos/${encodeURIComponent(essay.coverDemo)}`)}`,
     body(blocks, pageHref),

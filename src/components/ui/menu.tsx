@@ -75,7 +75,7 @@ function MenuLinkItem({
   );
 }
 
-/** A gap between groups of items: space carries the grouping, a line would not show on the popup. */
+/** A hairline between groups of items. */
 function MenuSeparator({
   className,
   ...props
@@ -83,7 +83,7 @@ function MenuSeparator({
   return (
     <MenuPrimitive.Separator
       data-slot="menu-separator"
-      className={cn("h-2", className)}
+      className={cn("-mx-1 my-1 h-px bg-border", className)}
       {...props}
     />
   );

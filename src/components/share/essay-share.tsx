@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Copy,
   FileText,
   Link,
   LoaderCircle,
@@ -14,54 +15,65 @@ import { Button } from "@/components/ui/button";
 import {
   Menu,
   MenuItem,
-  MenuLinkItem,
   MenuPopup,
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
-import { agentPrompt, openInLinks } from "@/lib/share";
+import { llmPrompt } from "@/lib/share";
 import { cn } from "@/lib/utils";
-import { ClaudeIcon, CursorIcon, OpenAIIcon } from "./brand-icons";
-import { CopyButton } from "./copy-button";
+import { CopyButton, CopyIcon, useCopy } from "./copy-button";
 import { useStoryImage } from "./use-story-image";
 
 const button = "text-subtle-foreground pointer-coarse:size-11";
 
-const BRAND_ICONS = {
-  Claude: ClaudeIcon,
-  ChatGPT: OpenAIIcon,
-  Cursor: CursorIcon,
+/** How long "Copied" shows in the menu before it closes. */
+const CLOSE_AFTER_COPY_MS = 800;
+
+const LLM_LABELS = {
+  idle: "Copy to LLM",
+  copied: "Copied",
+  error: "Couldn't copy. Try again",
 } as const;
 
 /**
- * The essay header's share row: copy the essay as Markdown (which leads with
- * its Apply brief), copy its link, or share it: open it in an AI assistant,
- * as a story image, or through the share sheet.
+ * The essay header's share row: copy the essay as Markdown, copy its link,
+ * or share it: a prompt for an LLM (the essay's Markdown URL and its Apply
+ * brief), as a story image, or through the share sheet.
  */
 export function EssayShare({
   slug,
   title,
   url,
-  hasApply,
+  apply,
 }: {
   slug: string;
   title: string;
   url: string;
-  hasApply: boolean;
+  /** The essay's Apply brief, copied with the prompt. */
+  apply: string | null;
 }) {
   const [open, setOpen] = useState(false);
   // Known only after mount, so the server and first client render agree.
   const [canShareLink, setCanShareLink] = useState(false);
   const markdown = useRef<Promise<string> | null>(null);
   const story = useStoryImage(slug);
+  const llm = useCopy(() => llmPrompt(title, url, apply));
 
   useEffect(() => {
     setCanShareLink(typeof navigator.share === "function");
   }, []);
 
+  // "Copied" shows for a beat, then the menu gets out of the way.
+  useEffect(() => {
+    if (llm.state !== "copied") return;
+    const timer = setTimeout(() => setOpen(false), CLOSE_AFTER_COPY_MS);
+    return () => clearTimeout(timer);
+  }, [llm.state]);
+
+  // The page itself: without the Apply brief that leads it for agents.
   function loadMarkdown(): Promise<string> {
-    markdown.current ??= fetch(`/api/markdown/${slug}`)
+    markdown.current ??= fetch(`/api/markdown/${slug}?apply=off`)
       .then((r) => {
         if (!r.ok) throw new Error(`Markdown: ${r.status}`);
         return r.text();
@@ -134,22 +146,10 @@ export function EssayShare({
             </MenuTrigger>
           </Tooltip>
           <MenuPopup>
-            {openInLinks(agentPrompt(url, hasApply)).map((link) => {
-              const Icon = BRAND_ICONS[link.name];
-              return (
-                <MenuLinkItem
-                  key={link.name}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-sound="tap"
-                >
-                  <Icon />
-                  Open in {link.name}{" "}
-                  <span className="sr-only">(opens in a new tab)</span>
-                </MenuLinkItem>
-              );
-            })}
+            <MenuItem closeOnClick={false} data-sound="tap" onClick={llm.copy}>
+              <CopyIcon icon={Copy} state={llm.state} />
+              {LLM_LABELS[llm.state]}
+            </MenuItem>
             <MenuSeparator />
             <MenuItem
               closeOnClick={false}
@@ -200,7 +200,13 @@ export function EssayShare({
           </MenuPopup>
         </Menu>
         <output aria-live="polite" className="sr-only">
-          {story.state === "error" ? "Couldn't make the story." : ""}
+          {story.state === "error"
+            ? "Couldn't make the story."
+            : llm.state === "copied"
+              ? "Copied"
+              : llm.state === "error"
+                ? "Couldn't copy."
+                : ""}
         </output>
       </div>
     </TooltipProvider>
