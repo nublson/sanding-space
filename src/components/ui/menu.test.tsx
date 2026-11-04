@@ -48,6 +48,10 @@ describe("Menu", () => {
     await userEvent.click(screen.getByRole("button", { name: "Share" }));
 
     const menu = await screen.findByRole("menu", { name: "Share options" });
+    // Focus moves into the menu after it opens; the key must land there.
+    await waitFor(() =>
+      expect(menu.contains(document.activeElement)).toBe(true),
+    );
     await userEvent.keyboard("{ArrowDown}");
     expect(menu).toBeInTheDocument();
     expect(onKeyDown).toHaveBeenCalled();
