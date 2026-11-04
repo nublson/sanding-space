@@ -125,6 +125,15 @@ describe("EssayShare", () => {
     }
   });
 
+  it("closes the menu after an Open in… pick", async () => {
+    renderShare();
+    await openMenu();
+    const claude = screen.getByRole("menuitem", { name: /open in claude/i });
+    claude.addEventListener("click", (event) => event.preventDefault());
+    await userEvent.click(claude);
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+  });
+
   it("names the story item Share story", async () => {
     renderShare();
     await openMenu();

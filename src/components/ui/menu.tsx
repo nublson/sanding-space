@@ -57,15 +57,17 @@ function MenuItem({ className, ...props }: Styled<MenuPrimitive.Item.Props>) {
   );
 }
 
-/** A link in the menu. */
+/** A link in the menu. Unlike Base UI's default, following it closes the menu. */
 function MenuLinkItem({
   className,
+  closeOnClick = true,
   ...props
 }: Styled<MenuPrimitive.LinkItem.Props>) {
   return (
     <MenuPrimitive.LinkItem
       data-slot="menu-link-item"
       className={cn(item, className)}
+      closeOnClick={closeOnClick}
       {...props}
     />
   );

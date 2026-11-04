@@ -56,7 +56,7 @@ The single share icon at the right of the eyebrow row (`src/app/(site)/[slug]/pa
 |---|---|---|
 | Copy as Markdown | `FileText` | Copies `/api/markdown/<slug>` |
 | Copy link | `Link` | Copies the canonical essay URL |
-| Share | `Share` | Opens the share menu |
+| Share | `Share2` | Opens the share menu |
 
 **Copy feedback** (both copy buttons): on success the icon becomes `Check` and the accessible name "Copied" for about 1.5 s, announced through a polite live region; on failure the `RotateCw` retry icon and "Couldn't copy", as `ShareStory` does today. Sound: `tap` on press, nothing else (one sound per gesture).
 
@@ -66,11 +66,13 @@ The single share icon at the right of the eyebrow row (`src/app/(site)/[slug]/pa
 
 **Share menu** items, in order:
 
+Each "Open in…" item shows its brand mark (Claude, OpenAI, Cursor; Simple Icons paths, monochrome in `currentColor`) and closes the menu when followed.
+
 1. **Open in Claude**: `https://claude.ai/new?q=<prompt>`
 2. **Open in ChatGPT**: `https://chatgpt.com/?q=<prompt>`
 3. **Open in Cursor**: `https://cursor.com/link/prompt?text=<prompt>`, Cursor's documented web deeplink (the prompt is prefilled for review, never run automatically).
 4. Separator
-5. **Share story image**: today's `ShareStory` behavior (files only, so Instagram stays in the iOS sheet; download where files can't be shared; prefetch on menu open)
+5. **Share story** (`Smartphone` icon): today's `ShareStory` behavior (files only, so Instagram stays in the iOS sheet; download where files can't be shared; prefetch on menu open)
 6. **Share link…**: `navigator.share({ title, url })`; rendered only where `navigator.share` exists
 
 "Open in…" items are links that open in a new tab (`target="_blank" rel="noopener"`). The prompt, URL-encoded:
@@ -84,7 +86,7 @@ The popup is anchored to the trigger, aligned to the end edge, and collision-avo
 
 - `src/components/ui/menu.tsx` (new): our Menu on Base UI's `Menu`, with only Trigger, Popup (portal + positioner), Item, LinkItem and Separator, styled with the shared tokens. It is the first menu in the library; demos may use it later.
 - `src/components/share/essay-share.tsx` (new, client): the three buttons and the menu. Props: `slug`, `title`, `url`, `hasApply`.
-- `src/components/share/use-story-image.ts` (from `share-story.tsx`): the fetch/share/download logic and its state, used by the "Share story image" menu item. `ShareStory` as a standalone button is removed.
+- `src/components/share/use-story-image.ts` (from `share-story.tsx`): the fetch/share/download logic and its state, used by the "Share story" menu item. `ShareStory` as a standalone button is removed.
 - Shipped only on essay pages; no demo JavaScript added to any page.
 
 ## Edge cases
