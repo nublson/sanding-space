@@ -151,9 +151,7 @@ describe("EssayShare", () => {
     setNavigator(share);
     renderShare();
     await openMenu();
-    await userEvent.click(
-      screen.getByRole("menuitem", { name: "Share…" }),
-    );
+    await userEvent.click(screen.getByRole("menuitem", { name: "Share…" }));
     expect(share).toHaveBeenCalledWith({ title: "Button Press", url });
   });
 
