@@ -62,6 +62,26 @@ describe("CopyButton", () => {
     expect(screen.getByRole("status")).toHaveTextContent("");
   });
 
+  it("restarts the feedback when pressed again before it ends", async () => {
+    const button = renderButton(() => "x");
+
+    await press(button);
+    await act(async () => {
+      vi.advanceTimersByTime(1400);
+    });
+    await press(button);
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+    // 2.4s after the first press, 1s after the second: still confirming.
+    expect(button).toHaveAccessibleName("Copied");
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(button).toHaveAccessibleName("Copy link");
+  });
+
   it("says it failed and tries again on the next press", async () => {
     const source = vi
       .fn<() => Promise<string>>()

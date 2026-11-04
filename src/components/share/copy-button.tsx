@@ -34,12 +34,16 @@ export function CopyButton({
   className?: string;
 }) {
   const [state, setState] = useState<State>("idle");
+  // Counts finished presses, so a second press within the window restarts
+  // the feedback even when the state itself doesn't change.
+  const [presses, setPresses] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `presses` restarts the timer
   useEffect(() => {
     if (state === "idle") return;
     const timer = setTimeout(() => setState("idle"), FEEDBACK_MS);
     return () => clearTimeout(timer);
-  }, [state]);
+  }, [state, presses]);
 
   async function copy() {
     try {
@@ -49,6 +53,7 @@ export function CopyButton({
     } catch {
       setState("error");
     }
+    setPresses((n) => n + 1);
   }
 
   const message =

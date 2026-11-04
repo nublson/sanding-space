@@ -35,6 +35,24 @@ describe("Menu", () => {
     );
   });
 
+  it("forwards the props it's given to the popup", async () => {
+    const onKeyDown = vi.fn();
+    render(
+      <Menu>
+        <MenuTrigger>Share</MenuTrigger>
+        <MenuPopup aria-label="Share options" onKeyDown={onKeyDown}>
+          <MenuItem>Story</MenuItem>
+        </MenuPopup>
+      </Menu>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Share" }));
+
+    const menu = await screen.findByRole("menu", { name: "Share options" });
+    await userEvent.keyboard("{ArrowDown}");
+    expect(menu).toBeInTheDocument();
+    expect(onKeyDown).toHaveBeenCalled();
+  });
+
   it("moves focus with the arrow keys", async () => {
     render(<Fixture />);
     screen.getByRole("button", { name: "Share" }).focus();
