@@ -19,7 +19,7 @@ export const AGENT_TOOLS = [
     name: "get_page",
     title: "Get page",
     description:
-      "Read a page as Markdown by its path: an essay slug ('button-press'), a section ('sections/motion'), 'introduction', 'about' or 'resources'.",
+      "Read a page as Markdown by its path: an essay slug ('button-press'), a section ('sections/motion'), 'introduction', 'about' or 'resources'. Essays may open with an \"Apply this to your code\" brief for coding agents.",
   },
   {
     name: "list_demos",

@@ -10,6 +10,7 @@ const essay = (o: Record<string, unknown>) => ({
   order: 1,
   sectionId: "s",
   coverDemo: null,
+  apply: null,
   tags: [],
   published: "2026-01-01",
   updated: "2026-02-01",

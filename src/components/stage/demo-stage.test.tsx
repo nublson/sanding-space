@@ -52,4 +52,14 @@ describe("SiteDemoFrame", () => {
     const stage = container.querySelector("figure > div") as HTMLElement;
     expect(stage.style.minHeight).toBe("200px");
   });
+
+  it("runs an inline demo edge to edge on phones, like the cover stage", () => {
+    const { container } = render(
+      <SiteDemoFrame name="test-demo" caption={[]} context={{} as never}>
+        <span />
+      </SiteDemoFrame>,
+    );
+    const stage = container.querySelector("figure > div") as HTMLElement;
+    expect(stage).toHaveClass("max-sm:-mx-4", "max-sm:rounded-none");
+  });
 });

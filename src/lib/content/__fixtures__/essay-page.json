@@ -56,6 +56,22 @@
         }
       ]
     },
+    "Apply": {
+      "id": "ap",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "- Scale to 0.97.\n", "link": null },
+          "plain_text": "- Scale to 0.97.\n"
+        },
+        {
+          "type": "text",
+          "text": { "content": "- Never below 0.95.", "link": null },
+          "plain_text": "- Never below 0.95."
+        }
+      ]
+    },
     "Cover demo": {
       "id": "f",
       "type": "rich_text",

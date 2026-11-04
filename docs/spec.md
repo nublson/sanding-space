@@ -94,6 +94,7 @@ All sections currently have `Visible = false`. Do not hardcode this list; read i
 | Order | number | Order within its section |
 | Summary | text | Card text and meta description |
 | Cover demo | text | A demo name (e.g. `button-press-scale`) rendered live, scaled down, as the index card thumbnail |
+| Apply | text | Optional. The essay distilled into rules for an AI coding agent, written as Markdown-ish plain text (`- ` lists, backtick code). Never rendered on the site; leads the essay's Markdown under "Apply this to your code" (decided) |
 | Tags | multi-select | Cross-cutting topics: `Accessibility`, `Performance` |
 | Published | date | |
 | Updated | last edited time | Automatic |
@@ -143,7 +144,7 @@ The references block at the end of each essay (the resources an essay draws from
 | Demo | `/demos/<name>` | Standalone, chromeless, embeddable. **Permanent URL** |
 | Demo OG image | `/demos/<name>/opengraph-image` | Generated; essays, sections, the Introduction, About and Resources have their own, the root one is the fallback |
 | Sitemap, robots, manifest | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | Generated from the library and the demo registry |
-| Agent surfaces | `/llms.txt`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Any page as Markdown on `Accept: text/markdown`; MCP and A2A servers; discovery manifests (`src/lib/agents/`) |
+| Agent surfaces | `/llms.txt`, `/api/mcp`, `/api/a2a`, `/openapi.json`, `/auth.md`, `/.well-known/*` | Any page as Markdown on `Accept: text/markdown` (essays lead with their Apply brief); MCP and A2A servers; discovery manifests (`src/lib/agents/`) |
 | oEmbed | `/api/oembed` | |
 | Embed helper | `/embed.js` | Auto-height script |
 
@@ -360,7 +361,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 
 ### 9.4 Essay `/<slug>`
 
-- Section name as a small eyebrow above the title.
+- Section name as a small eyebrow above the title; at the end of its row, three icon buttons, each with a tooltip naming it (Base UI `Tooltip`, visual only; the button's `aria-label` says the same): **Copy as Markdown** (the essay's Markdown, Apply brief first), **Copy link**, and **Share**, a menu with *Open in Claude / ChatGPT / Cursor* (each with its brand mark in `currentColor`; a prefilled prompt pointing at the essay URL), *Share story* (the 9:16 PNG, files only) and *Share…* (the system share sheet with title and URL, shown only where the browser has one) (decided 2026-11-04).
 - A large demo stage (the first demo in the body, or the `Cover demo`) with its caption centered below.
 - Essay body below a hairline; inline demos use the same stage + caption frame (§6.9), without actions.
 
@@ -370,7 +371,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 - The sidebar is the same component (sections, Question, essays, About + mute footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
 - While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
 - A horizontal touch swipe also opens and closes it (decided), like a native app's push drawer: the content follows the finger from wherever it is (mid-slide included) and stretches with resistance past either end; on release a flick (0.25 px/ms) or a brisk drag (0.11 px/ms over 24 px) goes its way, anything slower settles on the side of halfway it drifts to. A moving release carries the finger's speed (180–400 ms, starting at the release velocity, `--ease-out`'s tail); a still one uses the toggle's push spring. Vertical scroll and pinch-zoom stay native; swipes starting on a live demo stage, a field or a sideways scroller belong to the page. The toggle sound plays only when the state changes.
-- The essay hero demo runs edge to edge; the card grid drops to 2 columns.
+- Every demo stage in an essay runs edge to edge, the hero and the ones in the body alike (decided 2026-11-04); the card grid drops to 2 columns.
 
 ### 9.6 Resources `/resources`
 

@@ -47,3 +47,23 @@ Feel-check after 003 and after 004 before going on: the stroke length (`STROKE`,
 - **007 needs 004** (`tiltHint`). It also prefers 003's `onPointerEnd` rub branch and says how to proceed without it.
 - 003, 006 and 007 each add `EASE_OUT` or `EASE_IN_OUT` constants "if not already present"; whichever runs first adds them.
 - 004 and 005 both add a line after the guard in `onPointerDown`; the second to run keeps the first one's line.
+
+# Essay share row plans
+
+Written by `improve-animations` from a `find-animation-opportunities` pass on the essay header's share row and Share menu (`src/components/share/`, `src/components/ui/tooltip.tsx`, `src/components/ui/menu.tsx`). The menu and tooltip entrances (scale 0.95 → 1 and a fade from the trigger, 150ms `--ease-out`) and the copy buttons' icon cross-fade were judged correct and have no plan.
+
+| # | Plan | Severity | Status |
+|---|---|---|---|
+| 009 | [Let neighboring tooltips swap in place instead of replaying their entrance](009-tooltip-instant-neighbors.md) | LOW | DONE |
+| 010 | [Cross-fade the Share story item's icon, like the copy buttons](010-share-story-icon-crossfade.md) | LOW | DONE |
+
+**Not planned:** keeping an opacity fade under reduced motion for the menu, tooltips and copy icons. The site's policy is decided in `docs/spec.md:506`: *"everything above becomes instant except color changes"*, enforced by the global `transition-duration: 0.01ms !important` in `src/app/globals.css:163-170`. Changing that is a spec decision, not an animation fix.
+
+## Execution order
+
+1. **009**: one class in one file; quickest to feel-check.
+2. **010**: the larger edit, with a new test.
+
+## Dependencies
+
+None. 009 edits only `src/components/ui/tooltip.tsx`; 010 edits only `src/components/share/essay-share.tsx` and its test.

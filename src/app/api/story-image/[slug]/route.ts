@@ -16,6 +16,9 @@ export async function GET(
   const image = await ogImage({
     eyebrow: entry.section.name,
     title: entry.essay.title,
+    // Nothing prints beside a shared story, unlike a link preview: the
+    // summary goes on the image.
+    ...(entry.essay.summary && { description: entry.essay.summary }),
     format: "story",
   });
   image.headers.set("Cache-Control", CACHE_CONTROL);

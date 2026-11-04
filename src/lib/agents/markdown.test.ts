@@ -1,6 +1,9 @@
 import type { NotionBlock } from "notionic";
 import type { Essay, LibrarySection } from "../content/types";
+import { AUTHOR, absoluteUrl } from "../site";
 import {
+  APPLY_HEADING,
+  APPLY_INTRO,
   essayLine,
   essayMarkdown,
   estimateTokens,
@@ -48,6 +51,7 @@ const essay = (o: Partial<Essay> = {}): Essay => ({
   order: 1,
   sectionId: "s",
   coverDemo: "surface",
+  apply: null,
   tags: [],
   published: "2026-01-01",
   updated: "2026-02-01",
@@ -91,6 +95,65 @@ describe("essayMarkdown", () => {
     expect(md).toMatch(/Demo: https?:\/\/[^/]+\/demos\/surface/);
     expect(md).toContain("Hello.");
     expect(md).toMatch(/\[Hover\]\(https?:\/\/[^/]+\/hover\)/);
+  });
+});
+
+describe("essayMarkdown Apply brief", () => {
+  const render = (apply: string | null) =>
+    essayMarkdown({
+      essay: essay({ apply }),
+      section: section([]),
+      blocks: [para("Hello.")],
+      pageHref: () => null,
+    });
+
+  it("leaves an essay without a brief unchanged", () => {
+    expect(render(null)).toBe(
+      [
+        "---",
+        'title: "Button Press"',
+        'description: "Why buttons sink."',
+        'section: "Interaction"',
+        `url: "${absoluteUrl("/button-press")}"`,
+        'published: "2026-01-01"',
+        'updated: "2026-02-01"',
+        `author: "${AUTHOR.name}"`,
+        "---",
+        "",
+        "# Button Press",
+        "",
+        "> Why buttons sink.",
+        "",
+        `Demo: ${absoluteUrl("/demos/surface")}`,
+        "",
+        "Hello.",
+        "",
+      ].join("\n"),
+    );
+  });
+
+  it("leads with the Apply brief, then the essay", () => {
+    const md = render("- Scale to 0.97.");
+    const order = [
+      "> Why buttons sink.",
+      `## ${APPLY_HEADING}`,
+      APPLY_INTRO,
+      "- Scale to 0.97.",
+      "## Essay",
+      "Demo: ",
+      "Hello.",
+    ].map((part) => md.indexOf(part));
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(md.match(/^# /gm)).toHaveLength(1);
+  });
+
+  it("demotes headings inside the brief", () => {
+    const md = render("# Rules\n## Look for\n### Fine");
+    for (const line of ["### Rules", "### Look for", "### Fine"])
+      expect(md).toContain(`\n${line}\n`);
+    expect(md.match(/^# /gm)).toHaveLength(1);
+    expect(md.match(/^## .*$/gm)).toEqual([`## ${APPLY_HEADING}`, "## Essay"]);
   });
 });
 
@@ -158,6 +221,7 @@ test("llmsTxt lists sections with their essays, the fixed pages and the agent su
   for (const heading of ["## Pages", "## Optional"])
     expect(txt).toContain(heading);
   expect(txt).toEqual(expect.stringContaining("/api/mcp"));
+  expect(txt).toContain("Apply this to your code");
   expect(txt).toMatch(/\[Introduction\]\(https?:\/\/[^)]+\/introduction\)/);
 });
 

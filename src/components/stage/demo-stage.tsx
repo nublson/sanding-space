@@ -31,7 +31,7 @@ export function DemoStage({
   height?: number;
   /** A non-interactive preview (inside a link): live, but not focusable or pressable. */
   preview?: boolean;
-  /** Edge to edge on phones (the essay page's stage, which bleeds out of the gutter). */
+  /** Edge to edge on phones (every demo stage in an essay, cover and body, bleeds out of the gutter). */
   bleed?: boolean;
   /** A Soon essay's card: an unfilled, dashed stage with a "Soon" label and its thumbnail dimmed, so it reads as not ready at rest. */
   soon?: boolean;
@@ -50,8 +50,8 @@ export function DemoStage({
       className={cn(
         "relative flex w-full items-center justify-center overflow-hidden rounded-[10px] border border-border",
         soon ? "border-dashed border-input/50" : "bg-card",
-        // On phones the essay page's stage runs edge to edge, so it drops its
-        // corners and side borders; demos in a body keep theirs.
+        // On phones an essay's stages run edge to edge, so they drop their
+        // corners and side borders.
         bleed &&
           "max-sm:-mx-4 max-sm:w-auto max-sm:rounded-none max-sm:border-x-0",
         size === "hero" && "aspect-[2/1]",

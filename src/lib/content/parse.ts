@@ -66,6 +66,7 @@ export function parseEssay(page: PageObjectResponse): Essay {
     order: num(p, "Order"),
     sectionId: relation(p, "Section")[0] ?? null,
     coverDemo: text(p, "Cover demo") || null,
+    apply: text(p, "Apply") || null,
     tags: (prop(p, "Tags", "multi_select")?.multi_select ?? []).map(
       (t) => t.name,
     ),

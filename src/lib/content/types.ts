@@ -17,6 +17,8 @@ export type Essay = {
   order: number;
   sectionId: string | null;
   coverDemo: string | null;
+  /** The Apply brief for agents (Notion `Apply`): leads the essay's Markdown, never rendered. */
+  apply: string | null;
   tags: string[];
   published: string | null;
   updated: string;

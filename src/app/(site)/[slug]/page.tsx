@@ -6,7 +6,7 @@ import { NotionRenderer } from "notionic";
 import { Suspense } from "react";
 import { PageFade } from "@/components/page-fade";
 import { JsonLd } from "@/components/seo/json-ld";
-import { ShareStory } from "@/components/share/share-story";
+import { EssayShare } from "@/components/share/essay-share";
 import { DemoStage } from "@/components/stage/demo-stage";
 import { LiveThumbnail } from "@/components/stage/live-thumbnail";
 import { findPublishedEssay } from "@/lib/content/library";
@@ -136,7 +136,12 @@ async function EssayContent({ params }: Props) {
           >
             {section.name}
           </Link>
-          <ShareStory slug={essay.slug} />
+          <EssayShare
+            slug={essay.slug}
+            title={essay.title}
+            url={absoluteUrl(`/${essay.slug}`)}
+            hasApply={essay.apply !== null}
+          />
         </div>
         <div className="flex flex-col gap-3">
           <h1 className="font-heading text-balance text-[32px]/[38px] tracking-[-0.015em] text-foreground max-md:text-[28px]/[34px]">

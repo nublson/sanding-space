@@ -35,6 +35,7 @@ const section = (slug: string, essaySlugs: string[]): LibrarySection => ({
     order: 1,
     sectionId: slug,
     coverDemo: null,
+    apply: null,
     tags: [],
     published: null,
     updated: "2026-01-01",

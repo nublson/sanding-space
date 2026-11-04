@@ -12,6 +12,8 @@ export const OG_CONTENT_TYPE = "image/png";
 
 // The site's subtle token, oklch(0.64), in sRGB hex (Satori reads no OKLCH).
 const SUBTLE = "#8c8c8c";
+// The muted token, oklch(0.7): the essay page's summary color.
+const MUTED = "#9e9e9e";
 
 /**
  * The two formats the card comes in. `card` is the landscape link preview:
@@ -65,22 +67,26 @@ function dotField(width: number, fadeRows: number) {
  * section's question, an essay's section). Preview platforms print the page's
  * title and description beside the image, so the card carries nothing else.
  * Every title is set in Inter, essays included. The story format is the same
- * card, taller.
+ * card, taller, and takes the `description` too: a shared story has nothing
+ * printed beside it.
  */
 export async function ogImage({
   title,
   eyebrow,
+  description,
   format = "card",
 }: {
   title: string;
   eyebrow?: string;
+  /** A muted line under the title, as on the essay page. */
+  description?: string;
   format?: OgFormat;
 }) {
   const { width, height, padding, fadeRows } = FORMATS[format];
   const interMedium = await loadGoogleFont(
     "Inter",
     500,
-    `${SITE_NAME}${eyebrow ?? ""}${title}`,
+    `${SITE_NAME}${eyebrow ?? ""}${title}${description ?? ""}`,
   );
 
   return new ImageResponse(
@@ -163,6 +169,21 @@ export async function ogImage({
         >
           {title}
         </div>
+        {description && (
+          <div
+            style={{
+              marginTop: 8,
+              fontSize: 36,
+              lineHeight: 1.4,
+              fontWeight: 500,
+              letterSpacing: "-0.01em",
+              color: MUTED,
+              textWrap: "balance",
+            }}
+          >
+            {description}
+          </div>
+        )}
       </div>
     </div>,
     {

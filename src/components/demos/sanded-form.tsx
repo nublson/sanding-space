@@ -278,7 +278,9 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
   const body = (
     <>
       <div className="flex flex-col gap-3">{fields}</div>
-      <div className="flex flex-col gap-2">{action}</div>
+      {/* Pinned to the card's foot: the cards share a row height, so the
+          shorter form keeps its button level with the other's. */}
+      <div className="mt-auto flex flex-col gap-2">{action}</div>
     </>
   );
 
@@ -290,14 +292,14 @@ function SignupForm({ variant, back }: { variant: Variant; back: boolean }) {
       // A function action, not onSubmit: until the page hydrates, React
       // blocks the browser's own submit, which would put the fields in the URL.
       action={() => submit()}
-      className="flex min-w-0 flex-col gap-3"
+      className="flex min-w-0 flex-1 flex-col gap-3"
     >
       {body}
     </form>
   ) : (
     <fieldset
       aria-label={`Form ${sanded ? "B" : "A"}`}
-      className="flex min-w-0 flex-col gap-3"
+      className="flex min-w-0 flex-1 flex-col gap-3"
     >
       {body}
     </fieldset>
@@ -379,7 +381,7 @@ export default function SandedForm({ params }: DemoProps) {
                 className={cn(
                   // A tint, not a surface token: the card reads as raised on
                   // the essay stage (card) and in an embed (background) alike.
-                  "min-w-0 rounded-[25px] border border-border bg-foreground/4 p-4",
+                  "flex min-w-0 flex-col rounded-[25px] border border-border bg-foreground/4 p-4",
                   variant !== shown && "@max-lg:hidden",
                 )}
               >

@@ -18,6 +18,7 @@ const essay = (o: Partial<Essay>): Essay => ({
   order: 1,
   sectionId: "s1",
   coverDemo: null,
+  apply: null,
   tags: [],
   published: null,
   updated: "",
