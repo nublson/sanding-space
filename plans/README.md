@@ -67,3 +67,27 @@ Written by `improve-animations` from a `find-animation-opportunities` pass on th
 ## Dependencies
 
 None. 009 edits only `src/components/ui/tooltip.tsx`; 010 edits only `src/components/share/essay-share.tsx` and its test.
+
+# Section → essay route transition plans
+
+Written by `improve-animations` from an iPhone screen recording of the section → essay navigation (frames at 30fps) and timings measured on sanding.space in Chromium at 375px wide. The stage morph runs between boxes of different shapes on the browser's defaults, and the page crossfade fades both pages over the same time, so both are visible at once. The shell's sidebar slide (`.shell-close`) and the mobile header's stand-still group were judged correct and have no plan.
+
+| # | Plan | Severity | Status |
+|---|---|---|---|
+| 011 | [Keep the demo stage's morph inside its box when the card opens into the essay](011-demo-stage-morph-aspect.md) | HIGH | DONE (iPhone check pending) |
+| 012 | [Let the old page leave before the new one settles](012-page-fade-exit-first.md) | HIGH | DONE (iPhone check pending) |
+| 013 | [Put the demo stage's morph on the site's ease-out curve](013-demo-stage-morph-timing.md) | MEDIUM | DONE (iPhone check pending) |
+
+**Not planned:** on the recorded iPhone, about 330ms pass between the tap and the first frame of the transition (55ms in Chromium on desktop). That is most likely the network fetching the essay's content, not motion. Confirm it in Safari Web Inspector (Network, with the tap) before planning a prefetch change.
+
+## Execution order
+
+1. **011**: the largest visible fix, and it adds the `demo-stage` class.
+2. **013**: one rule on the class from 011.
+3. **012**: independent; run it last so its iPhone check sees the stage already fixed, and any leftover overlap is clearly the page fade.
+
+## Dependencies
+
+- **013 needs 011** (`share="demo-stage"` and the `.demo-stage` rules).
+- 012 is independent. It edits the `.page-fade` rules next to where 011 inserts its block; both match on quoted code, not line numbers.
+- Test on `pnpm build && pnpm start` or a Vercel preview, with a real click: `pnpm dev` does full-page reloads between these routes, so the transition never plays there.

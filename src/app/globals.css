@@ -535,9 +535,13 @@ body {
   animation: none;
 }
 
-/* Route change: crossfade of the main column, opacity only, 200 ms. */
+/*
+ * Route change: crossfade of the main column, opacity only. The old page
+ * leaves in 120 ms while the new one arrives over 200 ms, so two pages' text
+ * never reads on top of each other. No delay: the column never shows blank.
+ */
 ::view-transition-old(.page-fade) {
-  animation: 200ms var(--ease-out) both page-fade-out;
+  animation: 120ms var(--ease-out) both page-fade-out;
 }
 ::view-transition-new(.page-fade) {
   animation: 200ms var(--ease-out) both page-fade-in;
@@ -551,6 +555,35 @@ body {
   to {
     opacity: 0;
   }
+}
+/*
+ * Card ↔ essay: the demo stage morphs between boxes of different shapes
+ * (about 2:1 in a card, 0.78:1 on a phone's essay page). Both snapshots fill
+ * the moving box and are cropped by it, so neither spills over the card's
+ * text or squeezes into a corner. The card's image leaves fast and the
+ * essay's arrives on the page fade's timing, so the two never read as one
+ * double-exposed picture.
+ */
+::view-transition-old(.demo-stage),
+::view-transition-new(.demo-stage) {
+  height: 100%;
+  object-fit: cover;
+  overflow: clip;
+  mix-blend-mode: normal;
+}
+::view-transition-old(.demo-stage) {
+  animation: 120ms var(--ease-out) both page-fade-out;
+}
+::view-transition-new(.demo-stage) {
+  animation: 200ms var(--ease-out) both page-fade-in;
+}
+/*
+ * The stage's box moves and grows on the site's ease-out, over 250 ms: it
+ * answers a tap, so it starts fast, and it lands with the page fade.
+ */
+::view-transition-group(.demo-stage) {
+  animation-duration: 250ms;
+  animation-timing-function: var(--ease-out);
 }
 /*
  * Sidebar navigation: the content column slides from the pushed position to
