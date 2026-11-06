@@ -39,7 +39,14 @@ export function LiveThumbnail({
   // JavaScript, and nothing cropped by the card's shape.
   const Thumbnail = preview ? demoThumbnail(demo) : undefined;
   return (
-    <ViewTransition name={`demo-${essaySlug}`} share="demo-stage">
+    // Only the card ↔ essay morph animates. `default="none"` stops the stage
+    // from running its own crossfade on unrelated transitions, such as its
+    // demo's chunk revealing right after the navigation.
+    <ViewTransition
+      name={`demo-${essaySlug}`}
+      share="demo-stage"
+      default="none"
+    >
       <DemoStage
         size={size}
         height={essayStageHeight(name)}

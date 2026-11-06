@@ -7,7 +7,6 @@ import {
   SectionBlock,
   SectionBlockSkeleton,
 } from "@/components/library/section-block";
-import { PageFade } from "@/components/page-fade";
 import { withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
 import { getBlocks, getLibrary } from "@/lib/content/notion";
@@ -50,11 +49,9 @@ async function sectionMetadata(slug: string): Promise<Metadata> {
 // everything that depends on the slug streams into the skeleton below.
 export default function SectionPage({ params }: Props) {
   return (
-    <PageFade>
-      <Suspense fallback={<SectionBlockSkeleton />}>
-        <SectionContent params={params} />
-      </Suspense>
-    </PageFade>
+    <Suspense fallback={<SectionBlockSkeleton />}>
+      <SectionContent params={params} />
+    </Suspense>
   );
 }
 

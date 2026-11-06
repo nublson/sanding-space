@@ -536,14 +536,25 @@ body {
 }
 
 /*
- * Route change: crossfade of the main column, opacity only. The old page
- * leaves in 120 ms while the new one arrives over 200 ms, so two pages' text
- * never reads on top of each other. No delay: the column never shows blank.
+ * Route change: crossfade, opacity only. The old page leaves in 120 ms while
+ * the new one arrives over 200 ms, so two pages' text never reads on top of
+ * each other. No delay: the column never shows blank.
+ *
+ * The page rides the root snapshot, which is viewport-sized. Giving the page
+ * column its own view transition name made Safari snapshot the whole page
+ * (an essay is several screens tall), and it then drew those snapshots without
+ * fading them: on the way back from an essay, its title sat on the section
+ * page until the transition ended. Sidebar navigations keep the default root
+ * crossfade under their own slide.
  */
-::view-transition-old(.page-fade) {
+:root:not(:active-view-transition-type(sidebar-nav))::view-transition-old(
+    root
+  ) {
   animation: 120ms var(--ease-out) both page-fade-out;
 }
-::view-transition-new(.page-fade) {
+:root:not(:active-view-transition-type(sidebar-nav))::view-transition-new(
+    root
+  ) {
   animation: 200ms var(--ease-out) both page-fade-in;
 }
 @keyframes page-fade-in {

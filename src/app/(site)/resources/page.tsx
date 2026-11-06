@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ResourceList } from "@/components/library/resource-list";
 import { SectionHeading } from "@/components/library/section-block";
-import { PageFade } from "@/components/page-fade";
 import { getResources } from "@/lib/content/notion";
 import { RESOURCES } from "@/lib/content/resources";
 import { pageMetadata } from "@/lib/site";
@@ -23,14 +22,12 @@ export default async function ResourcesPage() {
   const { intro, categories } = await getResources();
 
   return (
-    <PageFade>
-      <div className="article-layout flex flex-col gap-6">
-        <SectionHeading id="resources" level={1}>
-          {RESOURCES.name}
-        </SectionHeading>
-        {intro && <p className="text-pretty text-muted-foreground">{intro}</p>}
-        <ResourceList categories={categories} />
-      </div>
-    </PageFade>
+    <div className="article-layout flex flex-col gap-6">
+      <SectionHeading id="resources" level={1}>
+        {RESOURCES.name}
+      </SectionHeading>
+      {intro && <p className="text-pretty text-muted-foreground">{intro}</p>}
+      <ResourceList categories={categories} />
+    </div>
   );
 }
