@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NotionRenderer } from "notionic";
 import { Suspense } from "react";
-import { PageFade } from "@/components/page-fade";
 import { JsonLd } from "@/components/seo/json-ld";
 import { EssayShare } from "@/components/share/essay-share";
 import { DemoStage } from "@/components/stage/demo-stage";
@@ -76,11 +75,9 @@ async function essayMetadata(slug: string): Promise<Metadata> {
 // everything that depends on the slug streams into the skeleton below.
 export default function EssayPage({ params }: Props) {
   return (
-    <PageFade>
-      <Suspense fallback={<EssaySkeleton />}>
-        <EssayContent params={params} />
-      </Suspense>
-    </PageFade>
+    <Suspense fallback={<EssaySkeleton />}>
+      <EssayContent params={params} />
+    </Suspense>
   );
 }
 

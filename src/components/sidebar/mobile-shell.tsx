@@ -374,7 +374,7 @@ export function MobileShell({
         </div>
         {/* On a sidebar navigation the whole column is one transition group:
             it slides from the pushed position to full width while the old page
-            crossfades into the new one. Other navigations use PageFade. The
+            crossfades into the new one. Other navigations crossfade the root. The
             solid background keeps the fading sidebar from showing through. */}
         <ViewTransition
           name="site-content"

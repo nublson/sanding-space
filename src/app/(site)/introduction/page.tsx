@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { NotionRenderer } from "notionic";
 import { SectionHeading } from "@/components/library/section-block";
-import { PageFade } from "@/components/page-fade";
 import { withoutDatabases } from "@/lib/content/blocks";
 import { pageHref } from "@/lib/content/links";
 import { getIntroduction, getLibrary } from "@/lib/content/notion";
@@ -29,23 +28,21 @@ export default async function IntroductionPage() {
   ]);
 
   return (
-    <PageFade>
-      <div className="article-layout">
-        <section className="flex flex-col gap-6">
-          <SectionHeading id="introduction" level={1}>
-            {title}
-          </SectionHeading>
-          <div className="text-pretty text-muted-foreground">
-            <NotionRenderer
-              blocks={withoutDatabases(blocks)}
-              demos={demos}
-              pageHref={pageHref(library)}
-              components={siteComponents}
-              linkFavicons
-            />
-          </div>
-        </section>
-      </div>
-    </PageFade>
+    <div className="article-layout">
+      <section className="flex flex-col gap-6">
+        <SectionHeading id="introduction" level={1}>
+          {title}
+        </SectionHeading>
+        <div className="text-pretty text-muted-foreground">
+          <NotionRenderer
+            blocks={withoutDatabases(blocks)}
+            demos={demos}
+            pageHref={pageHref(library)}
+            components={siteComponents}
+            linkFavicons
+          />
+        </div>
+      </section>
+    </div>
   );
 }
