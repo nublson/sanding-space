@@ -1,123 +1,171 @@
-# New essay announcement
+# Announcements: new essays and external promos
 
-Date: 2026-11-09. Status: approved design, awaiting spec review.
+Date: 2026-11-09. Status: approved design, revised the same day to add external promos.
 
 ## Goal
 
-Tell returning readers that a new essay has been published, without getting in the way of reading. On desktop a small card sits in the sidebar footer; on mobile a bar floats above the bottom edge of the screen. Both point at the same essay and go away under the same rules.
+One small slot announces one thing at a time without getting in the way of reading. By default it announces the newest essay. When the author sets up an external promo in Notion (another project, a magazine, a newsletter), that promo takes the slot instead, like loading.dev promoting Interfaces. On desktop the slot is a card in the sidebar footer; on mobile it's a bar floating above the bottom edge of the screen.
 
-Prototype of the chosen treatments: https://claude.ai/artifact/KFH8ze9uEUDBziMhtfy5Ew (desktop sidebar card, mobile bottom bar).
+Prototype of the chosen treatments: https://claude.ai/artifact/KFH8ze9uEUDBziMhtfy5Ew (desktop sidebar card, mobile bottom bar; essay variant).
 
 ## Decisions
 
-- **Announce the newest essay only.** No editor's pick, no Soon teaser, nothing external.
-- **Automatic, from data Notion already has.** The newest essay with status `Published` and a `Published` date, for **14 days** after that date. No new Notion property.
-- **Readers can make it go away.** Dismissing it (×) or opening the essay hides it for that essay, remembered in `localStorage`.
-- **Text only.** Label, title, summary (desktop) and a close button. No cover demo or thumbnail, so no demo JavaScript ships with every page.
-- **Desktop: sidebar card. Mobile: bottom bar, and only the bar.** Below md the sidebar card is not shown, not even when the mobile sidebar is open, so the announcement never appears twice. Rejected: a banner above the content on any size, because it can only appear after the client checks storage, which shifts the essay down after load; a dot on the mobile sidebar toggle, judged too quiet.
-- **Monochrome.** Site tokens only; the "new" marker is a 6px dot in the foreground ink. No accent hue (§10.2).
+- **Two kinds of item.** The *essay* item is automatic: the newest essay with status `Published` and a `Published` date, for **14 days** after that date. *External* items come from a new Notion **Promotions** database.
+- **External wins.** When an external promo is live, it takes the slot. Among several live promos, the one with the latest `Start` wins. The essay item shows when no external promo is live, or when the reader has closed it.
+- **Readers can make it go away.** Closing an item (×) hides it for good; opening an essay hides its essay item ("read"). Remembered per item in `localStorage`, so closing a promo never hides the next new essay.
+- **One item per page view.** After a close, nothing replaces it until the next navigation. Then the next eligible item, if any, appears. A second card popping up right after a close would feel like nagging.
+- **Optional database.** Without `NOTION_PROMOTIONS_DATA_SOURCE_ID` the site behaves exactly as essays-only. Nothing breaks before the database exists.
+- **Text plus a small icon.** Essay items: 6px foreground dot. External items: the destination's favicon, looked up like the Resources page's icons. No cover demo, so no demo JavaScript ships with every page.
+- **Desktop: sidebar card. Mobile: bottom bar, and only the bar.** Below md the sidebar card is not shown, not even when the mobile sidebar is open, so an item never appears twice. Rejected: a banner above the content on any size, because it can only appear after the client checks storage, which shifts the essay down after load; a dot on the mobile sidebar toggle, judged too quiet.
+- **Monochrome.** Site tokens only. No accent hue (§10.2). A favicon keeps its own colors, as on the Resources page.
 
-## Which essay
+## Content: the Promotions database
 
-`getAnnouncement(library)` in `src/lib/content/announcement.ts` (no `now`: with `cacheComponents` on, reading the clock while the layout prerenders fails the build, so the 14-day window is checked only in the browser, by `isAnnouncementLive(announcement, now)`):
+New Notion database, env `NOTION_PROMOTIONS_DATA_SOURCE_ID` (optional). Properties:
 
-- Candidates: every essay in `library.sections` whose `status` is `Published` and whose `published` date is set. The library has already resolved `Preview` through `showPreviews()`, so a Preview essay is a candidate everywhere except Vercel production, matching where its page exists.
-- Pick the latest `published` date. Ties: the essay whose section comes first by section `Order`, then essay `Order`. Deterministic, no randomness.
-- Return `null` when there is no candidate.
-- Returns `{ slug, title, summary, expiresAt }`, with `expiresAt` as an ISO string (`published` at 00:00 UTC + `ANNOUNCE_DAYS` days; `ANNOUNCE_DAYS = 14`, exported).
-- `published` is a Notion date without a time; it is read as 00:00 UTC on that day.
-- `isAnnouncementLive(announcement, now: number)` is `now < Date.parse(expiresAt)`.
+| Property | Type | Notes |
+|---|---|---|
+| Name | title | The card's headline, e.g. "Interfaces". Required. |
+| Description | text | One line, e.g. "A magazine about design engineering." |
+| URL | url | Where the card goes, in a new tab. Required. |
+| Label | text | Optional. The small line above the headline. Default "From the author". |
+| Active | checkbox | Required for the promo to run. |
+| Start | date | Optional. Runs from 00:00 UTC that day. Empty: already started. |
+| End | date | Optional, inclusive. Runs until 00:00 UTC the day after. Empty: no end. |
 
-Called once in `src/app/(site)/layout.tsx` beside `getLibrary()`, and passed down as a prop. After the window the server keeps sending the (expired) announcement until a newer essay is published; the client never shows it. That costs a few hundred bytes in the payload.
+A row is a candidate when `Active` is ticked and it has a Name and a URL. Candidates sort by `Start`, latest first; an empty `Start` sorts last. Ties go to the name.
 
-## When it shows
+## Data flow
 
-The announcement is visible only when all of these hold:
+The server can't read the clock: with `cacheComponents`, `new Date()` while the layout prerenders fails the build. So the server builds an ordered list and the browser picks.
 
-1. `getAnnouncement` returned an essay.
-2. `Date.now() < expiresAt` on the client.
-3. `localStorage["sanding-space:announcement"]` does not hold this essay's slug as dismissed or read.
-4. The current path is not that essay's own page.
+**Server** (`src/lib/content/announcement.ts`, pure):
 
-Storage holds one JSON value `{ slug, state: "dismissed" | "read" }`. It only describes the essay it names: a newer essay replaces the value. Reads and writes are wrapped in try/catch. If storage is unavailable, treat it as empty (the announcement shows, and dismissing still hides it for the rest of the visit through component state).
+```ts
+type AnnouncementItem = {
+  kind: "essay" | "external";
+  id: string;          // essay slug, or the promo's Notion page id
+  title: string;
+  summary: string;     // essay Summary, or promo Description
+  href: string;        // "/<slug>", or the promo URL
+  label: string;       // "New essay", or the promo Label / "From the author"
+  icon: string | null; // favicon data URL for external items; null for essays
+  startsAt: string | null;  // ISO; null = already started
+  expiresAt: string | null; // ISO; null = no end
+};
+```
 
-**Marked read** when the reader opens the essay by any route (the card, the sidebar, a link, a direct visit): a small effect writes `read` whenever the path is the announced essay's page. Both treatments are mounted at every width (CSS hides one), so they share one hook and the write is idempotent. A dismiss in one shows up in the other through a `storage`-independent shared state (a tiny module-level store with `useSyncExternalStore`), not only through `localStorage`.
+- `essayAnnouncement(library)`: the newest Published essay with a date. Ties go to the section first by `Order`, then the essay first by `Order`. `published` is read as 00:00 UTC that day. `startsAt: null`, `expiresAt` = published + `ANNOUNCE_DAYS` (14) days. The library has already resolved `Preview` through `showPreviews()`, so a Preview essay counts everywhere except Vercel production.
+- `promotionAnnouncement(promotion)`: maps a promo to an item. `startsAt` = Start at 00:00 UTC, `expiresAt` = End + 1 day at 00:00 UTC.
+- `announcementItems(library, promotions)`: the promos in order, then the essay item if any.
+- `isLive(item, now)`: `(startsAt === null || now >= startsAt) && (expiresAt === null || now < expiresAt)`.
 
-**No flash, no shift.** The server renders the announcement hidden (`data-ready="false"`, `opacity: 0`, not focusable, `aria-hidden`). After mount, the client runs checks 2–4 and either removes it or sets `data-ready="true"`, which fades it in. Neither treatment takes space in the content flow, so appearing or disappearing never moves the essay.
+**Notion** (`src/lib/content/notion.ts`): `getPromotions()` (`"use cache"`, tag `notion`, `cacheLife("minutes")`). It returns `[]` without the env variable. Otherwise it queries the data source, parses rows with `parsePromotion` (`parse.ts`), keeps and sorts candidates (`selectPromotions`), and adds each URL's favicon with `fetchLinkFavicon` (the Resources page's lookup and options). Edits in Notion show up within minutes through the existing cache tag and revalidation, with no deploy.
+
+**Layout**: `announcementItems(await getLibrary(), await getPromotions())`, passed down as a prop. Expired items stay in the list until Notion changes; the browser never shows them. That costs a few hundred bytes.
+
+## When it shows (browser)
+
+`useAnnouncement(items)` picks the first item that:
+
+1. is live (`isLive(item, Date.now())`);
+2. has no entry in storage (neither closed nor read);
+3. is not an essay item whose page is the current path.
+
+Storage: `localStorage["sanding-space:announcement"]` holds a JSON object `{ [id]: "dismissed" | "read" }`, at most 50 entries (oldest dropped). Reads and writes are in try/catch. If storage is unavailable, an in-memory copy keeps closes for the visit.
+
+**Marked read**: when the path is an essay item's page, `read` is written for its slug, by any route (the card, the sidebar, a link, a direct visit). External items are never marked read; only closing hides them.
+
+**One per page view**: the choice is made after mount and again on each path change, never right after a close.
+
+**Shared state**: both treatments are mounted at every width (CSS hides one), so they share one module-level store through `useSyncExternalStore`. A close in one is a close in the other.
+
+**No flash, no shift**: the server renders nothing visible (phase `pending`: `opacity: 0`, `inert`, `aria-hidden`). After mount, the hook either drops it (`hidden`) or fades it in (`shown`). Neither treatment takes space in the content flow, so appearing and disappearing never move the essay.
 
 ## Desktop: sidebar card (md and up)
 
-- Lives in the sidebar footer, above Resources and About, inside the pinned area. Its height comes out of the scrolling list above it, never out of the content.
-- Layout: 1px `border` on `card`, radius 10px, padding 10px 12px 12px. Top row: 6px foreground dot + "New essay" (12/18, `subtle-foreground`). Then the title (`foreground`, 500) and the summary clamped to two lines (13/19, `muted-foreground`).
-- The whole card except the close button is one `Link` to `/<slug>` with `data-sound="page"`. Hover: border goes to `input`, 150ms `--ease-out`.
-- Close: 28px icon button in the top-right corner, lucide `X` 16px, `aria-label="Dismiss new essay"`, `data-sound="tap"`, from `src/components/ui/`. It sits outside the link, never nested.
-- Hidden below md (`max-md:hidden`): on mobile the bottom bar takes over, and the card would repeat it inside the sidebar.
-- The `Sidebar` component gets an optional `announcement` slot rendered above the footer row, so the card stays its own client component and `Sidebar` stays as it is.
+- Lives in the sidebar footer, above Resources and About, in the pinned area. Its height comes out of the scrolling list above it, never out of the content.
+- Layout: 1px `border` on `card`, radius 10px, padding 10px 12px 12px.
+  - Top row: the marker, then the label (12/18, `subtle-foreground`). The marker is the 6px foreground dot for essays, or a 14px favicon (radius 3px) for external items, falling back to the dot when there's no icon.
+  - Then the title (`foreground`, 500) and the summary clamped to two lines (13/19, `muted-foreground`).
+- The whole card except the close button is one link with `data-sound="page"`:
+  - Essay: a `Link` to `/<slug>`.
+  - External: an `<a href={url} target="_blank" rel="noopener">`.
+- Hover: border goes to `input`, 150ms `--ease-out`.
+- Close: 28px icon button in the top-right corner, lucide `X` 16px, `data-sound="tap"`, from `src/components/ui/`. It sits outside the link, never nested.
+- Hidden below md (`max-md:hidden`).
+- The `Sidebar` component gets an optional `announcement` slot rendered above the footer row.
 
 ## Mobile: bottom bar (below md)
 
-- Fixed to the viewport: `left`/`right` 12px plus `env(safe-area-inset-left/right)`, `bottom` 16px plus `env(safe-area-inset-bottom)`. Height 56px, radius 12px, 1px border one step lighter than `border`, background one step above `card` so it reads as floating over the essay. No shadow.
-- Content: dot, then a two-line stack ("New essay" 12/18 `subtle-foreground`, title `foreground` 500 truncated with an ellipsis), then "Read" with lucide `ArrowRight` 14px, then a 36px close button (44px hit area on coarse pointers). Same link, label and sound rules as the card.
-- Mounted outside the shell's translated track. `MobileShell` translates the track to push the sidebar in, and a `position: fixed` element inside a transformed ancestor would scroll with it. `MobileShell` gets an `overlay` slot rendered after the track.
-- While the sidebar is open the bar fades out and is inert; it comes back when the sidebar closes.
+- Fixed to the viewport: `left`/`right` 12px plus `env(safe-area-inset-left/right)`, `bottom` 16px plus `env(safe-area-inset-bottom)`. Height 56px, radius 12px, 1px border one step lighter than `border`, background one step above `card`. No shadow.
+- Content: the marker, a two-line stack (label 12/18 `subtle-foreground`, title `foreground` 500 truncated), the action, and a 36px close button (44px on coarse pointers). The action is `Read` + lucide `ArrowRight` for essays, `Visit` + lucide `ArrowUpRight` for external items, 14px.
+- Mounted outside the shell's translated track. A `position: fixed` element inside a transformed ancestor would move with it, so `MobileShell` gets an `overlay` slot rendered after the track.
+- While the sidebar is open the bar fades out and is inert.
 - `md:hidden`.
-- Content bottom padding: `main` already has `pb-24` (96px) on mobile, which clears the 72px bar. Add `env(safe-area-inset-bottom)` to it so the last paragraph can still scroll above the bar on phones with a home indicator.
+- `main`'s mobile bottom padding becomes `6rem + env(safe-area-inset-bottom)`, so the last paragraph can scroll clear of the bar.
 
 ## Motion and sound
 
-- Appear: opacity 0 → 1 and `translateY(8px)` → 0, 300ms `--ease-out`, after the client check. Dismiss: the reverse, 200ms, then unmount. CSS transitions only (no `motion/react` in site chrome).
-- Reduced motion: no translate, opacity only, 0ms.
-- Sounds: `page` when the link is pressed, `tap` on close. No sound when the announcement appears.
+- Appear: opacity 0 → 1 and `translateY(8px)` → 0, 300ms `--ease-out`. Close: the reverse, 200ms, then unmount. CSS transitions only (no `motion/react` in site chrome).
+- Reduced motion: no translate, no duration.
+- Sounds: `page` on the link, `tap` on close. Nothing on appear.
 
 ## Accessibility
 
-- The card and bar are each wrapped in an element with `role="region"` and `aria-label="New essay"`, so they can be found but aren't announced as they appear. No live region: appearing on load must not interrupt a screen reader.
-- The link's accessible name is "New essay: <title>". The summary is visible text, not part of the name.
-- After dismissing, focus moves to the next focusable element in the footer (Resources) on desktop, and to `#main-content` on mobile, so focus is never lost.
-- Hidden states are `inert`/`aria-hidden`, not just transparent.
-- Contrast: every text color is an existing token already checked against `card` and `background`.
+- Each treatment is a `role="region"` labeled with the item's label ("New essay", "From the author", …). No live region, so appearing on load doesn't interrupt a screen reader.
+- Link accessible name: `<label>: <title>`; external links add `(opens in a new tab)`.
+- Close button: `aria-label="Dismiss <title>"` for both kinds.
+- After a close, focus moves to the Resources link on desktop and `#main-content` on mobile.
+- Hidden states are `inert` + `aria-hidden`, not just transparent.
+- Favicons are decorative (`alt=""`).
 
 ## Files
 
 | File | Change |
 |---|---|
-| `src/lib/content/announcement.ts` | New: `ANNOUNCE_DAYS`, `getAnnouncement(library)`, `isAnnouncementLive(a, now)`, `Announcement` type |
-| `src/lib/content/announcement.test.ts` | New |
-| `src/components/announcement/use-announcement.ts` | New: client hook doing checks 2–4, storage read/write, marking read on the essay page |
-| `src/components/announcement/sidebar-card.tsx` | New: desktop card |
-| `src/components/announcement/bottom-bar.tsx` | New: mobile bar |
-| `src/components/announcement/*.test.tsx` | New |
-| `src/components/sidebar/sidebar.tsx` | Optional `announcement` slot above the footer row |
-| `src/components/sidebar/current-sidebar.tsx` | Passes the slot through |
-| `src/components/sidebar/mobile-shell.tsx` | Optional `overlay` slot outside the track, hidden and inert while open |
-| `src/app/(site)/layout.tsx` | Calls `getAnnouncement`, passes it to both slots; safe-area bottom padding on `main` |
-| `docs/spec.md` §9.1, §9.5 | Describe the card and the bar |
-| `AGENTS.md` | One line under Interface layout |
+| `src/lib/content/announcement.ts` (+ test) | New: `ANNOUNCE_DAYS`, `AnnouncementItem`, `essayAnnouncement`, `promotionAnnouncement`, `announcementItems`, `isLive` |
+| `src/lib/content/types.ts` | `Promotion` type |
+| `src/lib/content/parse.ts` (+ test) | `parsePromotion` |
+| `src/lib/content/promotions.ts` (+ test) | `selectPromotions` |
+| `src/lib/content/notion.ts` | `getPromotions()` |
+| `src/components/announcement/use-announcement.ts` (+ test) | Client hook and store |
+| `src/components/announcement/sidebar-card.tsx` (+ test) | Desktop card |
+| `src/components/announcement/bottom-bar.tsx` (+ test) | Mobile bar |
+| `src/components/announcement/announcement-link.tsx` | Shared link: `Link` for essays, `<a target="_blank">` for external items |
+| `src/components/sidebar/sidebar.tsx`, `current-sidebar.tsx` | `announcement` slot |
+| `src/components/sidebar/mobile-shell.tsx` (+ test) | `overlay` slot |
+| `src/app/(site)/layout.tsx` | Builds the items, passes them to both slots, `main` padding |
+| `docs/spec.md` | §3.5 Promotions database, env list, §9.1 and §9.5 |
+| `AGENTS.md` | Env list and Interface layout line |
 
 ## Testing
 
-Unit (`announcement.test.ts`):
-- Picks the latest `Published` essay; ignores `Soon`, `Draft` and essays without a date.
-- `Preview` counts only when the library resolved it to `Published`.
-- `expiresAt` is the Published date + 14 days at 00:00 UTC; `isAnnouncementLive` is true on day 13, false from day 14.
-- Ties broken by section order, then essay order.
-- Empty library → `null`.
+Unit:
+- Essay item: newest Published with a date; ignores Soon and undated essays; tie-break; `expiresAt` = +14 days; empty library returns none.
+- Promotion item: Start and End boundaries (End inclusive), default label, missing dates.
+- `announcementItems`: promos first, then the essay.
+- `isLive`: before Start, on day 13, from day 14, after End.
+- `parsePromotion`: every property, missing columns.
+- `selectPromotions`: drops inactive rows and rows without a name or URL; sorts by Start, latest first, empty last.
 
-Component:
-- Hidden before the client check; visible after when everything passes.
-- Hidden when `expiresAt` has passed on the client although the server sent it.
-- Hidden after dismiss, and still hidden on remount (storage).
-- Visiting the essay's path writes `read` and hides it.
-- A stored value for a different slug does not hide a newer essay.
-- Storage that throws: still renders, and dismissing still hides it.
-- Bottom bar is inert while the shell is open.
-- Close button is not inside the link.
+Hook and components:
+- Pending before mount; shown after.
+- External beats essay; a closed external lets the essay show on the next path, not immediately.
+- Expired items are skipped.
+- Close persists per id; a closed promo doesn't hide a newer essay.
+- Visiting the essay page marks it read.
+- Storage that throws: still renders, close still works.
+- External link has `target="_blank"` and "(opens in a new tab)" in its name; essay link doesn't.
+- Close button is never inside the link.
+- Bottom bar is inert while the shell is open, and rendered outside the track.
 
-Manual: real phone with a home indicator (safe areas), VoiceOver on the card and the bar, reduced motion, and a Lighthouse run on an essay page to confirm accessibility stays at 100 and there is no layout shift.
+Manual: real phone with a home indicator, VoiceOver, reduced motion, a real Promotions row with Start and End, and Lighthouse on an essay page (Accessibility 100, CLS 0).
 
 ## Out of scope
 
-- Announcing several essays, or a "what's new" list.
+- Several items at once, or a "what's new" list.
 - RSS, email or push notifications.
-- Choosing the essay by hand in Notion.
-- Analytics on dismissals or clicks.
+- Hand-picking an essay (an external promo pointing at a sanding.space URL works, but is treated as external).
+- Analytics on closes or clicks.
+- Images beyond the favicon.
