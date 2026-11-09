@@ -81,7 +81,8 @@ export function phaseProps(phase: AnnouncementPhase, className: string) {
       phase === "leaving" ? "duration-200" : "duration-300",
       hidden
         ? "translate-y-2 opacity-0 motion-reduce:translate-y-0"
-        : "translate-y-0 opacity-100",
+        : // Mounted already shown, so the fade starts from @starting-style.
+          "translate-y-0 opacity-100 starting:translate-y-2 starting:opacity-0 motion-reduce:starting:translate-y-0",
       className,
     ),
   };

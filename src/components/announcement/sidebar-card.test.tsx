@@ -79,6 +79,12 @@ describe("SidebarCard", () => {
     );
   });
 
+  it("fades in from its first paint", () => {
+    render(<SidebarCard items={[essay]} />);
+    const region = screen.getByRole("region", { name: "New essay" });
+    expect(region).toHaveClass("starting:opacity-0", "starting:translate-y-2");
+  });
+
   it("hidden on mobile", () => {
     render(<SidebarCard items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(

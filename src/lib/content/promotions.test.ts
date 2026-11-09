@@ -26,6 +26,15 @@ describe("selectPromotions", () => {
     expect(selectPromotions(rows).map((p) => p.id)).toEqual(["ok"]);
   });
 
+  it("drops rows whose URL is not an absolute web address", () => {
+    const rows = [
+      promo({ id: "ok" }),
+      promo({ id: "bare", url: "interfaces.dev" }),
+      promo({ id: "mail", url: "mailto:hi@interfaces.dev" }),
+    ];
+    expect(selectPromotions(rows).map((p) => p.id)).toEqual(["ok"]);
+  });
+
   it("sorts by Start, latest first, empty Start last", () => {
     const rows = [
       promo({ id: "a", start: "2026-11-01" }),

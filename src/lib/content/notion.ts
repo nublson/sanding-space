@@ -101,8 +101,16 @@ export async function getPromotions(): Promise<Promotion[]> {
   cacheLife("minutes");
   const id = process.env.NOTION_PROMOTIONS_DATA_SOURCE_ID;
   if (!id) return [];
-  const rows = await queryAll(client(), id);
-  const promotions = selectPromotions(rows.map(parsePromotion));
+  let promotions: Promotion[];
+  try {
+    const rows = await queryAll(client(), id);
+    promotions = selectPromotions(rows.map(parsePromotion));
+  } catch (error) {
+    // An optional, decorative database never takes the site down: a wrong
+    // id or a database not yet shared with the integration means no promos.
+    console.error("Promotions could not be read", error);
+    return [];
+  }
   return Promise.all(
     promotions.map(async (promotion) => {
       const host = hostOf(promotion.url);
