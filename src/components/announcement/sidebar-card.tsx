@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { AnnouncementItem } from "@/lib/content/announcement";
+import { cn } from "@/lib/utils";
 import {
   AnnouncementHeading,
   AnnouncementLink,
@@ -28,7 +29,7 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
     >
       <AnnouncementLink
         item={item}
-        className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-2 gap-y-0.5 px-3 pt-2.5 pb-3 pe-9"
+        className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-2 gap-y-0.5 rounded-[9px] px-3 pt-2.5 pb-3 pe-9"
       >
         <AnnouncementHeading
           item={item}
@@ -36,7 +37,13 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
           titleClassName="font-medium text-foreground"
         />
         {item.summary && (
-          <span className="col-start-2 line-clamp-2 text-[13px]/[19px] text-muted-foreground">
+          // An essay's summary is on its page; a promo's is shown whole.
+          <span
+            className={cn(
+              "col-start-2 text-pretty text-[13px]/[19px] text-muted-foreground",
+              item.kind === "essay" && "line-clamp-2",
+            )}
+          >
             {item.summary}
           </span>
         )}
@@ -45,7 +52,7 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
         size="icon-sm"
         aria-label={`Dismiss ${item.title}`}
         data-sound="tap"
-        className="absolute top-1 right-1"
+        className="absolute end-1 top-1 rounded-[5px]"
         onClick={() => {
           dismiss();
           document.querySelector<HTMLElement>('a[href="/resources"]')?.focus();

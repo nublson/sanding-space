@@ -24,17 +24,17 @@ export function BottomBar({ items }: { items: AnnouncementItem[] }) {
       aria-label={item.label ?? "Announcement"}
       {...phaseProps(
         phase,
-        "announcement-bar fixed right-[calc(12px+env(safe-area-inset-right))] bottom-[calc(16px+env(safe-area-inset-bottom))] left-[calc(12px+env(safe-area-inset-left))] z-20 flex h-14 items-center rounded-xl border border-[color-mix(in_oklch,var(--border),var(--foreground)_10%)] bg-[color-mix(in_oklch,var(--card),var(--foreground)_2%)] pe-1 md:hidden",
+        "announcement-bar fixed right-[calc(12px+env(safe-area-inset-right))] bottom-[calc(16px+env(safe-area-inset-bottom))] left-[calc(12px+env(safe-area-inset-left))] z-20 flex min-h-14 items-center rounded-xl border border-[color-mix(in_oklch,var(--border),var(--foreground)_10%)] bg-[color-mix(in_oklch,var(--card),var(--foreground)_2%)] pe-1 md:hidden",
       )}
     >
       <AnnouncementLink
         item={item}
-        className="grid h-full min-w-0 flex-1 grid-cols-[1rem_minmax(0,1fr)_auto] content-center items-center gap-x-2.5 ps-3.5"
+        className="grid min-w-0 flex-1 grid-cols-[1rem_minmax(0,1fr)_auto] content-center items-center gap-x-2.5 self-stretch py-2 ps-3.5"
       >
         <AnnouncementHeading
           item={item}
           labelClassName="text-subtle-foreground text-xs/[18px]"
-          titleClassName="truncate font-medium text-foreground text-sm/[18px]"
+          titleClassName="text-pretty font-medium text-foreground text-sm/[18px]"
         />
         <span className="col-start-3 row-span-2 row-start-1 flex items-center gap-0.5 text-[13px] text-foreground">
           {item.kind === "essay" ? "Read" : "Visit"}

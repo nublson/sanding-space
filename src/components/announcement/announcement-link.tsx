@@ -6,7 +6,9 @@ import type { AnnouncementPhase } from "./use-announcement";
 
 /**
  * The announcement's link: an in-site Link for an essay, a new tab for an
- * external promo (and the accessible name says so).
+ * external promo. Its name is what it shows (label, title, summary, action),
+ * so screen readers hear the summary and voice control can say "Read"; a new
+ * tab is announced by visually hidden text.
  */
 export function AnnouncementLink({
   item,
@@ -17,15 +19,9 @@ export function AnnouncementLink({
   className?: string;
   children: ReactNode;
 }) {
-  const name = item.label ? `${item.label}: ${item.title}` : item.title;
   if (item.kind === "essay") {
     return (
-      <Link
-        href={item.href}
-        data-sound="page"
-        aria-label={name}
-        className={className}
-      >
+      <Link href={item.href} data-sound="page" className={className}>
         {children}
       </Link>
     );
@@ -36,10 +32,9 @@ export function AnnouncementLink({
       target="_blank"
       rel="noopener"
       data-sound="page"
-      aria-label={`${name} (opens in a new tab)`}
       className={className}
     >
-      {children}
+      {children} <span className="sr-only">(opens in a new tab)</span>
     </a>
   );
 }
@@ -54,7 +49,7 @@ export function AnnouncementMarker({ item }: { item: AnnouncementItem }) {
         alt=""
         width={16}
         height={16}
-        className="size-4 rounded-[4px]"
+        className="size-4 rounded-[4px] outline outline-1 -outline-offset-1 outline-(--image-outline)"
       />
     );
   }
@@ -90,9 +85,11 @@ export function AnnouncementHeading({
       {item.label && onLabel && marker(labelClassName)}
       {item.label && (
         <span className={cn("col-start-2", labelClassName)}>{item.label}</span>
-      )}
+      )}{" "}
       {!onLabel && marker(titleClassName)}
-      <span className={cn("col-start-2", titleClassName)}>{item.title}</span>
+      <span className={cn("col-start-2", titleClassName)}>
+        {item.title}
+      </span>{" "}
     </>
   );
 }
@@ -109,7 +106,8 @@ export function phaseProps(phase: AnnouncementPhase, className: string) {
     "aria-hidden": hidden || undefined,
     className: cn(
       // Fade and lift at 300ms in, 200ms out; the press and the hover answer
-      // faster. Reduced motion keeps the fade and drops only the lift.
+      // faster. Under reduced motion the lift is dropped here, and the
+      // site-wide rule in globals.css cuts every transition to an instant.
       "transition-[opacity,translate,scale,border-color] ease-(--ease-out) has-[a:active]:scale-[0.98]",
       phase === "leaving"
         ? "duration-[200ms,200ms,160ms,150ms]"

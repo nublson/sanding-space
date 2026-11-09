@@ -40,7 +40,7 @@ afterEach(() => vi.useRealTimers());
 describe("BottomBar", () => {
   it("renders the essay item with Read", () => {
     render(<BottomBar items={[essay]} />);
-    const link = screen.getByRole("link", { name: "New essay: Layout" });
+    const link = screen.getByRole("link", { name: "New essay Layout Read" });
     expect(link).toHaveAttribute("href", "/layout");
     expect(link).toHaveTextContent("Read");
   });
@@ -48,7 +48,7 @@ describe("BottomBar", () => {
   it("renders an external item with Visit in a new tab", () => {
     render(<BottomBar items={[promo]} />);
     const link = screen.getByRole("link", {
-      name: "Interfaces (opens in a new tab)",
+      name: "Interfaces Visit (opens in a new tab)",
     });
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveTextContent("Visit");
@@ -57,7 +57,7 @@ describe("BottomBar", () => {
   it("puts the essay dot on the New essay line", () => {
     render(<BottomBar items={[essay]} />);
     const marker = screen
-      .getByRole("link", { name: "New essay: Layout" })
+      .getByRole("link", { name: "New essay Layout Read" })
       .querySelector("[data-slot=marker]");
     expect(marker?.nextElementSibling).toBe(screen.getByText("New essay"));
     expect(screen.getByText("Layout")).toHaveClass("col-start-2");
@@ -67,7 +67,7 @@ describe("BottomBar", () => {
     render(<BottomBar items={[{ ...promo, label: "Also by me" }]} />);
     const marker = screen
       .getByRole("link", {
-        name: "Also by me: Interfaces (opens in a new tab)",
+        name: "Also by me Interfaces Visit (opens in a new tab)",
       })
       .querySelector("[data-slot=marker]");
     expect(marker?.nextElementSibling).toBe(screen.getByText("Interfaces"));
@@ -76,7 +76,7 @@ describe("BottomBar", () => {
 
   it("close button is not inside the link", () => {
     render(<BottomBar items={[essay]} />);
-    const link = screen.getByRole("link", { name: "New essay: Layout" });
+    const link = screen.getByRole("link", { name: "New essay Layout Read" });
     const close = screen.getByRole("button", { name: "Dismiss Layout" });
     expect(link.contains(close)).toBe(false);
   });
@@ -101,6 +101,14 @@ describe("BottomBar", () => {
     const region = screen.getByRole("region", { name: "New essay" });
     expect(region).toHaveClass("has-[a:active]:scale-[0.98]");
     expect(region).toHaveClass("announcement-bar");
+  });
+
+  it("wraps a long title instead of cutting it off", () => {
+    render(<BottomBar items={[promo]} />);
+    const region = screen.getByRole("region", { name: "Announcement" });
+    expect(region).toHaveClass("min-h-14");
+    expect(region).not.toHaveClass("h-14");
+    expect(screen.getByText("Interfaces")).not.toHaveClass("truncate");
   });
 
   it("hidden on desktop", () => {
