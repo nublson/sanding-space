@@ -1,0 +1,148 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { type AnnouncementItem, isLive } from "@/lib/content/announcement";
+
+export const STORAGE_KEY = "sanding-space:announcement";
+const MAX_ENTRIES = 50;
+const LEAVE_MS = 200;
+
+type Seen = Record<string, "dismissed" | "read">;
+const EMPTY: Seen = {};
+
+/*
+ * What this reader has closed or read, per item id. One copy in memory,
+ * shared by the card and the bar (both are mounted; CSS hides one) and kept
+ * for the visit even when localStorage is unavailable.
+ */
+let memory: Seen | null = null;
+const listeners = new Set<() => void>();
+
+function load(): Seen {
+  if (memory) return memory;
+  try {
+    const parsed: unknown = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) ?? "{}",
+    );
+    memory =
+      parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? (parsed as Seen)
+        : {};
+  } catch {
+    memory = {};
+  }
+  return memory;
+}
+
+function write(id: string, state: Seen[string]) {
+  const current = load();
+  if (current[id] === state) return;
+  // Re-inserted last, so the oldest entries are the first keys to drop.
+  const { [id]: _, ...rest } = current;
+  const next: Seen = { ...rest, [id]: state };
+  const keys = Object.keys(next);
+  for (const key of keys.slice(0, keys.length - MAX_ENTRIES)) delete next[key];
+  memory = next;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Private mode or blocked storage: the memory copy still holds it.
+  }
+  for (const listener of listeners) listener();
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/** Tests only: forget the memory copy so the next read comes from storage. */
+export function resetAnnouncementStore() {
+  memory = null;
+}
+
+export type AnnouncementPhase = "pending" | "shown" | "leaving" | "hidden";
+
+const reducedMotion = () =>
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Which announcement to show, chosen in the browser after mount and again on
+ * each navigation: the first item within its dates that this reader hasn't
+ * closed or read, never an essay on its own page (visiting it marks it read).
+ * A close is not followed by the next item until the reader navigates.
+ */
+export function useAnnouncement(items: AnnouncementItem[]): {
+  phase: AnnouncementPhase;
+  item: AnnouncementItem | null;
+  dismiss: () => void;
+} {
+  const path = usePathname().replace(/\/$/, "");
+  const seen = useSyncExternalStore(subscribe, load, () => EMPTY);
+  // undefined until mounted: the server and the first render show nothing.
+  const [chosen, setChosen] = useState<AnnouncementItem | null | undefined>();
+  const [leaving, setLeaving] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Choose again when the items really change, not when a re-render hands
+  // over an equal array: that would bring the next item right after a close.
+  const latest = useRef(items);
+  latest.current = items;
+  const itemsKey = items
+    .map((i) => `${i.id} ${i.startsAt} ${i.expiresAt}`)
+    .join("|");
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: itemsKey stands for items (read through the ref).
+  useEffect(() => {
+    const items = latest.current;
+    const ownPage = (i: AnnouncementItem) =>
+      i.kind === "essay" && i.href === path;
+    const open = items.find(ownPage);
+    if (open) write(open.id, "read");
+    const now = Date.now();
+    const current = load();
+    setChosen(
+      items.find((i) => isLive(i, now) && !current[i.id] && !ownPage(i)) ??
+        null,
+    );
+    setLeaving(false);
+  }, [itemsKey, path]);
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const dismiss = useCallback(() => {
+    if (!chosen) return;
+    write(chosen.id, "dismissed");
+    setLeaving(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(
+      () => {
+        setLeaving(false);
+        setChosen(null);
+      },
+      reducedMotion() ? 0 : LEAVE_MS,
+    );
+  }, [chosen]);
+
+  const phase: AnnouncementPhase =
+    chosen === undefined
+      ? "pending"
+      : chosen === null
+        ? "hidden"
+        : leaving
+          ? "leaving"
+          : seen[chosen.id]
+            ? "hidden" // closed through the other treatment
+            : "shown";
+
+  return { phase, item: chosen ?? null, dismiss };
+}
