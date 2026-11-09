@@ -39,7 +39,7 @@ NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
 NOTION_RESOURCES_DATA_SOURCE_ID=3756f20a-f849-489e-8571-51858d7b8cbc
 NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
 NOTION_ABOUT_PAGE_ID=
-NOTION_PROMOTIONS_DATA_SOURCE_ID=     # optional: external promos for the announcement slot (§3.5)
+NOTION_PROMOTIONS_DATA_SOURCE_ID=9d028ab6-9b13-4f00-ba32-ddae144f2c5b   # optional: external promos for the announcement slot (§3.5)
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 
