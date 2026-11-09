@@ -23,7 +23,7 @@ const promo: AnnouncementItem = {
   title: "Interfaces",
   summary: "A magazine.",
   href: "https://interfaces.example",
-  label: "From the author",
+  label: null,
   icon: "data:image/png;base64,AA==",
   startsAt: null,
   expiresAt: null,
@@ -50,11 +50,39 @@ describe("SidebarCard", () => {
   it("renders an external item in a new tab", () => {
     const { container } = render(<SidebarCard items={[promo]} />);
     const link = screen.getByRole("link", {
-      name: "From the author: Interfaces (opens in a new tab)",
+      name: "Interfaces (opens in a new tab)",
     });
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
     expect(container.querySelector("img")).toHaveAttribute("alt", "");
+  });
+
+  it("shows no label for a promo without one", () => {
+    render(<SidebarCard items={[promo]} />);
+    expect(screen.getByRole("region", { name: "Announcement" })).toBeVisible();
+    expect(screen.queryByText("From the author")).toBeNull();
+  });
+
+  it("puts the essay dot on the New essay line, beside one text column", () => {
+    render(<SidebarCard items={[essay]} />);
+    const link = screen.getByRole("link", { name: "New essay: Layout" });
+    expect(link).toHaveClass("grid", "grid-cols-[1rem_minmax(0,1fr)]");
+    const marker = link.querySelector("[data-slot=marker]");
+    // One label line tall, in the label's row.
+    expect(marker).toHaveClass("h-lh");
+    expect(marker?.nextElementSibling).toBe(screen.getByText("New essay"));
+    expect(screen.getByText("Layout")).toHaveClass("col-start-2");
+  });
+
+  it("hangs a promo's favicon on the title's line", () => {
+    render(<SidebarCard items={[promo]} />);
+    const link = screen.getByRole("link", {
+      name: "Interfaces (opens in a new tab)",
+    });
+    const marker = link.querySelector("[data-slot=marker]");
+    expect(marker).toHaveClass("h-lh");
+    expect(marker?.nextElementSibling).toBe(screen.getByText("Interfaces"));
+    expect(screen.getByText("A magazine.")).toHaveClass("col-start-2");
   });
 
   it("close button is not inside the link", () => {

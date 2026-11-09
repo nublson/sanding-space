@@ -23,7 +23,7 @@ const promo: AnnouncementItem = {
   title: "Interfaces",
   summary: "A magazine.",
   href: "https://interfaces.example",
-  label: "From the author",
+  label: null,
   icon: null,
   startsAt: null,
   expiresAt: null,
@@ -48,10 +48,30 @@ describe("BottomBar", () => {
   it("renders an external item with Visit in a new tab", () => {
     render(<BottomBar items={[promo]} />);
     const link = screen.getByRole("link", {
-      name: "From the author: Interfaces (opens in a new tab)",
+      name: "Interfaces (opens in a new tab)",
     });
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveTextContent("Visit");
+  });
+
+  it("puts the essay dot on the New essay line", () => {
+    render(<BottomBar items={[essay]} />);
+    const marker = screen
+      .getByRole("link", { name: "New essay: Layout" })
+      .querySelector("[data-slot=marker]");
+    expect(marker?.nextElementSibling).toBe(screen.getByText("New essay"));
+    expect(screen.getByText("Layout")).toHaveClass("col-start-2");
+  });
+
+  it("hangs a promo's favicon on the title's line", () => {
+    render(<BottomBar items={[{ ...promo, label: "Also by me" }]} />);
+    const marker = screen
+      .getByRole("link", {
+        name: "Also by me: Interfaces (opens in a new tab)",
+      })
+      .querySelector("[data-slot=marker]");
+    expect(marker?.nextElementSibling).toBe(screen.getByText("Interfaces"));
+    expect(screen.getByText("Also by me")).toHaveClass("col-start-2");
   });
 
   it("close button is not inside the link", () => {

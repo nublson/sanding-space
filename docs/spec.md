@@ -140,7 +140,7 @@ External promos for the announcement slot (§9.1, §9.5): another project, a mag
 | Name | title | The headline. Required |
 | Description | text | One line |
 | URL | url | Where it links (new tab); its host's favicon is the marker |
-| Label | text | Optional line above the headline; default "From the author" |
+| Label | text | Optional line above the headline; none when empty |
 | Active | checkbox | Required for the promo to run |
 | Start | date | Optional; runs from 00:00 UTC that day |
 | End | date | Optional, inclusive; runs until 00:00 UTC the next day |

@@ -28,7 +28,7 @@ New Notion database, env `NOTION_PROMOTIONS_DATA_SOURCE_ID` (optional). Properti
 | Name | title | The card's headline, e.g. "Interfaces". Required. |
 | Description | text | One line, e.g. "A magazine about design engineering." |
 | URL | url | Where the card goes, in a new tab. Required. |
-| Label | text | Optional. The small line above the headline. Default "From the author". |
+| Label | text | Optional. The small line above the headline; none when empty (revised 2026-11-09: no default). |
 | Active | checkbox | Required for the promo to run. |
 | Start | date | Optional. Runs from 00:00 UTC that day. Empty: already started. |
 | End | date | Optional, inclusive. Runs until 00:00 UTC the day after. Empty: no end. |
@@ -48,7 +48,7 @@ type AnnouncementItem = {
   title: string;
   summary: string;     // essay Summary, or promo Description
   href: string;        // "/<slug>", or the promo URL
-  label: string;       // "New essay", or the promo Label / "From the author"
+  label: string | null; // "New essay", or the promo Label, else null
   icon: string | null; // favicon data URL for external items; null for essays
   startsAt: string | null;  // ISO; null = already started
   expiresAt: string | null; // ISO; null = no end
@@ -86,8 +86,8 @@ Storage: `localStorage["sanding-space:announcement"]` holds a JSON object `{ [id
 
 - Lives in the sidebar footer, above Resources and About, in the pinned area. Its height comes out of the scrolling list above it, never out of the content.
 - Layout: 1px `border` on `card`, radius 10px, padding 10px 12px 12px.
-  - Top row: the marker, then the label (12/18, `subtle-foreground`). The marker is the 6px foreground dot for essays, or a 14px favicon (radius 3px) for external items, falling back to the dot when there's no icon.
-  - Then the title (`foreground`, 500) and the summary clamped to two lines (13/19, `muted-foreground`).
+  - Two columns: a 1rem marker column, then one text column holding the label (12/18, `subtle-foreground`), the title (`foreground`, 500) and the summary clamped to two lines (13/19, `muted-foreground`), all on one left edge (revised 2026-11-09, "hanging icon").
+  - The marker sits on the line it belongs to: an essay's 6px dot on the "New essay" line, a promo's 16px favicon (radius 4px) on the title's line. Each marker cell is one line of its neighbour's text tall, so they share a center.
 - The whole card except the close button is one link with `data-sound="page"`:
   - Essay: a `Link` to `/<slug>`.
   - External: an `<a href={url} target="_blank" rel="noopener">`.
@@ -113,7 +113,7 @@ Storage: `localStorage["sanding-space:announcement"]` holds a JSON object `{ [id
 
 ## Accessibility
 
-- Each treatment is a `role="region"` labeled with the item's label ("New essay", "From the author", …). No live region, so appearing on load doesn't interrupt a screen reader.
+- Each treatment is a `role="region"` labeled with the item's label ("New essay", or the promo's Label; "Announcement" when it has none). No live region, so appearing on load doesn't interrupt a screen reader.
 - Link accessible name: `<label>: <title>`; external links add `(opens in a new tab)`.
 - Close button: `aria-label="Dismiss <title>"` for both kinds.
 - After a close, focus moves to the Resources link on desktop and `#main-content` on mobile.

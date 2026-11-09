@@ -17,7 +17,7 @@ export function AnnouncementLink({
   className?: string;
   children: ReactNode;
 }) {
-  const name = `${item.label}: ${item.title}`;
+  const name = item.label ? `${item.label}: ${item.title}` : item.title;
   if (item.kind === "essay") {
     return (
       <Link
@@ -52,17 +52,48 @@ export function AnnouncementMarker({ item }: { item: AnnouncementItem }) {
       <img
         src={item.icon}
         alt=""
-        width={14}
-        height={14}
-        className="size-3.5 shrink-0 rounded-[3px]"
+        width={16}
+        height={16}
+        className="size-4 rounded-[4px]"
       />
     );
   }
-  return (
+  return <span aria-hidden className="size-1.5 rounded-full bg-foreground" />;
+}
+
+/**
+ * The label and title in one text column beside a 1rem marker column. The
+ * marker sits on the line it belongs to: an essay's dot on the "New essay"
+ * line, a promo's favicon on the title's line. Each marker cell is one line
+ * of its neighbour's text tall (h-lh), so the two share a center.
+ */
+export function AnnouncementHeading({
+  item,
+  labelClassName,
+  titleClassName,
+}: {
+  item: AnnouncementItem;
+  labelClassName: string;
+  titleClassName: string;
+}) {
+  const onLabel = item.kind === "essay" && item.label;
+  const marker = (lineClass: string) => (
     <span
-      aria-hidden
-      className="size-1.5 shrink-0 rounded-full bg-foreground"
-    />
+      data-slot="marker"
+      className={cn("flex h-lh items-center justify-center", lineClass)}
+    >
+      <AnnouncementMarker item={item} />
+    </span>
+  );
+  return (
+    <>
+      {item.label && onLabel && marker(labelClassName)}
+      {item.label && (
+        <span className={cn("col-start-2", labelClassName)}>{item.label}</span>
+      )}
+      {!onLabel && marker(titleClassName)}
+      <span className={cn("col-start-2", titleClassName)}>{item.title}</span>
+    </>
   );
 }
 

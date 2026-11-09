@@ -135,7 +135,7 @@ describe("promotionAnnouncement", () => {
       title: "Interfaces",
       summary: "A magazine.",
       href: "https://interfaces.example",
-      label: "From the author",
+      label: null,
       icon: "data:x",
       startsAt: "2026-11-10T00:00:00.000Z",
       expiresAt: "2026-11-21T00:00:00.000Z",
@@ -146,6 +146,10 @@ describe("promotionAnnouncement", () => {
     expect(promotionAnnouncement(promo({ label: "My magazine" })).label).toBe(
       "My magazine",
     );
+  });
+
+  it("has no label unless the promo sets one", () => {
+    expect(promotionAnnouncement(promo()).label).toBeNull();
   });
 
   it("leaves missing dates open", () => {

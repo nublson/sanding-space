@@ -37,7 +37,7 @@ export type Promotion = {
   name: string;
   description: string;
   url: string;
-  /** The line above the name; null means the default ("From the author"). */
+  /** Optional line above the name; null shows none. */
   label: string | null;
   active: boolean;
   /** Notion dates (YYYY-MM-DD), both optional and inclusive. */

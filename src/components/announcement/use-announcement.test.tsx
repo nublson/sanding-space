@@ -27,7 +27,7 @@ const promo: AnnouncementItem = {
   title: "Interfaces",
   summary: "A magazine.",
   href: "https://interfaces.example",
-  label: "From the author",
+  label: null,
   icon: null,
   startsAt: null,
   expiresAt: null,
