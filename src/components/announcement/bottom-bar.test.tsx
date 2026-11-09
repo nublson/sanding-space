@@ -53,9 +53,27 @@ describe("BottomBar", () => {
     );
   });
 
-  it("hangs the marker on its line", () => {
-    render(<BottomBar items={[{ ...promo, label: "Also by me" }]} />);
-    expect(marker()).toHaveClass("row-start-2", "h-lh", "text-sm/[18px]");
+  it("hangs the favicon on the title's line", () => {
+    render(<BottomBar items={[promo]} />);
+    expect(marker()).toHaveClass("row-start-1", "h-lh", "text-sm/[18px]");
+  });
+
+  it("puts a promo's description on the title's row, right after it", () => {
+    render(<BottomBar items={[promo]} />);
+    const description = screen.getByText("A magazine.");
+    const link = screen.getByRole("link", {
+      name: "Interfaces (opens in a new tab)",
+    });
+    // One text run: favicon, then title, then description, wrapping whole.
+    expect(description.parentElement).toBe(link.parentElement);
+    expect(link.parentElement).toHaveClass("col-start-2", "row-start-1");
+    expect(description).not.toHaveClass("truncate");
+    expect(marker()).toHaveClass("row-start-1");
+  });
+
+  it("leaves an essay's summary to the essay page", () => {
+    render(<BottomBar items={[essay]} />);
+    expect(screen.queryByText("Why a box that jumps feels broken.")).toBeNull();
   });
 
   it("gives the close button a 44px touch target", () => {

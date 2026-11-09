@@ -7,7 +7,6 @@ const promo = (o: Partial<Promotion> = {}): Promotion => ({
   name: "Interfaces",
   description: "",
   url: "https://interfaces.example",
-  label: null,
   active: true,
   start: null,
   end: null,

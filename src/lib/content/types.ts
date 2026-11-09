@@ -37,8 +37,6 @@ export type Promotion = {
   name: string;
   description: string;
   url: string;
-  /** Optional line above the name; null shows none. */
-  label: string | null;
   active: boolean;
   /** Notion dates (YYYY-MM-DD), both optional and inclusive. */
   start: string | null;

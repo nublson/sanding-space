@@ -65,12 +65,13 @@ describe("SidebarCard", () => {
   });
 
   it("lines the close icon up with a promo's favicon on the title row", () => {
-    render(<SidebarCard items={[{ ...promo, label: "Also by me" }]} />);
-    expect(marker()).toHaveClass("row-start-2");
-    expect(close("Dismiss Interfaces")).toHaveClass("row-start-2");
+    render(<SidebarCard items={[promo]} />);
+    expect(marker()).toHaveClass("row-start-1");
+    expect(close("Dismiss Interfaces")).toHaveClass("row-start-1");
     expect(
       screen.getByRole("link", { name: "Interfaces (opens in a new tab)" }),
-    ).toHaveClass("row-start-2");
+    ).toHaveClass("row-start-1");
+    expect(screen.getByText("A magazine.")).toHaveClass("row-start-2");
   });
 
   it("hangs both icons on the first line, however the title wraps", () => {

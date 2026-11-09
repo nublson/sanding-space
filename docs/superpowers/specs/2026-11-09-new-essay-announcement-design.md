@@ -28,12 +28,13 @@ New Notion database, env `NOTION_PROMOTIONS_DATA_SOURCE_ID` (optional). Properti
 | Name | title | The card's headline, e.g. "Interfaces". Required. |
 | Description | text | One line, e.g. "A magazine about design engineering." |
 | URL | url | Where the card goes, in a new tab. Required. |
-| Label | text | Optional. The small line above the headline; none when empty (revised 2026-11-09: no default). |
 | Active | checkbox | Required for the promo to run. |
 | Start | date | Optional. Runs from 00:00 UTC that day. Empty: already started. |
 | End | date | Optional, inclusive. Runs until 00:00 UTC the day after. Empty: no end. |
 
 A row is a candidate when `Active` is ticked and it has a Name and a URL. Candidates sort by `Start`, latest first; an empty `Start` sorts last. Ties go to the name.
+
+**Revised 2026-11-09:** promos have no Label column. A short Name and a one-line Description say what a promo is; the mobile bar shows the Description under the Name (an essay's bar keeps "New essay" over its title).
 
 ## Data flow
 
@@ -48,7 +49,7 @@ type AnnouncementItem = {
   title: string;
   summary: string;     // essay Summary, or promo Description
   href: string;        // "/<slug>", or the promo URL
-  label: string | null; // "New essay", or the promo Label, else null
+  label: string | null; // "New essay" for essays; null for promos
   icon: string | null; // favicon data URL for external items; null for essays
   startsAt: string | null;  // ISO; null = already started
   expiresAt: string | null; // ISO; null = no end
@@ -113,7 +114,7 @@ Storage: `localStorage["sanding-space:announcement"]` holds a JSON object `{ [id
 
 ## Accessibility
 
-- Each treatment is a `role="region"` labeled with the item's label ("New essay", or the promo's Label; "Announcement" when it has none). No live region, so appearing on load doesn't interrupt a screen reader.
+- Each treatment is a `role="region"` labeled with the item's label ("New essay" for essays, "Announcement" for promos). No live region, so appearing on load doesn't interrupt a screen reader.
 - Link accessible name: `<label>: <title>`; external links add `(opens in a new tab)`.
 - Close button: `aria-label="Dismiss <title>"` for both kinds.
 - After a close, focus moves to the Resources link on desktop and `#main-content` on mobile.

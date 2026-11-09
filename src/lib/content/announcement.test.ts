@@ -39,7 +39,6 @@ const promo = (o: Partial<Promotion> = {}): Promotion => ({
   name: "Interfaces",
   description: "A magazine.",
   url: "https://interfaces.example",
-  label: null,
   active: true,
   start: null,
   end: null,
@@ -142,13 +141,7 @@ describe("promotionAnnouncement", () => {
     });
   });
 
-  it("keeps a custom label", () => {
-    expect(promotionAnnouncement(promo({ label: "My magazine" })).label).toBe(
-      "My magazine",
-    );
-  });
-
-  it("has no label unless the promo sets one", () => {
+  it("never gives a promo a label: its title and description speak for it", () => {
     expect(promotionAnnouncement(promo()).label).toBeNull();
   });
 

@@ -119,18 +119,19 @@ export function parseResource(page: PageObjectResponse): ResourceEntry {
 }
 
 /**
- * A row of the Promotions database. Name, URL and Active have one column of
- * their type and are found by type too; Description and Label (two text
- * columns) and Start and End (two dates) only by name.
+ * A row of the Promotions database. Name, URL, Active and Description have
+ * one column of their type and are found by type too; Start and End (two
+ * dates) only by name.
  */
 export function parsePromotion(page: PageObjectResponse): Promotion {
   const p = page.properties;
   return {
     id: normalizePageId(page.id),
     name: plain(propOfType(p, "Name", "title")?.title).trim(),
-    description: text(p, "Description"),
+    description: plain(
+      propOfType(p, "Description", "rich_text")?.rich_text,
+    ).trim(),
     url: (propOfType(p, "URL", "url")?.url ?? "").trim(),
-    label: text(p, "Label") || null,
     active: propOfType(p, "Active", "checkbox")?.checkbox ?? false,
     start: prop(p, "Start", "date")?.date?.start ?? null,
     end: prop(p, "End", "date")?.date?.start ?? null,

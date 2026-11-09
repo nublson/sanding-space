@@ -137,15 +137,14 @@ External promos for the announcement slot (§9.1, §9.5): another project, a mag
 
 | Property | Type | Notes |
 |---|---|---|
-| Name | title | The headline. Required |
+| Name | title | A short headline, a few words. Required |
 | Description | text | One line |
 | URL | url | Where it links (new tab); its host's favicon is the marker |
-| Label | text | Optional line above the headline; none when empty |
 | Active | checkbox | Required for the promo to run |
 | Start | date | Optional; runs from 00:00 UTC that day |
 | End | date | Optional, inclusive; runs until 00:00 UTC the next day |
 
-A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL and Active are also found by type; Description, Label, Start and End only by name. Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
+A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL, Active and Description are also found by type; Start and End only by name. A promo has no label: keep the Name short and let the Description say what it is. Both show on the desktop card and the mobile bar (decided 2026-11-09). Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
 
 ---
 

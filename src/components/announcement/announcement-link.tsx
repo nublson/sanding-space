@@ -73,6 +73,7 @@ export function AnnouncementBody({
   labelClassName,
   titleClassName,
   summaryClassName,
+  summaryInline = false,
   closeClassName,
   labelLineClassName = "text-xs/[18px]",
   titleLineClassName,
@@ -87,6 +88,8 @@ export function AnnouncementBody({
   titleLineClassName?: string;
   /** Omit to leave the summary out. */
   summaryClassName?: string;
+  /** Run the summary on in the title's row, right after the title. */
+  summaryInline?: boolean;
   closeClassName?: string;
 }) {
   const titleRow = item.label ? 1 : 0;
@@ -96,6 +99,9 @@ export function AnnouncementBody({
   // aligns to the top, so the icons sit on that row's first line however
   // many lines the title wraps to.
   const line = cn("h-lh", onLabel ? labelLineClassName : titleLineClassName);
+  // The title's ::after covers the whole surface, so a press anywhere opens
+  // it; the close button sits above that layer.
+  const stretched = "after:absolute after:inset-0 focus-visible:outline-none";
   return (
     <>
       <span
@@ -113,22 +119,36 @@ export function AnnouncementBody({
           {item.label}
         </span>
       )}
-      <AnnouncementLink
-        item={item}
-        className={cn(
-          "col-start-2 after:absolute after:inset-0 focus-visible:outline-none",
-          ROW[titleRow],
-          titleClassName,
-        )}
-      >
-        {item.title}
-      </AnnouncementLink>
-      {summaryClassName && item.summary && (
-        <span
-          className={cn("col-start-2", ROW[titleRow + 1], summaryClassName)}
-        >
-          {item.summary}
+      {summaryInline && summaryClassName && item.summary ? (
+        // One text run in the title's row: the title, then the summary,
+        // wrapping together.
+        <span className={cn("col-start-2", ROW[titleRow], titleClassName)}>
+          <AnnouncementLink item={item} className={stretched}>
+            {item.title}
+          </AnnouncementLink>{" "}
+          <span className={summaryClassName}>{item.summary}</span>
         </span>
+      ) : (
+        <>
+          <AnnouncementLink
+            item={item}
+            className={cn(
+              "col-start-2",
+              stretched,
+              ROW[titleRow],
+              titleClassName,
+            )}
+          >
+            {item.title}
+          </AnnouncementLink>
+          {summaryClassName && item.summary && (
+            <span
+              className={cn("col-start-2", ROW[titleRow + 1], summaryClassName)}
+            >
+              {item.summary}
+            </span>
+          )}
+        </>
       )}
       <Button
         aria-label={`Dismiss ${item.title}`}

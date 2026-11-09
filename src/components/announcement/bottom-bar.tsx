@@ -7,7 +7,9 @@ import { useAnnouncement } from "./use-announcement";
 /**
  * The announcement on mobile: a bar floating above the bottom edge, over the
  * essay, so appearing never moves the page. One step lighter than a card so
- * it reads as floating; no shadow. The whole bar is the link.
+ * it reads as floating; no shadow. The whole bar is the link. A promo shows
+ * its title and description in one row; an essay, "New essay" over its
+ * title.
  */
 export function BottomBar({ items }: { items: AnnouncementItem[] }) {
   const { phase, item, dismiss } = useAnnouncement(items);
@@ -25,6 +27,15 @@ export function BottomBar({ items }: { items: AnnouncementItem[] }) {
         labelClassName="text-subtle-foreground text-xs/[18px]"
         titleClassName="text-pretty font-medium text-foreground text-sm/[18px]"
         titleLineClassName="text-sm/[18px]"
+        // A promo's description runs on after its title, in one row; an
+        // essay's summary waits on its page, and "New essay" says why the
+        // bar is here.
+        summaryInline
+        summaryClassName={
+          item.kind === "external"
+            ? "font-normal text-muted-foreground"
+            : undefined
+        }
         // The close button centers on the whole bar, across both rows.
         closeClassName="ms-1 row-span-2 row-start-1 h-4 self-center pointer-coarse:after:-inset-3.5"
         onDismiss={() => {

@@ -34,7 +34,6 @@
       ]
     },
     "URL": { "id": "b", "type": "url", "url": "https://interfaces.example" },
-    "Label": { "id": "c", "type": "rich_text", "rich_text": [] },
     "Active": { "id": "d", "type": "checkbox", "checkbox": true },
     "Start": {
       "id": "e",
