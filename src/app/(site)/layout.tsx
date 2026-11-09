@@ -1,5 +1,7 @@
 import { type ReactNode, Suspense } from "react";
 import { WebmcpProvider } from "@/components/agents/webmcp-provider";
+import { BottomBar } from "@/components/announcement/bottom-bar";
+import { SidebarCard } from "@/components/announcement/sidebar-card";
 import { NavMarker } from "@/components/nav-marker";
 import { CurrentSidebar } from "@/components/sidebar/current-sidebar";
 import { MobileShell } from "@/components/sidebar/mobile-shell";
@@ -7,20 +9,28 @@ import { Sidebar } from "@/components/sidebar/sidebar";
 import { SkipLink } from "@/components/skip-link";
 import { MuteButton } from "@/components/sound/mute-button";
 import { SoundRoot } from "@/components/sound/sound-root";
-import { getLibrary } from "@/lib/content/notion";
+import { announcementItems } from "@/lib/content/announcement";
+import { getLibrary, getPromotions } from "@/lib/content/notion";
 
 export default async function SiteLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const library = await getLibrary();
+  const [library, promotions] = await Promise.all([
+    getLibrary(),
+    getPromotions(),
+  ]);
+  // The newest essay and any external promos; the browser picks one.
+  const items = announcementItems(library, promotions);
+  const announcement = <SidebarCard items={items} />;
   return (
     <SoundRoot>
       <WebmcpProvider />
       <SkipLink />
       <NavMarker />
       <MobileShell
+        overlay={<BottomBar items={items} />}
         sidebar={
           <Suspense
             fallback={
@@ -30,12 +40,14 @@ export default async function SiteLayout({
                 currentSectionSlug={null}
                 currentEssaySlug={null}
                 footerAction={<MuteButton />}
+                announcement={announcement}
               />
             }
           >
             <CurrentSidebar
               sections={library.sections}
               footerAction={<MuteButton />}
+              announcement={announcement}
             />
           </Suspense>
         }
@@ -43,7 +55,7 @@ export default async function SiteLayout({
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto w-full max-w-[672px] px-4 pt-[120px] pb-24 outline-none md:px-0 md:pt-32"
+          className="mx-auto w-full max-w-[672px] px-4 pt-[120px] pb-[calc(6rem+env(safe-area-inset-bottom))] outline-none md:pb-24 md:px-0 md:pt-32"
         >
           {children}
         </main>

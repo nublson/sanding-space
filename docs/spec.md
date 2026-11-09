@@ -39,6 +39,7 @@ NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
 NOTION_RESOURCES_DATA_SOURCE_ID=3756f20a-f849-489e-8571-51858d7b8cbc
 NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
 NOTION_ABOUT_PAGE_ID=
+NOTION_PROMOTIONS_DATA_SOURCE_ID=     # optional: external promos for the announcement slot (§3.5)
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 
@@ -129,6 +130,22 @@ Current categories, top to bottom: My Purls, Learning, Inspiration. Do not hardc
 The code finds each column by the name above, or else by the first column of that type, so a renamed column still parses (`parseResource` in `src/lib/content/parse.ts`). A row shows only when Visible, with a name, a URL and a Category that is one of the options; a category shows only when it has at least one such row.
 
 The references block at the end of each essay (the resources an essay draws from) is out of the first milestone.
+
+### 3.5 Promotions (optional)
+
+External promos for the announcement slot (§9.1, §9.5): another project, a magazine, a newsletter. Without `NOTION_PROMOTIONS_DATA_SOURCE_ID` the slot announces only the newest essay (decided 2026-11-09).
+
+| Property | Type | Notes |
+|---|---|---|
+| Name | title | The headline. Required |
+| Description | text | One line |
+| URL | url | Where it links (new tab); its host's favicon is the marker |
+| Label | text | Optional line above the headline; default "From the author" |
+| Active | checkbox | Required for the promo to run |
+| Start | date | Optional; runs from 00:00 UTC that day |
+| End | date | Optional, inclusive; runs until 00:00 UTC the next day |
+
+A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL and Active are also found by type; Description, Label, Start and End only by name. Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
 
 ---
 
@@ -343,6 +360,7 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 - Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
 - The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
 - The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
+- **Announcement card** above the footer (md and up): one item at a time. An external promo from the Promotions database (§3.5) when one is live, else the newest Published essay for 14 days after its Published date. Closable (remembered per item in `localStorage`); an essay's card hides once its page has been visited and never shows on that page. It appears after the browser has checked, without moving the content (decided 2026-11-09).
 - Footer pinned to the bottom: **Resources** and **About** links (Resources above About) and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
 - Current item from the URL: on an essay page, the essay's section and the essay; on `/sections/<slug>`, that section; on `/introduction`, the Introduction item with no section expanded.
 - Desktop: always visible, sticky beside the content.
@@ -370,6 +388,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 - Header identical to the desktop wordmark, with a **sidebar toggle button before the logo**. The header stays fixed.
 - The sidebar is the same component (sections, Question, essays, About + mute footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
 - While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
+- The announcement (§9.1) is a bar floating 16px above the bottom edge (inside the safe areas) instead of the sidebar card, which never shows below md, not even in the open sidebar. The bar fades out and is inert while the sidebar is open (decided 2026-11-09).
 - A horizontal touch swipe also opens and closes it (decided), like a native app's push drawer: the content follows the finger from wherever it is (mid-slide included) and stretches with resistance past either end; on release a flick (0.25 px/ms) or a brisk drag (0.11 px/ms over 24 px) goes its way, anything slower settles on the side of halfway it drifts to. A moving release carries the finger's speed (180–400 ms, starting at the release velocity, `--ease-out`'s tail); a still one uses the toggle's push spring. Vertical scroll and pinch-zoom stay native; swipes starting on a live demo stage, a field or a sideways scroller belong to the page. The toggle sound plays only when the state changes.
 - Every demo stage in an essay runs edge to edge, the hero and the ones in the body alike (decided 2026-11-04); the card grid drops to 2 columns.
 

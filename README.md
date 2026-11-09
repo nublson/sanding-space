@@ -25,6 +25,7 @@ Fill in `.env.local`:
 | `NOTION_RESOURCES_DATA_SOURCE_ID` | Resources data source (the `/resources` page) |
 | `NOTION_INTRODUCTION_PAGE_ID` | The standalone Notion page behind `/introduction` |
 | `NOTION_ABOUT_PAGE_ID` | The standalone Notion page behind `/about` (the colophon) |
+| `NOTION_PROMOTIONS_DATA_SOURCE_ID` | Optional. Promotions data source: external promos for the announcement slot |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin, `https://sanding.space` in production |
 | `REVALIDATE_SECRET` | Bearer secret for `POST /api/revalidate` |
 | `NOTION_WEBHOOK_SECRET` | The `verification_token` Notion sends when the webhook is registered; signs every event to `POST /api/notion-webhook` |
