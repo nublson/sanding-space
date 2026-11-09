@@ -19,6 +19,8 @@ export type AnnouncementItem = {
   href: string;
   /** "New essay" for essays; null for promos. */
   label: string | null;
+  /** A promo's Tag, shown as a pill before the title; null for essays. */
+  tag: string | null;
   /** The destination's favicon (external items only). */
   icon: string | null;
   startsAt: string | null;
@@ -53,6 +55,7 @@ export function essayAnnouncement(library: Library): AnnouncementItem | null {
     summary: newest.summary,
     href: `/${newest.slug}`,
     label: "New essay",
+    tag: null,
     icon: null,
     startsAt: null,
     expiresAt: dayStart(newestDay, ANNOUNCE_DAYS),
@@ -69,6 +72,7 @@ export function promotionAnnouncement(p: Promotion): AnnouncementItem {
     href: p.url,
     // No label: a short Name and its Description say what a promo is.
     label: null,
+    tag: p.tag,
     icon: p.favicon,
     startsAt: p.start ? dayStart(p.start) : null,
     expiresAt: p.end ? dayStart(p.end, 1) : null,

@@ -34,7 +34,7 @@ New Notion database, env `NOTION_PROMOTIONS_DATA_SOURCE_ID` (optional). Properti
 
 A row is a candidate when `Active` is ticked and it has a Name and a URL. Candidates sort by `Start`, latest first; an empty `Start` sorts last. Ties go to the name.
 
-**Revised 2026-11-09:** promos have no Label column. A short Name and a one-line Description say what a promo is; the mobile bar shows the Description under the Name (an essay's bar keeps "New essay" over its title).
+**Revised 2026-11-09:** promos have an optional Tag select (`New`, `Launch`, `Beta`, `Update`), drawn as a small outlined pill in the foreground ink before the title, inside the link, so the name reads "New Interfaces". Promos have no Label column. A short Name and a one-line Description say what a promo is; the mobile bar shows the Description under the Name (an essay's bar keeps "New essay" over its title).
 
 ## Data flow
 

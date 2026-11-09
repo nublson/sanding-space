@@ -120,6 +120,17 @@ describe("BottomBar", () => {
     expect(screen.getByText("Interfaces")).not.toHaveClass("truncate");
   });
 
+  it("keeps the tag pill in the one-row run, before the title", () => {
+    render(<BottomBar items={[{ ...promo, tag: "Beta" }]} />);
+    const link = screen.getByRole("link", {
+      name: "Beta Interfaces (opens in a new tab)",
+    });
+    expect(link).toContainElement(screen.getByText("Beta"));
+    expect(screen.getByText("A magazine.").parentElement).toBe(
+      link.parentElement,
+    );
+  });
+
   it("hidden on desktop", () => {
     render(<BottomBar items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(

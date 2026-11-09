@@ -10,6 +10,7 @@ const promo = (o: Partial<Promotion> = {}): Promotion => ({
   active: true,
   start: null,
   end: null,
+  tag: null,
   favicon: null,
   ...o,
 });

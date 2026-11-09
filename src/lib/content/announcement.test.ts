@@ -42,6 +42,7 @@ const promo = (o: Partial<Promotion> = {}): Promotion => ({
   active: true,
   start: null,
   end: null,
+  tag: null,
   favicon: null,
   ...o,
 });
@@ -115,6 +116,7 @@ describe("essayAnnouncement", () => {
       summary: "S",
       href: "/e1",
       label: "New essay",
+      tag: null,
       icon: null,
       startsAt: null,
       expiresAt: "2026-11-15T00:00:00.000Z",
@@ -126,7 +128,12 @@ describe("promotionAnnouncement", () => {
   it("builds the promotion item", () => {
     expect(
       promotionAnnouncement(
-        promo({ start: "2026-11-10", end: "2026-11-20", favicon: "data:x" }),
+        promo({
+          start: "2026-11-10",
+          end: "2026-11-20",
+          favicon: "data:x",
+          tag: "New",
+        }),
       ),
     ).toEqual({
       kind: "external",
@@ -135,6 +142,7 @@ describe("promotionAnnouncement", () => {
       summary: "A magazine.",
       href: "https://interfaces.example",
       label: null,
+      tag: "New",
       icon: "data:x",
       startsAt: "2026-11-10T00:00:00.000Z",
       expiresAt: "2026-11-21T00:00:00.000Z",
@@ -168,6 +176,7 @@ describe("isLive", () => {
     summary: "",
     href: "",
     label: "",
+    tag: null,
     icon: null,
     startsAt: null,
     expiresAt: null,

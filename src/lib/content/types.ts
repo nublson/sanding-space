@@ -37,6 +37,8 @@ export type Promotion = {
   name: string;
   description: string;
   url: string;
+  /** Optional Tag select (New, Launch, Beta, Update): a pill before the name. */
+  tag: string | null;
   active: boolean;
   /** Notion dates (YYYY-MM-DD), both optional and inclusive. */
   start: string | null;

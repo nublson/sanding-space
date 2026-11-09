@@ -57,6 +57,25 @@ export function AnnouncementMarker({ item }: { item: AnnouncementItem }) {
   return <span aria-hidden className="size-1.5 rounded-full bg-foreground" />;
 }
 
+/**
+ * A promo's Tag (New, Launch, Beta, Update) as a small outlined pill before
+ * the title: foreground ink, no fill, no accent, like the rest of the chrome.
+ * It is part of the link's text, so the name reads "New Interfaces".
+ */
+function AnnouncementTag({ item }: { item: AnnouncementItem }) {
+  if (!item.tag) return null;
+  return (
+    <>
+      <span
+        data-slot="tag"
+        className="inline-flex h-4 items-center rounded-full border border-input px-1.5 align-[0.1em] font-medium text-foreground text-xs leading-none"
+      >
+        {item.tag}
+      </span>{" "}
+    </>
+  );
+}
+
 const ROW = ["row-start-1", "row-start-2", "row-start-3"] as const;
 
 /**
@@ -124,6 +143,7 @@ export function AnnouncementBody({
         // wrapping together.
         <span className={cn("col-start-2", ROW[titleRow], titleClassName)}>
           <AnnouncementLink item={item} className={stretched}>
+            <AnnouncementTag item={item} />
             {item.title}
           </AnnouncementLink>{" "}
           <span className={summaryClassName}>{item.summary}</span>
@@ -139,6 +159,7 @@ export function AnnouncementBody({
               titleClassName,
             )}
           >
+            <AnnouncementTag item={item} />
             {item.title}
           </AnnouncementLink>
           {summaryClassName && item.summary && (

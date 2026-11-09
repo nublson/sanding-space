@@ -198,6 +198,7 @@ describe("parsePromotion", () => {
       name: "Interfaces",
       description: "A magazine.",
       url: "https://interfaces.example",
+      tag: "New",
       active: true,
       start: "2026-11-10",
       end: null,
@@ -212,10 +213,12 @@ describe("parsePromotion", () => {
     delete page.properties.Active;
     delete page.properties.Start;
     delete page.properties.End;
+    delete page.properties.Tag;
     const parsed = parsePromotion(page as unknown as PageObjectResponse);
     expect(parsed.active).toBe(false);
     expect(parsed.start).toBeNull();
     expect(parsed.end).toBeNull();
+    expect(parsed.tag).toBeNull();
   });
 
   it("reads Start and End by name, not by type", () => {

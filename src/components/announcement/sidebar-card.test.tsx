@@ -172,6 +172,21 @@ describe("SidebarCard", () => {
     );
   });
 
+  it("shows a promo's tag as a pill before its title, inside the link", () => {
+    render(<SidebarCard items={[{ ...promo, tag: "New" }]} />);
+    const link = screen.getByRole("link", {
+      name: "New Interfaces (opens in a new tab)",
+    });
+    const pill = screen.getByText("New");
+    expect(link).toContainElement(pill);
+    expect(pill).toHaveAttribute("data-slot", "tag");
+  });
+
+  it("shows no pill without a tag", () => {
+    const { container } = render(<SidebarCard items={[promo]} />);
+    expect(container.querySelector("[data-slot=tag]")).toBeNull();
+  });
+
   it("hidden on mobile", () => {
     render(<SidebarCard items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(

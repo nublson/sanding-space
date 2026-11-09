@@ -35,6 +35,11 @@
     },
     "URL": { "id": "b", "type": "url", "url": "https://interfaces.example" },
     "Active": { "id": "d", "type": "checkbox", "checkbox": true },
+    "Tag": {
+      "id": "g",
+      "type": "select",
+      "select": { "id": "opt-1", "name": "New", "color": "default" }
+    },
     "Start": {
       "id": "e",
       "type": "date",
