@@ -24,7 +24,7 @@ export function BottomBar({ items }: { items: AnnouncementItem[] }) {
       aria-label={item.label}
       {...phaseProps(
         phase,
-        "fixed right-[calc(12px+env(safe-area-inset-right))] bottom-[calc(16px+env(safe-area-inset-bottom))] left-[calc(12px+env(safe-area-inset-left))] z-20 flex h-14 items-center rounded-xl border border-[color-mix(in_oklch,var(--border),var(--foreground)_10%)] bg-[color-mix(in_oklch,var(--card),var(--foreground)_2%)] pe-1 md:hidden",
+        "announcement-bar fixed right-[calc(12px+env(safe-area-inset-right))] bottom-[calc(16px+env(safe-area-inset-bottom))] left-[calc(12px+env(safe-area-inset-left))] z-20 flex h-14 items-center rounded-xl border border-[color-mix(in_oklch,var(--border),var(--foreground)_10%)] bg-[color-mix(in_oklch,var(--card),var(--foreground)_2%)] pe-1 md:hidden",
       )}
     >
       <AnnouncementLink

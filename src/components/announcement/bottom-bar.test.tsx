@@ -76,6 +76,13 @@ describe("BottomBar", () => {
     );
   });
 
+  it("presses in and stays put across route transitions", () => {
+    render(<BottomBar items={[essay]} />);
+    const region = screen.getByRole("region", { name: "New essay" });
+    expect(region).toHaveClass("has-[a:active]:scale-[0.98]");
+    expect(region).toHaveClass("announcement-bar");
+  });
+
   it("hidden on desktop", () => {
     render(<BottomBar items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(

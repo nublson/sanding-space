@@ -72,10 +72,6 @@ export function resetAnnouncementStore() {
 
 export type AnnouncementPhase = "pending" | "shown" | "leaving" | "hidden";
 
-const reducedMotion = () =>
-  typeof window.matchMedia === "function" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 /**
  * Which announcement to show, chosen in the browser after mount and again on
  * each navigation: the first item within its dates that this reader hasn't
@@ -124,13 +120,11 @@ export function useAnnouncement(items: AnnouncementItem[]): {
     write(chosen.id, "dismissed");
     setLeaving(true);
     clearTimeout(timer.current);
-    timer.current = setTimeout(
-      () => {
-        setLeaving(false);
-        setChosen(null);
-      },
-      reducedMotion() ? 0 : LEAVE_MS,
-    );
+    // The fade out runs under reduced motion too (only the lift is dropped).
+    timer.current = setTimeout(() => {
+      setLeaving(false);
+      setChosen(null);
+    }, LEAVE_MS);
   }, [chosen]);
 
   const phase: AnnouncementPhase =

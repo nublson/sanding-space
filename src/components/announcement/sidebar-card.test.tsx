@@ -85,6 +85,29 @@ describe("SidebarCard", () => {
     expect(region).toHaveClass("starting:opacity-0", "starting:translate-y-2");
   });
 
+  it("keeps the fade under reduced motion, dropping only the lift", () => {
+    render(<SidebarCard items={[essay]} />);
+    const region = screen.getByRole("region", { name: "New essay" });
+    expect(region.className).not.toContain("motion-reduce:transition-none");
+    expect(region).toHaveClass("motion-reduce:starting:translate-y-0");
+  });
+
+  it("answers hover quickly, and only on devices that hover", () => {
+    render(<SidebarCard items={[essay]} />);
+    const region = screen.getByRole("region", { name: "New essay" });
+    expect(region).toHaveClass("duration-[300ms,300ms,160ms,150ms]");
+    expect(region).toHaveClass(
+      "[@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
+    );
+  });
+
+  it("presses in with the link", () => {
+    render(<SidebarCard items={[essay]} />);
+    expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
+      "has-[a:active]:scale-[0.98]",
+    );
+  });
+
   it("hidden on mobile", () => {
     render(<SidebarCard items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(

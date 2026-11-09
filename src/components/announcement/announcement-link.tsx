@@ -77,8 +77,12 @@ export function phaseProps(phase: AnnouncementPhase, className: string) {
     inert: hidden || undefined,
     "aria-hidden": hidden || undefined,
     className: cn(
-      "transition-[opacity,translate,border-color] ease-(--ease-out) motion-reduce:transition-none",
-      phase === "leaving" ? "duration-200" : "duration-300",
+      // Fade and lift at 300ms in, 200ms out; the press and the hover answer
+      // faster. Reduced motion keeps the fade and drops only the lift.
+      "transition-[opacity,translate,scale,border-color] ease-(--ease-out) has-[a:active]:scale-[0.98]",
+      phase === "leaving"
+        ? "duration-[200ms,200ms,160ms,150ms]"
+        : "duration-[300ms,300ms,160ms,150ms]",
       hidden
         ? "translate-y-2 opacity-0 motion-reduce:translate-y-0"
         : // Mounted already shown, so the fade starts from @starting-style.

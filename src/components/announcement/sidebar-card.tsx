@@ -23,7 +23,7 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
       aria-label={item.label}
       {...phaseProps(
         phase,
-        "relative mt-3 rounded-[10px] border border-border bg-card has-[a:hover]:border-input max-md:hidden",
+        "relative mt-3 rounded-[10px] border border-border bg-card max-md:hidden [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
       )}
     >
       <AnnouncementLink item={item} className="block px-3 pt-2.5 pb-3">

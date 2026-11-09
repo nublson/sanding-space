@@ -409,7 +409,7 @@ export function MobileShell({
         <div
           data-open={open}
           inert={open}
-          className="transition-opacity duration-200 ease-(--ease-out) data-[open=true]:opacity-0 motion-reduce:transition-none md:hidden"
+          className="transition-opacity duration-200 ease-(--ease-out) data-[open=true]:opacity-0 md:hidden"
         >
           {overlay}
         </div>

@@ -141,7 +141,7 @@ describe("useAnnouncement", () => {
     expect(result.current.phase).toBe("hidden");
   });
 
-  it("leaves instantly with reduced motion", () => {
+  it("still fades out with reduced motion", () => {
     vi.stubGlobal(
       "matchMedia",
       vi
@@ -151,6 +151,8 @@ describe("useAnnouncement", () => {
     const { result } = renderHook(() => useAnnouncement([essay]));
     act(() => result.current.dismiss());
     act(() => vi.advanceTimersByTime(0));
+    expect(result.current.phase).toBe("leaving");
+    act(() => vi.advanceTimersByTime(200));
     expect(result.current.phase).toBe("hidden");
   });
 
