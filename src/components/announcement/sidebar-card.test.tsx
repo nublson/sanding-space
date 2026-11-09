@@ -160,6 +160,17 @@ describe("SidebarCard", () => {
     );
   });
 
+  it("lines its icons up with the sidebar's: marker under the logo, close under the mute icon", () => {
+    render(<SidebarCard items={[essay]} />);
+    // 13px = 12px padding + 1px border: the marker column starts on the
+    // sidebar's text edge. 20px end padding puts the close icon's center on
+    // the mute button's (a 32px button, 8px in from the column's end).
+    expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
+      "-mx-[13px]",
+      "pe-5",
+    );
+  });
+
   it("hidden on mobile", () => {
     render(<SidebarCard items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
