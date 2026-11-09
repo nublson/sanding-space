@@ -64,11 +64,25 @@ describe("BottomBar", () => {
     const link = screen.getByRole("link", {
       name: "Interfaces (opens in a new tab)",
     });
-    // One text run: favicon, then title, then description, wrapping whole.
+    // One line: favicon, then title, then description.
     expect(description.parentElement).toBe(link.parentElement);
-    expect(link.parentElement).toHaveClass("col-start-2", "row-start-1");
-    expect(description).not.toHaveClass("truncate");
+    expect(link.parentElement).toHaveClass(
+      "col-start-2",
+      "row-start-1",
+      "flex",
+      "min-w-0",
+    );
     expect(marker()).toHaveClass("row-start-1");
+  });
+
+  it("keeps the title whole and ends the description with an ellipsis", () => {
+    render(<BottomBar items={[promo]} />);
+    expect(screen.getByText("A magazine.")).toHaveClass("min-w-0", "truncate");
+    const link = screen.getByRole("link", {
+      name: "Interfaces (opens in a new tab)",
+    });
+    // The title gives way only when it alone is wider than the line.
+    expect(link).toHaveClass("shrink-0", "max-w-full", "truncate");
   });
 
   it("leaves an essay's summary to the essay page", () => {
@@ -112,23 +126,27 @@ describe("BottomBar", () => {
     expect(region).toHaveClass("announcement-bar");
   });
 
-  it("wraps a long title instead of cutting it off", () => {
+  it("keeps a 56px minimum height", () => {
     render(<BottomBar items={[promo]} />);
-    const region = screen.getByRole("region", { name: "Announcement" });
-    expect(region).toHaveClass("min-h-14");
-    expect(region).not.toHaveClass("h-14");
-    expect(screen.getByText("Interfaces")).not.toHaveClass("truncate");
+    expect(screen.getByRole("region", { name: "Announcement" })).toHaveClass(
+      "min-h-14",
+    );
   });
 
-  it("keeps the tag pill in the one-row run, before the title", () => {
-    render(<BottomBar items={[{ ...promo, tag: "Beta" }]} />);
+  it("puts the tag on its own line, above the title and description run", () => {
+    render(<BottomBar items={[{ ...promo, label: "Beta" }]} />);
+    expect(screen.getByText("Beta")).toHaveClass(
+      "row-start-1",
+      "text-subtle-foreground",
+    );
     const link = screen.getByRole("link", {
-      name: "Beta Interfaces (opens in a new tab)",
+      name: "Interfaces (opens in a new tab)",
     });
-    expect(link).toContainElement(screen.getByText("Beta"));
+    expect(link.parentElement).toHaveClass("row-start-2");
     expect(screen.getByText("A magazine.").parentElement).toBe(
       link.parentElement,
     );
+    expect(marker()).toHaveClass("row-start-2");
   });
 
   it("hidden on desktop", () => {

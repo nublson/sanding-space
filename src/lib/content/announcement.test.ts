@@ -116,7 +116,6 @@ describe("essayAnnouncement", () => {
       summary: "S",
       href: "/e1",
       label: "New essay",
-      tag: null,
       icon: null,
       startsAt: null,
       expiresAt: "2026-11-15T00:00:00.000Z",
@@ -141,15 +140,15 @@ describe("promotionAnnouncement", () => {
       title: "Interfaces",
       summary: "A magazine.",
       href: "https://interfaces.example",
-      label: null,
-      tag: "New",
+      label: "New",
       icon: "data:x",
       startsAt: "2026-11-10T00:00:00.000Z",
       expiresAt: "2026-11-21T00:00:00.000Z",
     });
   });
 
-  it("never gives a promo a label: its title and description speak for it", () => {
+  it("uses a promo's Tag as its label, and none without one", () => {
+    expect(promotionAnnouncement(promo({ tag: "Beta" })).label).toBe("Beta");
     expect(promotionAnnouncement(promo()).label).toBeNull();
   });
 
@@ -176,7 +175,6 @@ describe("isLive", () => {
     summary: "",
     href: "",
     label: "",
-    tag: null,
     icon: null,
     startsAt: null,
     expiresAt: null,

@@ -57,25 +57,6 @@ export function AnnouncementMarker({ item }: { item: AnnouncementItem }) {
   return <span aria-hidden className="size-1.5 rounded-full bg-foreground" />;
 }
 
-/**
- * A promo's Tag (New, Launch, Beta, Update) as a small outlined pill before
- * the title: foreground ink, no fill, no accent, like the rest of the chrome.
- * It is part of the link's text, so the name reads "New Interfaces".
- */
-function AnnouncementTag({ item }: { item: AnnouncementItem }) {
-  if (!item.tag) return null;
-  return (
-    <>
-      <span
-        data-slot="tag"
-        className="inline-flex h-4 items-center rounded-full border border-input px-1.5 align-[0.1em] font-medium text-foreground text-xs leading-none"
-      >
-        {item.tag}
-      </span>{" "}
-    </>
-  );
-}
-
 const ROW = ["row-start-1", "row-start-2", "row-start-3"] as const;
 
 /**
@@ -139,14 +120,26 @@ export function AnnouncementBody({
         </span>
       )}
       {summaryInline && summaryClassName && item.summary ? (
-        // One text run in the title's row: the title, then the summary,
-        // wrapping together.
-        <span className={cn("col-start-2", ROW[titleRow], titleClassName)}>
-          <AnnouncementLink item={item} className={stretched}>
-            <AnnouncementTag item={item} />
+        // One line in the title's row: the title stays whole (it gives way
+        // only when it alone is wider than the line), and the description
+        // fills what is left, ending in an ellipsis. The full description is
+        // still read out, and shown whole on the desktop card.
+        <span
+          className={cn(
+            "col-start-2 flex min-w-0 gap-x-1",
+            ROW[titleRow],
+            titleClassName,
+          )}
+        >
+          <AnnouncementLink
+            item={item}
+            className={cn(stretched, "max-w-full shrink-0 truncate")}
+          >
             {item.title}
           </AnnouncementLink>{" "}
-          <span className={summaryClassName}>{item.summary}</span>
+          <span className={cn("min-w-0 truncate", summaryClassName)}>
+            {item.summary}
+          </span>
         </span>
       ) : (
         <>
@@ -159,7 +152,6 @@ export function AnnouncementBody({
               titleClassName,
             )}
           >
-            <AnnouncementTag item={item} />
             {item.title}
           </AnnouncementLink>
           {summaryClassName && item.summary && (

@@ -172,19 +172,30 @@ describe("SidebarCard", () => {
     );
   });
 
-  it("shows a promo's tag as a pill before its title, inside the link", () => {
-    render(<SidebarCard items={[{ ...promo, tag: "New" }]} />);
+  it("puts a promo's tag on its own quiet line above the title", () => {
+    render(<SidebarCard items={[{ ...promo, label: "New" }]} />);
+    const tag = screen.getByText("New");
+    expect(tag).toHaveClass(
+      "col-start-2",
+      "row-start-1",
+      "text-subtle-foreground",
+    );
     const link = screen.getByRole("link", {
-      name: "New Interfaces (opens in a new tab)",
+      name: "Interfaces (opens in a new tab)",
     });
-    const pill = screen.getByText("New");
-    expect(link).toContainElement(pill);
-    expect(pill).toHaveAttribute("data-slot", "tag");
+    expect(link).not.toContainElement(tag);
+    expect(link).toHaveClass("row-start-2");
+    // The favicon and the close icon stay on the title's line.
+    expect(marker()).toHaveClass("row-start-2");
+    expect(close("Dismiss Interfaces")).toHaveClass("row-start-2");
   });
 
-  it("shows no pill without a tag", () => {
-    const { container } = render(<SidebarCard items={[promo]} />);
+  it("draws no pill", () => {
+    const { container } = render(
+      <SidebarCard items={[{ ...promo, label: "New" }]} />,
+    );
     expect(container.querySelector("[data-slot=tag]")).toBeNull();
+    expect(container.querySelector(".rounded-full.border")).toBeNull();
   });
 
   it("hidden on mobile", () => {
