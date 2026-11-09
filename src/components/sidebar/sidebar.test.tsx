@@ -147,3 +147,24 @@ describe("Sidebar", () => {
     }
   });
 });
+
+describe("Sidebar announcement slot", () => {
+  it("renders the announcement slot above Resources", () => {
+    render(
+      <Sidebar
+        sections={sections}
+        currentPagePath={null}
+        currentSectionSlug={null}
+        currentEssaySlug={null}
+        footerAction={null}
+        announcement={<div data-testid="announcement" />}
+      />,
+    );
+    const slot = screen.getByTestId("announcement");
+    const resources = screen.getByRole("link", { name: "Resources" });
+    expect(
+      slot.compareDocumentPosition(resources) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+});

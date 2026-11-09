@@ -40,9 +40,11 @@ function fromPath(pathname: string, sections: LibrarySection[]): Current {
 export function CurrentSidebar({
   sections,
   footerAction,
+  announcement,
 }: {
   sections: LibrarySection[];
   footerAction: ReactNode;
+  announcement?: ReactNode;
 }) {
   const pathname = usePathname();
   const current = useMemo(
@@ -56,6 +58,7 @@ export function CurrentSidebar({
       currentSectionSlug={current.section}
       currentEssaySlug={current.essay}
       footerAction={footerAction}
+      announcement={announcement}
     />
   );
 }
