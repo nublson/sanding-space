@@ -1,33 +1,10 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AnnouncementItem } from "@/lib/content/announcement";
 import { SidebarCard } from "./sidebar-card";
+import { essay, promo } from "./test-items";
 import { resetAnnouncementStore } from "./use-announcement";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/spring" }));
-
-const essay: AnnouncementItem = {
-  kind: "essay",
-  id: "layout",
-  title: "Layout",
-  summary: "Why a box that jumps feels broken.",
-  href: "/layout",
-  label: "New essay",
-  icon: null,
-  startsAt: null,
-  expiresAt: "2026-11-15T00:00:00.000Z",
-};
-const promo: AnnouncementItem = {
-  kind: "external",
-  id: "p1",
-  title: "Interfaces",
-  summary: "A magazine.",
-  href: "https://interfaces.example",
-  label: null,
-  icon: "data:image/png;base64,AA==",
-  startsAt: null,
-  expiresAt: null,
-};
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -37,20 +14,23 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 
+const marker = () => document.querySelector("[data-slot=marker]");
+const close = (name = "Dismiss Layout") => screen.getByRole("button", { name });
+
 describe("SidebarCard", () => {
-  it("renders the essay item", () => {
+  it("renders the essay item, its title as the link", () => {
     render(<SidebarCard items={[essay]} />);
-    expect(screen.getByRole("region", { name: "New essay" })).toBeVisible();
-    const link = screen.getByRole("link", { name: /^New essay Layout/ });
+    const region = screen.getByRole("region", { name: "New essay" });
+    const link = screen.getByRole("link", { name: "Layout" });
     expect(link).toHaveAttribute("href", "/layout");
     expect(link).not.toHaveAttribute("target");
-    expect(link).toHaveTextContent("Why a box that jumps feels broken.");
+    expect(region).toHaveTextContent("Why a box that jumps feels broken.");
   });
 
   it("renders an external item in a new tab", () => {
     const { container } = render(<SidebarCard items={[promo]} />);
     const link = screen.getByRole("link", {
-      name: "Interfaces A magazine. (opens in a new tab)",
+      name: "Interfaces (opens in a new tab)",
     });
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
@@ -63,33 +43,50 @@ describe("SidebarCard", () => {
     expect(screen.queryByText("From the author")).toBeNull();
   });
 
-  it("puts the essay dot on the New essay line, beside one text column", () => {
+  it("opens from anywhere on the card", () => {
     render(<SidebarCard items={[essay]} />);
-    const link = screen.getByRole("link", { name: /^New essay Layout/ });
-    expect(link).toHaveClass("grid", "grid-cols-[1rem_minmax(0,1fr)]");
-    const marker = link.querySelector("[data-slot=marker]");
-    // One label line tall, in the label's row.
-    expect(marker).toHaveClass("h-lh");
-    expect(marker?.nextElementSibling).toBe(screen.getByText("New essay"));
-    expect(screen.getByText("Layout")).toHaveClass("col-start-2");
+    expect(screen.getByRole("link", { name: "Layout" })).toHaveClass(
+      "after:absolute",
+      "after:inset-0",
+    );
+    expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
+      "relative",
+    );
   });
 
-  it("hangs a promo's favicon on the title's line", () => {
-    render(<SidebarCard items={[promo]} />);
-    const link = screen.getByRole("link", {
-      name: "Interfaces A magazine. (opens in a new tab)",
-    });
-    const marker = link.querySelector("[data-slot=marker]");
-    expect(marker).toHaveClass("h-lh");
-    expect(marker?.nextElementSibling).toBe(screen.getByText("Interfaces"));
-    expect(screen.getByText("A magazine.")).toHaveClass("col-start-2");
+  it("lines the close icon up with the essay dot on the New essay row", () => {
+    render(<SidebarCard items={[essay]} />);
+    expect(marker()).toHaveClass("col-start-1", "row-start-1");
+    expect(close()).toHaveClass("col-start-3", "row-start-1");
+    expect(screen.getByText("New essay")).toHaveClass("row-start-1");
+    expect(screen.getByRole("link", { name: "Layout" })).toHaveClass(
+      "row-start-2",
+    );
+  });
+
+  it("lines the close icon up with a promo's favicon on the title row", () => {
+    render(<SidebarCard items={[{ ...promo, label: "Also by me" }]} />);
+    expect(marker()).toHaveClass("row-start-2");
+    expect(close("Dismiss Interfaces")).toHaveClass("row-start-2");
+    expect(
+      screen.getByRole("link", { name: "Interfaces (opens in a new tab)" }),
+    ).toHaveClass("row-start-2");
+  });
+
+  it("hangs both icons on the first line, however the title wraps", () => {
+    render(<SidebarCard items={[essay]} />);
+    expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
+      "items-start",
+    );
+    // One line of the New essay row tall, so each centers on that line.
+    expect(marker()).toHaveClass("h-lh", "text-xs/[18px]");
+    expect(close()).toHaveClass("h-lh", "text-xs/[18px]");
   });
 
   it("close button is not inside the link", () => {
     render(<SidebarCard items={[essay]} />);
-    const link = screen.getByRole("link", { name: /^New essay Layout/ });
-    const close = screen.getByRole("button", { name: "Dismiss Layout" });
-    expect(link.contains(close)).toBe(false);
+    const link = screen.getByRole("link", { name: "Layout" });
+    expect(link.contains(close())).toBe(false);
   });
 
   it("dismiss removes it and focuses Resources", () => {
@@ -99,7 +96,7 @@ describe("SidebarCard", () => {
         <a href="/resources">Resources</a>
       </>,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss Layout" }));
+    fireEvent.click(close());
     act(() => vi.advanceTimersByTime(200));
     expect(screen.queryByRole("region", { name: "New essay" })).toBeNull();
     expect(document.activeElement).toBe(
@@ -136,12 +133,14 @@ describe("SidebarCard", () => {
     );
   });
 
-  it("names the link with everything it shows", () => {
+  it("draws the focus ring around the whole card", () => {
     render(<SidebarCard items={[essay]} />);
-    const link = screen.getByRole("link", {
-      name: "New essay Layout Why a box that jumps feels broken.",
-    });
-    expect(link).not.toHaveAttribute("aria-label");
+    expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
+      "has-[a:focus-visible]:outline-2",
+    );
+    expect(screen.getByRole("link", { name: "Layout" })).toHaveClass(
+      "focus-visible:outline-none",
+    );
   });
 
   it("shows a promo's whole description, clamping only an essay's", () => {
@@ -151,17 +150,6 @@ describe("SidebarCard", () => {
     render(<SidebarCard items={[essay]} />);
     expect(screen.getByText("Why a box that jumps feels broken.")).toHaveClass(
       "line-clamp-2",
-    );
-  });
-
-  it("nests its corners and focus ring concentrically", () => {
-    render(<SidebarCard items={[essay]} />);
-    expect(screen.getByRole("button", { name: "Dismiss Layout" })).toHaveClass(
-      "rounded-[5px]",
-      "end-1",
-    );
-    expect(screen.getByRole("link", { name: /^New essay/ })).toHaveClass(
-      "rounded-[9px]",
     );
   });
 

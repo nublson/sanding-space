@@ -1,33 +1,10 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AnnouncementItem } from "@/lib/content/announcement";
 import { BottomBar } from "./bottom-bar";
+import { essay, promo } from "./test-items";
 import { resetAnnouncementStore } from "./use-announcement";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/spring" }));
-
-const essay: AnnouncementItem = {
-  kind: "essay",
-  id: "layout",
-  title: "Layout",
-  summary: "S",
-  href: "/layout",
-  label: "New essay",
-  icon: null,
-  startsAt: null,
-  expiresAt: "2026-11-15T00:00:00.000Z",
-};
-const promo: AnnouncementItem = {
-  kind: "external",
-  id: "p1",
-  title: "Interfaces",
-  summary: "A magazine.",
-  href: "https://interfaces.example",
-  label: null,
-  icon: null,
-  startsAt: null,
-  expiresAt: null,
-};
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -37,48 +14,72 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 
+const marker = () => document.querySelector("[data-slot=marker]");
+
 describe("BottomBar", () => {
-  it("renders the essay item with Read", () => {
+  it("renders the essay item with no action text", () => {
     render(<BottomBar items={[essay]} />);
-    const link = screen.getByRole("link", { name: "New essay Layout Read" });
-    expect(link).toHaveAttribute("href", "/layout");
-    expect(link).toHaveTextContent("Read");
+    expect(screen.getByRole("link", { name: "Layout" })).toHaveAttribute(
+      "href",
+      "/layout",
+    );
+    expect(screen.queryByText("Read")).toBeNull();
   });
 
-  it("renders an external item with Visit in a new tab", () => {
+  it("renders an external item in a new tab with no action text", () => {
     render(<BottomBar items={[promo]} />);
     const link = screen.getByRole("link", {
-      name: "Interfaces Visit (opens in a new tab)",
+      name: "Interfaces (opens in a new tab)",
     });
     expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveTextContent("Visit");
+    expect(screen.queryByText("Visit")).toBeNull();
   });
 
-  it("puts the essay dot on the New essay line", () => {
+  it("opens from anywhere on the bar", () => {
     render(<BottomBar items={[essay]} />);
-    const marker = screen
-      .getByRole("link", { name: "New essay Layout Read" })
-      .querySelector("[data-slot=marker]");
-    expect(marker?.nextElementSibling).toBe(screen.getByText("New essay"));
-    expect(screen.getByText("Layout")).toHaveClass("col-start-2");
+    expect(screen.getByRole("link", { name: "Layout" })).toHaveClass(
+      "after:absolute",
+      "after:inset-0",
+    );
   });
 
-  it("hangs a promo's favicon on the title's line", () => {
+  it("lines the close icon up with the essay dot", () => {
+    render(<BottomBar items={[essay]} />);
+    expect(marker()).toHaveClass("row-start-1");
+    expect(screen.getByRole("button", { name: "Dismiss Layout" })).toHaveClass(
+      "col-start-3",
+      "row-start-1",
+    );
+  });
+
+  it("lines the close icon up with a promo's favicon", () => {
     render(<BottomBar items={[{ ...promo, label: "Also by me" }]} />);
-    const marker = screen
-      .getByRole("link", {
-        name: "Also by me Interfaces Visit (opens in a new tab)",
-      })
-      .querySelector("[data-slot=marker]");
-    expect(marker?.nextElementSibling).toBe(screen.getByText("Interfaces"));
-    expect(screen.getByText("Also by me")).toHaveClass("col-start-2");
+    expect(marker()).toHaveClass("row-start-2");
+    expect(
+      screen.getByRole("button", { name: "Dismiss Interfaces" }),
+    ).toHaveClass("row-start-2");
+  });
+
+  it("hangs both icons on the title's first line", () => {
+    render(<BottomBar items={[promo]} />);
+    expect(marker()).toHaveClass("h-lh", "text-sm/[18px]");
+    expect(
+      screen.getByRole("button", { name: "Dismiss Interfaces" }),
+    ).toHaveClass("h-lh", "text-sm/[18px]");
+  });
+
+  it("gives the close button a 44px touch target", () => {
+    render(<BottomBar items={[essay]} />);
+    expect(screen.getByRole("button", { name: "Dismiss Layout" })).toHaveClass(
+      "pointer-coarse:after:-inset-3.5",
+    );
   });
 
   it("close button is not inside the link", () => {
     render(<BottomBar items={[essay]} />);
-    const link = screen.getByRole("link", { name: "New essay Layout Read" });
-    const close = screen.getByRole("button", { name: "Dismiss Layout" });
-    expect(link.contains(close)).toBe(false);
+    const link = screen.getByRole("link", { name: "Layout" });
+    const button = screen.getByRole("button", { name: "Dismiss Layout" });
+    expect(link.contains(button)).toBe(false);
   });
 
   it("dismiss removes it and focuses main", () => {

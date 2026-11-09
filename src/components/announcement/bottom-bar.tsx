@@ -1,57 +1,36 @@
 "use client";
 
-import { ArrowRight, ArrowUpRight, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { AnnouncementItem } from "@/lib/content/announcement";
-import {
-  AnnouncementHeading,
-  AnnouncementLink,
-  phaseProps,
-} from "./announcement-link";
+import { AnnouncementBody, phaseProps } from "./announcement-link";
 import { useAnnouncement } from "./use-announcement";
 
 /**
  * The announcement on mobile: a bar floating above the bottom edge, over the
  * essay, so appearing never moves the page. One step lighter than a card so
- * it reads as floating; no shadow.
+ * it reads as floating; no shadow. The whole bar is the link.
  */
 export function BottomBar({ items }: { items: AnnouncementItem[] }) {
   const { phase, item, dismiss } = useAnnouncement(items);
   if (phase === "hidden" || !item) return null;
-  const Arrow = item.kind === "essay" ? ArrowRight : ArrowUpRight;
   return (
     <section
       aria-label={item.label ?? "Announcement"}
       {...phaseProps(
         phase,
-        "announcement-bar fixed right-[calc(12px+env(safe-area-inset-right))] bottom-[calc(16px+env(safe-area-inset-bottom))] left-[calc(12px+env(safe-area-inset-left))] z-20 flex min-h-14 items-center rounded-xl border border-[color-mix(in_oklch,var(--border),var(--foreground)_10%)] bg-[color-mix(in_oklch,var(--card),var(--foreground)_2%)] pe-1 md:hidden",
+        "announcement-bar fixed right-[calc(12px+env(safe-area-inset-right))] bottom-[calc(16px+env(safe-area-inset-bottom))] left-[calc(12px+env(safe-area-inset-left))] z-20 grid min-h-14 grid-cols-[1rem_minmax(0,1fr)_auto] content-center items-start gap-x-2.5 rounded-xl border border-[color-mix(in_oklch,var(--border),var(--foreground)_10%)] bg-[color-mix(in_oklch,var(--card),var(--foreground)_2%)] px-3.5 py-2 md:hidden has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring",
       )}
     >
-      <AnnouncementLink
+      <AnnouncementBody
         item={item}
-        className="grid min-w-0 flex-1 grid-cols-[1rem_minmax(0,1fr)_auto] content-center items-center gap-x-2.5 self-stretch py-2 ps-3.5"
-      >
-        <AnnouncementHeading
-          item={item}
-          labelClassName="text-subtle-foreground text-xs/[18px]"
-          titleClassName="text-pretty font-medium text-foreground text-sm/[18px]"
-        />
-        <span className="col-start-3 row-span-2 row-start-1 flex items-center gap-0.5 text-[13px] text-foreground">
-          {item.kind === "essay" ? "Read" : "Visit"}
-          <Arrow className="size-3.5" aria-hidden />
-        </span>
-      </AnnouncementLink>
-      <Button
-        aria-label={`Dismiss ${item.title}`}
-        data-sound="tap"
-        className="ms-1 pointer-coarse:size-11"
-        onClick={() => {
+        labelClassName="text-subtle-foreground text-xs/[18px]"
+        titleClassName="text-pretty font-medium text-foreground text-sm/[18px]"
+        titleLineClassName="text-sm/[18px]"
+        closeClassName="ms-1 pointer-coarse:after:-inset-3.5"
+        onDismiss={() => {
           dismiss();
           document.getElementById("main-content")?.focus();
         }}
-      >
-        <X />
-      </Button>
+      />
     </section>
   );
 }

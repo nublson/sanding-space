@@ -1,14 +1,15 @@
+import { X } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import type { AnnouncementItem } from "@/lib/content/announcement";
 import { cn } from "@/lib/utils";
 import type { AnnouncementPhase } from "./use-announcement";
 
 /**
  * The announcement's link: an in-site Link for an essay, a new tab for an
- * external promo. Its name is what it shows (label, title, summary, action),
- * so screen readers hear the summary and voice control can say "Read"; a new
- * tab is announced by visually hidden text.
+ * external promo. Its name is the title it shows, and a new tab is announced
+ * by visually hidden text.
  */
 export function AnnouncementLink({
   item,
@@ -56,40 +57,94 @@ export function AnnouncementMarker({ item }: { item: AnnouncementItem }) {
   return <span aria-hidden className="size-1.5 rounded-full bg-foreground" />;
 }
 
+const ROW = ["row-start-1", "row-start-2", "row-start-3"] as const;
+
 /**
- * The label and title in one text column beside a 1rem marker column. The
- * marker sits on the line it belongs to: an essay's dot on the "New essay"
- * line, a promo's favicon on the title's line. Each marker cell is one line
- * of its neighbour's text tall (h-lh), so the two share a center.
+ * What the card and the bar share, laid out on their grid of three columns:
+ * marker, text, close. The marker and the close icon sit on the same row, so
+ * they always share a center: the "New essay" row for an essay's dot, the
+ * title's row for a promo's favicon. The title is the link, and its ::after
+ * stretches over the whole surface, so pressing anywhere opens it; the close
+ * button sits above that layer.
  */
-export function AnnouncementHeading({
+export function AnnouncementBody({
   item,
+  onDismiss,
   labelClassName,
   titleClassName,
+  summaryClassName,
+  closeClassName,
+  labelLineClassName = "text-xs/[18px]",
+  titleLineClassName,
 }: {
   item: AnnouncementItem;
+  onDismiss: () => void;
   labelClassName: string;
   titleClassName: string;
+  /** Size and leading of the label's line, so an icon can be one line tall. */
+  labelLineClassName?: string;
+  /** Size and leading of the title's line; omit when the title inherits them. */
+  titleLineClassName?: string;
+  /** Omit to leave the summary out. */
+  summaryClassName?: string;
+  closeClassName?: string;
 }) {
-  const onLabel = item.kind === "essay" && item.label;
-  const marker = (lineClass: string) => (
-    <span
-      data-slot="marker"
-      className={cn("flex h-lh items-center justify-center", lineClass)}
-    >
-      <AnnouncementMarker item={item} />
-    </span>
-  );
+  const titleRow = item.label ? 1 : 0;
+  const onLabel = item.kind === "essay" && Boolean(item.label);
+  const markerRow = onLabel ? 0 : titleRow;
+  // Each icon is exactly one line of its row's text tall, and the grid
+  // aligns to the top, so the icons sit on that row's first line however
+  // many lines the title wraps to.
+  const line = cn("h-lh", onLabel ? labelLineClassName : titleLineClassName);
   return (
     <>
-      {item.label && onLabel && marker(labelClassName)}
+      <span
+        data-slot="marker"
+        className={cn(
+          "col-start-1 flex items-center justify-center",
+          line,
+          ROW[markerRow],
+        )}
+      >
+        <AnnouncementMarker item={item} />
+      </span>
       {item.label && (
-        <span className={cn("col-start-2", labelClassName)}>{item.label}</span>
-      )}{" "}
-      {!onLabel && marker(titleClassName)}
-      <span className={cn("col-start-2", titleClassName)}>
+        <span className={cn("col-start-2 row-start-1", labelClassName)}>
+          {item.label}
+        </span>
+      )}
+      <AnnouncementLink
+        item={item}
+        className={cn(
+          "col-start-2 after:absolute after:inset-0 focus-visible:outline-none",
+          ROW[titleRow],
+          titleClassName,
+        )}
+      >
         {item.title}
-      </span>{" "}
+      </AnnouncementLink>
+      {summaryClassName && item.summary && (
+        <span
+          className={cn("col-start-2", ROW[titleRow + 1], summaryClassName)}
+        >
+          {item.summary}
+        </span>
+      )}
+      <Button
+        aria-label={`Dismiss ${item.title}`}
+        data-sound="tap"
+        className={cn(
+          // A 16px-wide, one-line-tall icon whose ::after widens the hit
+          // area, so the row keeps the height of its text.
+          "relative z-10 col-start-3 w-4 rounded-[4px] after:absolute after:-inset-1.5 hover:bg-transparent",
+          line,
+          ROW[markerRow],
+          closeClassName,
+        )}
+        onClick={onDismiss}
+      >
+        <X />
+      </Button>
     </>
   );
 }
