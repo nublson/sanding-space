@@ -43,29 +43,19 @@ describe("BottomBar", () => {
     );
   });
 
-  it("lines the close icon up with the essay dot", () => {
+  it("centers the close button on the whole bar", () => {
     render(<BottomBar items={[essay]} />);
-    expect(marker()).toHaveClass("row-start-1");
     expect(screen.getByRole("button", { name: "Dismiss Layout" })).toHaveClass(
       "col-start-3",
+      "row-span-2",
       "row-start-1",
+      "self-center",
     );
   });
 
-  it("lines the close icon up with a promo's favicon", () => {
+  it("hangs the marker on its line", () => {
     render(<BottomBar items={[{ ...promo, label: "Also by me" }]} />);
-    expect(marker()).toHaveClass("row-start-2");
-    expect(
-      screen.getByRole("button", { name: "Dismiss Interfaces" }),
-    ).toHaveClass("row-start-2");
-  });
-
-  it("hangs both icons on the title's first line", () => {
-    render(<BottomBar items={[promo]} />);
-    expect(marker()).toHaveClass("h-lh", "text-sm/[18px]");
-    expect(
-      screen.getByRole("button", { name: "Dismiss Interfaces" }),
-    ).toHaveClass("h-lh", "text-sm/[18px]");
+    expect(marker()).toHaveClass("row-start-2", "h-lh", "text-sm/[18px]");
   });
 
   it("gives the close button a 44px touch target", () => {

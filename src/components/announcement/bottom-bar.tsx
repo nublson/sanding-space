@@ -25,7 +25,8 @@ export function BottomBar({ items }: { items: AnnouncementItem[] }) {
         labelClassName="text-subtle-foreground text-xs/[18px]"
         titleClassName="text-pretty font-medium text-foreground text-sm/[18px]"
         titleLineClassName="text-sm/[18px]"
-        closeClassName="ms-1 pointer-coarse:after:-inset-3.5"
+        // The close button centers on the whole bar, across both rows.
+        closeClassName="ms-1 row-span-2 row-start-1 h-4 self-center pointer-coarse:after:-inset-3.5"
         onDismiss={() => {
           dismiss();
           document.getElementById("main-content")?.focus();
