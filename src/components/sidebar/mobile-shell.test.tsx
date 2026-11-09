@@ -320,3 +320,33 @@ describe("MobileShell swipe", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 });
+
+describe("MobileShell overlay", () => {
+  const withOverlay = () => (
+    <MobileShell
+      sidebar={<nav aria-label="Sections" />}
+      overlay={<button type="button">bar</button>}
+    >
+      <p>Page content</p>
+    </MobileShell>
+  );
+
+  it("overlay is inert while the sidebar is open", async () => {
+    const user = userEvent.setup();
+    render(withOverlay());
+    const wrapper = screen.getByText("bar").parentElement;
+    expect(wrapper).not.toHaveAttribute("inert");
+    await user.click(screen.getByRole("button", { name: /sidebar/i }));
+    expect(wrapper).toHaveAttribute("inert");
+    expect(wrapper).toHaveAttribute("data-open", "true");
+    await user.keyboard("{Escape}");
+    expect(wrapper).not.toHaveAttribute("inert");
+  });
+
+  it("overlay renders outside the track", () => {
+    render(withOverlay());
+    expect(
+      document.querySelector(".shell-track")?.contains(screen.getByText("bar")),
+    ).toBe(false);
+  });
+});

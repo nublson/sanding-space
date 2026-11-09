@@ -35,9 +35,16 @@ const SIDEBAR_ID = "site-sidebar";
  */
 export function MobileShell({
   sidebar,
+  overlay,
   children,
 }: {
   sidebar: ReactNode;
+  /**
+   * Fixed to the viewport above the content (the announcement bar), so it
+   * renders outside the track: a fixed element inside the translated track
+   * would move with it. Faded and inert while the sidebar is open.
+   */
+  overlay?: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -398,6 +405,15 @@ export function MobileShell({
           </div>
         </ViewTransition>
       </div>
+      {overlay && (
+        <div
+          data-open={open}
+          inert={open}
+          className="transition-opacity duration-200 ease-(--ease-out) data-[open=true]:opacity-0 motion-reduce:transition-none md:hidden"
+        >
+          {overlay}
+        </div>
+      )}
     </div>
   );
 }
