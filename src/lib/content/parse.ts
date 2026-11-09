@@ -3,7 +3,13 @@ import type {
   PageObjectResponse,
 } from "@notionhq/client";
 import { normalizePageId } from "notionic";
-import type { Essay, EssayStatus, ResourceEntry, Section } from "./types";
+import type {
+  Essay,
+  EssayStatus,
+  Promotion,
+  ResourceEntry,
+  Section,
+} from "./types";
 
 type Props = PageObjectResponse["properties"];
 type Prop = Props[string];
@@ -109,6 +115,26 @@ export function parseResource(page: PageObjectResponse): ResourceEntry {
     order: propOfType(p, "Order", "number")?.number ?? Number.POSITIVE_INFINITY,
     // Only the checkbox column hides a row: a database without one shows all.
     visible: propOfType(p, "Visible", "checkbox")?.checkbox ?? true,
+  };
+}
+
+/**
+ * A row of the Promotions database. Name, URL and Active have one column of
+ * their type and are found by type too; Description and Label (two text
+ * columns) and Start and End (two dates) only by name.
+ */
+export function parsePromotion(page: PageObjectResponse): Promotion {
+  const p = page.properties;
+  return {
+    id: normalizePageId(page.id),
+    name: plain(propOfType(p, "Name", "title")?.title).trim(),
+    description: text(p, "Description"),
+    url: (propOfType(p, "URL", "url")?.url ?? "").trim(),
+    label: text(p, "Label") || null,
+    active: propOfType(p, "Active", "checkbox")?.checkbox ?? false,
+    start: prop(p, "Start", "date")?.date?.start ?? null,
+    end: prop(p, "End", "date")?.date?.start ?? null,
+    favicon: null,
   };
 }
 

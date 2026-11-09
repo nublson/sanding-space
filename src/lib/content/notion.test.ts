@@ -1,6 +1,8 @@
 import type { PageObjectResponse } from "@notionhq/client";
 import { describe, expect, it, vi } from "vitest";
-import { queryAll } from "./notion";
+import { getPromotions, queryAll } from "./notion";
+
+vi.mock("next/cache", () => ({ cacheTag: vi.fn(), cacheLife: vi.fn() }));
 
 const page = (i: number) => ({ object: "page", id: `p${i}` });
 
@@ -37,5 +39,14 @@ describe("queryAll", () => {
       start_cursor: "c1",
     });
     expect(rows[0] as PageObjectResponse).toBeDefined();
+  });
+});
+
+describe("getPromotions", () => {
+  it("returns no promotions without the data source env variable", async () => {
+    vi.stubEnv("NOTION_PROMOTIONS_DATA_SOURCE_ID", "");
+    vi.stubEnv("NOTION_TOKEN", "");
+    await expect(getPromotions()).resolves.toEqual([]);
+    vi.unstubAllEnvs();
   });
 });
