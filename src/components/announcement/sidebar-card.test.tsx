@@ -185,9 +185,14 @@ describe("SidebarCard", () => {
     });
     expect(link).not.toContainElement(tag);
     expect(link).toHaveClass("row-start-2");
-    // The favicon and the close icon stay on the title's line.
+    // The favicon stays on the title's line; the close icon sits on the
+    // tag's line, the card's first, as it does beside "New essay".
     expect(marker()).toHaveClass("row-start-2");
-    expect(close("Dismiss Interfaces")).toHaveClass("row-start-2");
+    expect(close("Dismiss Interfaces")).toHaveClass(
+      "row-start-1",
+      "h-lh",
+      "text-xs/[18px]",
+    );
   });
 
   it("draws no pill", () => {

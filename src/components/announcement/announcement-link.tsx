@@ -61,9 +61,9 @@ const ROW = ["row-start-1", "row-start-2", "row-start-3"] as const;
 
 /**
  * What the card and the bar share, laid out on their grid of three columns:
- * marker, text, close. The marker and the close icon sit on the same row, so
- * they always share a center: the "New essay" row for an essay's dot, the
- * title's row for a promo's favicon. The title is the link, and its ::after
+ * marker, text, close. The marker sits on the line it belongs to: the "New
+ * essay" row for an essay's dot, the title's row for a promo's favicon. The
+ * close icon always sits on the first row. The title is the link, and its ::after
  * stretches over the whole surface, so pressing anywhere opens it; the close
  * button sits above that layer.
  */
@@ -96,6 +96,12 @@ export function AnnouncementBody({
   // aligns to the top, so the icons sit on that row's first line however
   // many lines the title wraps to.
   const line = cn("h-lh", onLabel ? labelLineClassName : titleLineClassName);
+  // The close icon always sits on the first line: the label's when there is
+  // one ("New essay", a promo's Tag), else the title's.
+  const closeLine = cn(
+    "h-lh",
+    item.label ? labelLineClassName : titleLineClassName,
+  );
   // The title's ::after covers the whole surface, so a press anywhere opens
   // it; the close button sits above that layer.
   const stretched = "after:absolute after:inset-0 focus-visible:outline-none";
@@ -136,8 +142,8 @@ export function AnnouncementBody({
           // A 16px-wide, one-line-tall icon whose ::after widens the hit
           // area, so the row keeps the height of its text.
           "relative z-10 col-start-3 w-4 rounded-[4px] after:absolute after:-inset-1.5 hover:bg-transparent",
-          line,
-          ROW[markerRow],
+          closeLine,
+          "row-start-1",
           closeClassName,
         )}
         onClick={onDismiss}
