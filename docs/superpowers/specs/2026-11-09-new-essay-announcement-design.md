@@ -8,6 +8,8 @@ One small slot announces one thing at a time without getting in the way of readi
 
 Prototype of the chosen treatments: https://claude.ai/artifact/KFH8ze9uEUDBziMhtfy5Ew (desktop sidebar card, mobile bottom bar; essay variant).
 
+**Revised 2026-11-10: no mobile bar.** The bottom bar is gone. The sidebar card shows at every width; on mobile it lives in the sidebar, and a 6px dot on the sidebar toggle points to it while the reader hasn't seen it. The card counts as seen ("noticed", a third stored state that clears the dot but keeps the card) once at least half of it is on screen, which on mobile means the sidebar is open. The sections below on the bottom bar are superseded.
+
 ## Decisions
 
 - **Two kinds of item.** The *essay* item is automatic: the newest essay with status `Published` and a `Published` date, for **14 days** after that date. *External* items come from a new Notion **Promotions** database.

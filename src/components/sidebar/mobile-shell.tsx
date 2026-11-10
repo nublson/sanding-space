@@ -35,16 +35,15 @@ const SIDEBAR_ID = "site-sidebar";
  */
 export function MobileShell({
   sidebar,
-  overlay,
+  toggleBadge,
   children,
 }: {
   sidebar: ReactNode;
   /**
-   * Fixed to the viewport above the content (the announcement bar), so it
-   * renders outside the track: a fixed element inside the translated track
-   * would move with it. Faded and inert while the sidebar is open.
+   * Sits inside the sidebar toggle (the announcement's dot) and may add
+   * visually hidden text to its name.
    */
-  overlay?: ReactNode;
+  toggleBadge?: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -342,15 +341,16 @@ export function MobileShell({
           type="button"
           aria-expanded={open}
           aria-controls={SIDEBAR_ID}
-          aria-label="Toggle sidebar"
           data-sound={open ? "toggle-off" : "toggle-on"}
           onClick={() => {
             setInstant(false);
             setOpen((value) => !value);
           }}
-          className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+          className="press relative flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
         >
           <PanelLeft aria-hidden strokeWidth={1.5} className="size-4" />
+          <span className="sr-only">Toggle sidebar</span>
+          {toggleBadge}
         </button>
         {/* The desktop wordmark, after the toggle (spec §9.5), on the mobile
             scale: 18px mark, 14px medium on a 28px line. */}
@@ -405,15 +405,6 @@ export function MobileShell({
           </div>
         </ViewTransition>
       </div>
-      {overlay && (
-        <div
-          data-open={open}
-          inert={open}
-          className="transition-opacity duration-200 ease-(--ease-out) data-[open=true]:opacity-0 md:hidden"
-        >
-          {overlay}
-        </div>
-      )}
     </div>
   );
 }

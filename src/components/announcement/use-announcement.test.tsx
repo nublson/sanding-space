@@ -156,6 +156,35 @@ describe("useAnnouncement", () => {
     expect(result.current.phase).toBe("hidden");
   });
 
+  it("noticing keeps the card but clears the dot", () => {
+    const { result } = renderHook(() => useAnnouncement([essay]));
+    expect(result.current.noticed).toBe(false);
+    act(() => result.current.notice());
+    expect(result.current.noticed).toBe(true);
+    expect(result.current.phase).toBe("shown");
+    expect(stored()).toEqual({ layout: "noticed" });
+
+    resetAnnouncementStore();
+    const { result: again } = renderHook(() => useAnnouncement([essay]));
+    expect(again.current.phase).toBe("shown");
+    expect(again.current.noticed).toBe(true);
+  });
+
+  it("a close after noticing still hides it", () => {
+    const { result } = renderHook(() => useAnnouncement([essay]));
+    act(() => result.current.notice());
+    act(() => result.current.dismiss());
+    expect(stored()).toEqual({ layout: "dismissed" });
+  });
+
+  it("noticing never undoes a close or a read", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ layout: "dismissed" }));
+    resetAnnouncementStore();
+    const { result } = renderHook(() => useAnnouncement([essay]));
+    act(() => result.current.notice());
+    expect(stored()).toEqual({ layout: "dismissed" });
+  });
+
   it("caps storage at 50 entries", () => {
     const full = Object.fromEntries(
       Array.from({ length: 50 }, (_, i) => [`old-${i}`, "dismissed"]),

@@ -321,32 +321,29 @@ describe("MobileShell swipe", () => {
   });
 });
 
-describe("MobileShell overlay", () => {
-  const withOverlay = () => (
-    <MobileShell
-      sidebar={<nav aria-label="Sections" />}
-      overlay={<button type="button">bar</button>}
-    >
-      <p>Page content</p>
-    </MobileShell>
-  );
-
-  it("overlay is inert while the sidebar is open", async () => {
-    const user = userEvent.setup();
-    render(withOverlay());
-    const wrapper = screen.getByText("bar").parentElement;
-    expect(wrapper).not.toHaveAttribute("inert");
-    await user.click(screen.getByRole("button", { name: /sidebar/i }));
-    expect(wrapper).toHaveAttribute("inert");
-    expect(wrapper).toHaveAttribute("data-open", "true");
-    await user.keyboard("{Escape}");
-    expect(wrapper).not.toHaveAttribute("inert");
+describe("MobileShell toggle badge", () => {
+  it("renders the badge inside the toggle, joining its name", () => {
+    render(
+      <MobileShell
+        sidebar={<nav aria-label="Sections" />}
+        toggleBadge={<span className="sr-only">, new announcement</span>}
+      >
+        <p>Page content</p>
+      </MobileShell>,
+    );
+    expect(
+      screen.getByRole("button", { name: "Toggle sidebar, new announcement" }),
+    ).toBeInTheDocument();
   });
 
-  it("overlay renders outside the track", () => {
-    render(withOverlay());
+  it("keeps its plain name without a badge", () => {
+    render(
+      <MobileShell sidebar={<nav aria-label="Sections" />}>
+        <p>Page content</p>
+      </MobileShell>,
+    );
     expect(
-      document.querySelector(".shell-track")?.contains(screen.getByText("bar")),
-    ).toBe(false);
+      screen.getByRole("button", { name: "Toggle sidebar" }),
+    ).toBeInTheDocument();
   });
 });

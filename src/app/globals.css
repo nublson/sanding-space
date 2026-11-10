@@ -646,21 +646,6 @@ body {
 ::view-transition-old(site-header) {
   display: none;
 }
-/*
- * The mobile announcement bar sits in the same place before and after a
- * route change; like the header, it is its own group so it stays put instead
- * of fading with the page.
- */
-.announcement-bar {
-  view-transition-name: announcement-bar;
-}
-::view-transition-group(announcement-bar),
-::view-transition-new(announcement-bar) {
-  animation: none;
-}
-::view-transition-old(announcement-bar) {
-  display: none;
-}
 ::view-transition {
   pointer-events: none;
 }

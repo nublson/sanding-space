@@ -1,27 +1,55 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { AnnouncementItem } from "@/lib/content/announcement";
 import { cn } from "@/lib/utils";
 import { AnnouncementBody, phaseProps } from "./announcement-link";
 import { useAnnouncement } from "./use-announcement";
 
 /**
- * The announcement on desktop: a card in the sidebar footer, above
- * Resources. Its height comes out of the scrolling list, never the content.
+ * The announcement: a card in the sidebar footer, above Resources, at every
+ * width (on mobile, inside the sidebar; a dot on the toggle points to it).
+ * Its height comes out of the scrolling list, never the content.
  * It reaches 13px past the column on each side so its icons share the
  * sidebar's: the marker on the logo's and the nav's left edge, the close
- * icon centered over the mute icon.
- * Below md the bottom bar shows it instead.
+ * icon centered over the mute icon. Once it is actually on screen it counts
+ * as noticed, which clears the toggle dot.
  */
 export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
-  const { phase, item, dismiss } = useAnnouncement(items);
+  const { phase, item, dismiss, notice } = useAnnouncement(items);
+  const ref = useRef<HTMLElement>(null);
+
+  // On desktop the card is on screen at once; on mobile only when the
+  // sidebar is open, since the closed sidebar sits off-canvas.
+  useEffect(() => {
+    const node = ref.current;
+    if (
+      phase !== "shown" ||
+      !node ||
+      typeof IntersectionObserver === "undefined"
+    )
+      return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          notice();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [phase, notice]);
+
   if (phase === "hidden" || !item) return null;
   return (
     <section
+      ref={ref}
       aria-label={item.label ?? "Announcement"}
       {...phaseProps(
         phase,
-        "relative mt-3 grid grid-cols-[1rem_minmax(0,1fr)_auto] items-start gap-x-2 gap-y-0.5 -mx-[13px] rounded-[10px] border border-border bg-card px-3 pe-5 pt-2.5 pb-3 max-md:hidden has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
+        "relative mt-3 grid grid-cols-[1rem_minmax(0,1fr)_auto] items-start gap-x-2 gap-y-0.5 -mx-[13px] rounded-[10px] border border-border bg-card px-3 pe-5 pt-2.5 pb-3 max-md:me-0 max-md:pe-[13px] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
       )}
     >
       <AnnouncementBody

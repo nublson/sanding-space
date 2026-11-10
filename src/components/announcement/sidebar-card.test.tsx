@@ -198,10 +198,46 @@ describe("SidebarCard", () => {
     expect(container.querySelector(".rounded-full.border")).toBeNull();
   });
 
-  it("hidden on mobile", () => {
+  it("stays inside the mobile sidebar, close icon over the mute icon", () => {
     render(<SidebarCard items={[essay]} />);
+    // The mobile sidebar ends where the nav does, so the card can't reach
+    // past it; 13px end padding puts the close icon over the mute icon.
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
-      "max-md:hidden",
+      "max-md:me-0",
+      "max-md:pe-[13px]",
     );
+  });
+
+  it("shows at every width, inside the mobile sidebar too", () => {
+    render(<SidebarCard items={[essay]} />);
+    expect(
+      screen.getByRole("region", { name: "New essay" }).className,
+    ).not.toContain("max-md:hidden");
+  });
+
+  it("marks itself noticed once it is on screen", () => {
+    let callback: IntersectionObserverCallback = () => {};
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(cb: IntersectionObserverCallback) {
+          callback = cb;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    render(<SidebarCard items={[essay]} />);
+    expect(localStorage.getItem("sanding-space:announcement")).toBeNull();
+    act(() =>
+      callback(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      ),
+    );
+    expect(
+      JSON.parse(localStorage.getItem("sanding-space:announcement") ?? "{}"),
+    ).toEqual({ layout: "noticed" });
+    vi.unstubAllGlobals();
   });
 });

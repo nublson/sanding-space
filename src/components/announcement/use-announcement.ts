@@ -14,13 +14,20 @@ export const STORAGE_KEY = "sanding-space:announcement";
 const MAX_ENTRIES = 50;
 const LEAVE_MS = 200;
 
-type Seen = Record<string, "dismissed" | "read">;
+/*
+ * "noticed": the reader has seen the card (it was on screen), which clears
+ * the dot on the mobile sidebar toggle but keeps the card. "dismissed" and
+ * "read" hide the card.
+ */
+type Seen = Record<string, "dismissed" | "read" | "noticed">;
+const hides = (state: Seen[string] | undefined) =>
+  state === "dismissed" || state === "read";
 const EMPTY: Seen = {};
 
 /*
- * What this reader has closed or read, per item id. One copy in memory,
- * shared by the card and the bar (both are mounted; CSS hides one) and kept
- * for the visit even when localStorage is unavailable.
+ * What this reader has closed, read or noticed, per item id. One copy in
+ * memory, shared by the card and the toggle dot, and kept for the visit even
+ * when localStorage is unavailable.
  */
 let memory: Seen | null = null;
 const listeners = new Set<() => void>();
@@ -82,6 +89,10 @@ export function useAnnouncement(items: AnnouncementItem[]): {
   phase: AnnouncementPhase;
   item: AnnouncementItem | null;
   dismiss: () => void;
+  /** Whether this reader has already seen the card (clears the toggle dot). */
+  noticed: boolean;
+  /** Record that the card has been on screen; never undoes a close or read. */
+  notice: () => void;
 } {
   const path = usePathname().replace(/\/$/, "");
   const seen = useSyncExternalStore(subscribe, load, () => EMPTY);
@@ -107,8 +118,9 @@ export function useAnnouncement(items: AnnouncementItem[]): {
     const now = Date.now();
     const current = load();
     setChosen(
-      items.find((i) => isLive(i, now) && !current[i.id] && !ownPage(i)) ??
-        null,
+      items.find(
+        (i) => isLive(i, now) && !hides(current[i.id]) && !ownPage(i),
+      ) ?? null,
     );
     setLeaving(false);
   }, [itemsKey, path]);
@@ -127,6 +139,10 @@ export function useAnnouncement(items: AnnouncementItem[]): {
     }, LEAVE_MS);
   }, [chosen]);
 
+  const notice = useCallback(() => {
+    if (chosen && !load()[chosen.id]) write(chosen.id, "noticed");
+  }, [chosen]);
+
   const phase: AnnouncementPhase =
     chosen === undefined
       ? "pending"
@@ -134,9 +150,15 @@ export function useAnnouncement(items: AnnouncementItem[]): {
         ? "hidden"
         : leaving
           ? "leaving"
-          : seen[chosen.id]
-            ? "hidden" // closed through the other treatment
+          : hides(seen[chosen.id])
+            ? "hidden" // closed elsewhere on the page
             : "shown";
 
-  return { phase, item: chosen ?? null, dismiss };
+  return {
+    phase,
+    item: chosen ?? null,
+    dismiss,
+    noticed: Boolean(chosen && seen[chosen.id] === "noticed"),
+    notice,
+  };
 }

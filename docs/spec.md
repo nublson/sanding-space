@@ -145,7 +145,7 @@ External promos for the announcement slot (§9.1, §9.5): another project, a mag
 | Start | date | Optional; runs from 00:00 UTC that day |
 | End | date | Optional, inclusive; runs until 00:00 UTC the next day |
 
-A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL, Active, Description and Tag are also found by type; Start and End only by name. Keep the Name short and let the Description say what it is. The desktop card shows the Description whole below the Name; the mobile bar keeps Name and Description on one line, the Name whole and the Description ending in an ellipsis when it doesn't fit (decided 2026-11-09). Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
+A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL, Active, Description and Tag are also found by type; Start and End only by name. Keep the Name short and let the Description say what it is. The card shows the Description whole below the Name (decided 2026-11-09). Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
 
 ---
 
@@ -360,7 +360,7 @@ Agreed through low-fidelity mocks (direction "Contents", inspired by devouringde
 - Sections in `Order`, collapsed to their name. Collapsed sections link to `/sections/<slug>`.
 - The **current section** is expanded: its name, its `Question` (small, muted) below it, then its essays (`Published` and `Soon`) behind a thin vertical guide line.
 - The essay being read is marked with a short bar in the brand color on the guide line. `Soon` essays are muted and not clickable.
-- **Announcement card** above the footer (md and up): one item at a time. An external promo from the Promotions database (§3.5) when one is live, else the newest Published essay for 14 days after its Published date. Closable (remembered per item in `localStorage`); an essay's card hides once its page has been visited and never shows on that page. It appears after the browser has checked, without moving the content (decided 2026-11-09).
+- **Announcement card** above the footer, at every width (on mobile, inside the sidebar): one item at a time. An external promo from the Promotions database (§3.5) when one is live, else the newest Published essay for 14 days after its Published date. Closable (remembered per item in `localStorage`); an essay's card hides once its page has been visited and never shows on that page. It appears after the browser has checked, without moving the content (decided 2026-11-09).
 - Footer pinned to the bottom: **Resources** and **About** links (Resources above About) and a **mute** button (sound on by default, §11.4). The site is dark only; there is no theme toggle.
 - Current item from the URL: on an essay page, the essay's section and the essay; on `/sections/<slug>`, that section; on `/introduction`, the Introduction item with no section expanded.
 - Desktop: always visible, sticky beside the content.
@@ -388,7 +388,7 @@ The section name, its **full** intro (Notion page body, skipping the linked Essa
 - Header identical to the desktop wordmark, with a **sidebar toggle button before the logo**. The header stays fixed.
 - The sidebar is the same component (sections, Question, essays, About + mute footer). It lives off-canvas on the left; the toggle **pushes** the content to the right (no overlay), leaving part of the page visible.
 - While open: the visible content is inert and tapping it closes the sidebar; Escape closes it; focus moves into the sidebar; choosing a link closes it and navigates. The toggle exposes `aria-expanded`. With reduced motion, open/close without the slide.
-- The announcement (§9.1) is a bar floating 16px above the bottom edge (inside the safe areas) instead of the sidebar card, which never shows below md, not even in the open sidebar. The bar fades out and is inert while the sidebar is open (decided 2026-11-09).
+- The announcement (§9.1) stays the sidebar card. While the reader hasn't seen it, a small dot sits on the sidebar toggle (the toggle's name gains ", new announcement"); seeing the card, which on mobile means opening the sidebar, clears the dot. No bar over the content (decided 2026-11-10, replacing the bottom bar).
 - A horizontal touch swipe also opens and closes it (decided), like a native app's push drawer: the content follows the finger from wherever it is (mid-slide included) and stretches with resistance past either end; on release a flick (0.25 px/ms) or a brisk drag (0.11 px/ms over 24 px) goes its way, anything slower settles on the side of halfway it drifts to. A moving release carries the finger's speed (180–400 ms, starting at the release velocity, `--ease-out`'s tail); a still one uses the toggle's push spring. Vertical scroll and pinch-zoom stay native; swipes starting on a live demo stage, a field or a sideways scroller belong to the page. The toggle sound plays only when the state changes.
 - Every demo stage in an essay runs edge to edge, the hero and the ones in the body alike (decided 2026-11-04); the card grid drops to 2 columns.
 
