@@ -5,11 +5,13 @@ import type {
 import { normalizePageId } from "notionic";
 import { describe, expect, it } from "vitest";
 import essayFixture from "./__fixtures__/essay-page.json";
+import promotionFixture from "./__fixtures__/promotion-page.json";
 import resourceFixture from "./__fixtures__/resource-page.json";
 import resourcesSchemaFixture from "./__fixtures__/resources-data-source.json";
 import sectionFixture from "./__fixtures__/section-page.json";
 import {
   parseEssay,
+  parsePromotion,
   parseResource,
   parseResourcesSchema,
   parseSection,
@@ -185,5 +187,47 @@ describe("parseResourcesSchema", () => {
         properties: { Name: schema.properties.Name },
       }),
     ).toEqual({ intro: "", categories: [] });
+  });
+});
+
+describe("parsePromotion", () => {
+  it("reads every property", () => {
+    const page = promotionFixture as unknown as PageObjectResponse;
+    expect(parsePromotion(page)).toEqual({
+      id: normalizePageId(page.id),
+      name: "Interfaces",
+      description: "A magazine.",
+      url: "https://interfaces.example",
+      active: true,
+      start: "2026-11-10",
+      end: null,
+      favicon: null,
+    });
+  });
+
+  it("treats missing columns as empty", () => {
+    const page = structuredClone(promotionFixture) as unknown as {
+      properties: Record<string, unknown>;
+    };
+    delete page.properties.Active;
+    delete page.properties.Start;
+    delete page.properties.End;
+    const parsed = parsePromotion(page as unknown as PageObjectResponse);
+    expect(parsed.active).toBe(false);
+    expect(parsed.start).toBeNull();
+    expect(parsed.end).toBeNull();
+  });
+
+  it("reads Start and End by name, not by type", () => {
+    const page = structuredClone(promotionFixture) as unknown as {
+      properties: Record<string, { date?: unknown }>;
+    };
+    page.properties.End = {
+      ...page.properties.End,
+      date: { start: "2026-11-20", end: null, time_zone: null },
+    };
+    const parsed = parsePromotion(page as unknown as PageObjectResponse);
+    expect(parsed.start).toBe("2026-11-10");
+    expect(parsed.end).toBe("2026-11-20");
   });
 });

@@ -31,6 +31,20 @@ export type Library = {
 };
 
 /** One row of the Resources page: an external link with a one-line description. */
+/** A row of the Promotions database: an external promo for the announcement slot. */
+export type Promotion = {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  active: boolean;
+  /** Notion dates (YYYY-MM-DD), both optional and inclusive. */
+  start: string | null;
+  end: string | null;
+  /** The destination's icon as a data URL, once looked up. */
+  favicon: string | null;
+};
+
 export type Resource = {
   id: string;
   name: string;

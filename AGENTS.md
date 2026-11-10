@@ -54,7 +54,7 @@ Reserved essay slugs: `demos`, `sections`, `api`, `about`, `resources`, `introdu
 
 Structure is decided in [docs/spec.md §9](docs/spec.md); visual style is not decided yet.
 
-- **Sidebar** (same component on every size): wordmark (links to `/introduction`), the fixed **Introduction** item, then sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), Resources and About (Resources above) + mute button in the footer. The current item comes from the URL.
+- **Sidebar** (same component on every size): wordmark (links to `/introduction`), the fixed **Introduction** item, then sections collapsed except the current one (which shows its Question and its essays, current essay marked with a bar), Resources and About (Resources above) + mute button in the footer, and above them an announcement card (newest essay for 14 days, or an external promo from the Promotions database; on mobile a dot on the sidebar toggle points to it, see [the design](docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md)). The current item comes from the URL.
 - **Introduction** (`/introduction`, the default page): laid out like a section page, the Notion page’s title as the heading and its body below. **Section page**: full intro, its first essay by Order as a large card (Soon included: dashed, unfilled stage with a "Soon" label and the static thumbnail dimmed if the demo has one, muted text, not a link), the rest in a 3-column card grid. The label sits in the aria-hidden stage; the title carries a screen-reader-only "(coming soon)".
 - **Essay**: section eyebrow (with the share row at its end: Copy as Markdown, Copy link, Share menu), title, large demo stage with caption, then the body.
 - **Resources** (`/resources`): heading, the one-line intro, then each category (in the order of the Category property's options) as a heading over one row per resource: favicon, name, description, the row linking out in a new tab. Resources sort by Order within their category. The per-essay References block is out of the first milestone.
@@ -97,6 +97,7 @@ NOTION_ESSAYS_DATA_SOURCE_ID=92208a07-e0f7-4a67-94d6-a220d3529348
 NOTION_RESOURCES_DATA_SOURCE_ID=3756f20a-f849-489e-8571-51858d7b8cbc
 NOTION_INTRODUCTION_PAGE_ID=405b1726-8ab3-81f0-9d46-ef735904da9e
 NOTION_ABOUT_PAGE_ID=
+NOTION_PROMOTIONS_DATA_SOURCE_ID=9d028ab6-9b13-4f00-ba32-ddae144f2c5b   # optional: external promos for the announcement slot
 NEXT_PUBLIC_SITE_URL=https://sanding.space
 ```
 

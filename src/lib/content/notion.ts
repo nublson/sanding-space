@@ -19,13 +19,15 @@ import {
 import { buildLibrary, resolvePreview } from "./library";
 import {
   parseEssay,
+  parsePromotion,
   parseResource,
   parseResourcesSchema,
   parseSection,
 } from "./parse";
+import { selectPromotions } from "./promotions";
 import { queryAll } from "./query";
 import { buildResources, type Resources } from "./resources";
-import type { Library } from "./types";
+import type { Library, Promotion } from "./types";
 
 export { queryAll } from "./query";
 
@@ -84,6 +86,39 @@ export async function getResources(): Promise<Resources> {
   }
   return withFavicons(
     buildResources(parseResourcesSchema(dataSource), rows.map(parseResource)),
+  );
+}
+
+/**
+ * The external promos that may take the announcement slot, in priority
+ * order, each with its destination's icon. The Promotions database is
+ * optional: without NOTION_PROMOTIONS_DATA_SOURCE_ID the slot shows essays
+ * only.
+ */
+export async function getPromotions(): Promise<Promotion[]> {
+  "use cache";
+  cacheTag("notion");
+  cacheLife("minutes");
+  const id = process.env.NOTION_PROMOTIONS_DATA_SOURCE_ID;
+  if (!id) return [];
+  let promotions: Promotion[];
+  try {
+    const rows = await queryAll(client(), id);
+    promotions = selectPromotions(rows.map(parsePromotion));
+  } catch (error) {
+    // An optional, decorative database never takes the site down: a wrong
+    // id or a database not yet shared with the integration means no promos.
+    console.error("Promotions could not be read", error);
+    return [];
+  }
+  return Promise.all(
+    promotions.map(async (promotion) => {
+      const host = hostOf(promotion.url);
+      const favicon = host
+        ? await fetchLinkFavicon(host, LINK_FAVICONS).catch(() => null)
+        : null;
+      return { ...promotion, favicon };
+    }),
   );
 }
 
