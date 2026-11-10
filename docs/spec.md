@@ -140,12 +140,11 @@ External promos for the announcement slot (§9.1, §9.5): another project, a mag
 | Name | title | A short headline, a few words. Required |
 | Description | text | One line |
 | URL | url | Where it links (new tab); its host's favicon is the marker |
-| Tag | select | Optional: `New`, `Launch`, `Beta` or `Update`, shown as a quiet line above the name (the label row an essay's "New essay" uses). Empty shows none |
 | Active | checkbox | Required for the promo to run |
 | Start | date | Optional; runs from 00:00 UTC that day |
 | End | date | Optional, inclusive; runs until 00:00 UTC the next day |
 
-A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL, Active, Description and Tag are also found by type; Start and End only by name. Keep the Name short and let the Description say what it is. The card shows the Description whole below the Name (decided 2026-11-09). Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
+A row is a candidate when Active, with a Name and a URL; candidates sort by Start, latest first (empty Start last), then by name. Name, URL, Active and Description are also found by type; Start and End only by name. Keep the Name short and let the Description say what it is. The card shows the Description whole below the Name (decided 2026-11-09). Dates are checked in the browser, since the layout prerenders. Full design: `docs/superpowers/specs/2026-11-09-new-essay-announcement-design.md`.
 
 ---
 

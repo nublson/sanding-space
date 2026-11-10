@@ -119,8 +119,8 @@ export function parseResource(page: PageObjectResponse): ResourceEntry {
 }
 
 /**
- * A row of the Promotions database. Name, URL, Active, Description and Tag
- * have one column of their type and are found by type too; Start and End (two
+ * A row of the Promotions database. Name, URL, Active and Description have
+ * one column of their type and are found by type too; Start and End (two
  * dates) only by name.
  */
 export function parsePromotion(page: PageObjectResponse): Promotion {
@@ -132,7 +132,6 @@ export function parsePromotion(page: PageObjectResponse): Promotion {
       propOfType(p, "Description", "rich_text")?.rich_text,
     ).trim(),
     url: (propOfType(p, "URL", "url")?.url ?? "").trim(),
-    tag: propOfType(p, "Tag", "select")?.select?.name ?? null,
     active: propOfType(p, "Active", "checkbox")?.checkbox ?? false,
     start: prop(p, "Start", "date")?.date?.start ?? null,
     end: prop(p, "End", "date")?.date?.start ?? null,

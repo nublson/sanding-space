@@ -17,7 +17,7 @@ export type AnnouncementItem = {
   title: string;
   summary: string;
   href: string;
-  /** "New essay" for essays; a promo's Tag, or null. */
+  /** "New essay" for essays; null for promos. */
   label: string | null;
   /** The destination's favicon (external items only). */
   icon: string | null;
@@ -67,9 +67,9 @@ export function promotionAnnouncement(p: Promotion): AnnouncementItem {
     title: p.name,
     summary: p.description,
     href: p.url,
-    // A promo's optional Tag (New, Launch, Beta, Update) is its label: a
-    // quiet line above the title, like an essay's "New essay".
-    label: p.tag,
+    // Promos have no label: the favicon, a short Name and the Description
+    // say what they are.
+    label: null,
     icon: p.favicon,
     startsAt: p.start ? dayStart(p.start) : null,
     expiresAt: p.end ? dayStart(p.end, 1) : null,

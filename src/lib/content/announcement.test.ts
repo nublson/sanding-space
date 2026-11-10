@@ -42,7 +42,6 @@ const promo = (o: Partial<Promotion> = {}): Promotion => ({
   active: true,
   start: null,
   end: null,
-  tag: null,
   favicon: null,
   ...o,
 });
@@ -131,7 +130,6 @@ describe("promotionAnnouncement", () => {
           start: "2026-11-10",
           end: "2026-11-20",
           favicon: "data:x",
-          tag: "New",
         }),
       ),
     ).toEqual({
@@ -140,15 +138,14 @@ describe("promotionAnnouncement", () => {
       title: "Interfaces",
       summary: "A magazine.",
       href: "https://interfaces.example",
-      label: "New",
+      label: null,
       icon: "data:x",
       startsAt: "2026-11-10T00:00:00.000Z",
       expiresAt: "2026-11-21T00:00:00.000Z",
     });
   });
 
-  it("uses a promo's Tag as its label, and none without one", () => {
-    expect(promotionAnnouncement(promo({ tag: "Beta" })).label).toBe("Beta");
+  it("never gives a promo a label", () => {
     expect(promotionAnnouncement(promo()).label).toBeNull();
   });
 

@@ -172,37 +172,6 @@ describe("SidebarCard", () => {
     );
   });
 
-  it("puts a promo's tag on its own quiet line above the title", () => {
-    render(<SidebarCard items={[{ ...promo, label: "New" }]} />);
-    const tag = screen.getByText("New");
-    expect(tag).toHaveClass(
-      "col-start-2",
-      "row-start-1",
-      "text-subtle-foreground",
-    );
-    const link = screen.getByRole("link", {
-      name: "Interfaces (opens in a new tab)",
-    });
-    expect(link).not.toContainElement(tag);
-    expect(link).toHaveClass("row-start-2");
-    // The favicon stays on the title's line; the close icon sits on the
-    // tag's line, the card's first, as it does beside "New essay".
-    expect(marker()).toHaveClass("row-start-2");
-    expect(close("Dismiss Interfaces")).toHaveClass(
-      "row-start-1",
-      "h-lh",
-      "text-xs/[18px]",
-    );
-  });
-
-  it("draws no pill", () => {
-    const { container } = render(
-      <SidebarCard items={[{ ...promo, label: "New" }]} />,
-    );
-    expect(container.querySelector("[data-slot=tag]")).toBeNull();
-    expect(container.querySelector(".rounded-full.border")).toBeNull();
-  });
-
   it("stays inside the mobile sidebar, close icon over the mute icon", () => {
     render(<SidebarCard items={[essay]} />);
     // The mobile sidebar ends where the nav does, so the card can't reach
