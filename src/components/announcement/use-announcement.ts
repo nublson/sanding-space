@@ -16,8 +16,9 @@ const LEAVE_MS = 200;
 
 /*
  * "noticed": the reader has seen the card (it was on screen), which clears
- * the dot on the mobile sidebar toggle but keeps the card. "dismissed" and
- * "read" hide the card.
+ * the dot on the mobile sidebar toggle but keeps the card. "read" (the card
+ * was opened, or the essay's page visited) hides it; "dismissed" comes from
+ * the old close button and hides it too.
  */
 type Seen = Record<string, "dismissed" | "read" | "noticed">;
 const hides = (state: Seen[string] | undefined) =>
@@ -88,10 +89,11 @@ export type AnnouncementPhase = "pending" | "shown" | "leaving" | "hidden";
 export function useAnnouncement(items: AnnouncementItem[]): {
   phase: AnnouncementPhase;
   item: AnnouncementItem | null;
-  dismiss: () => void;
+  /** The reader opened it: marks it read and fades it out. */
+  open: () => void;
   /** Whether this reader has already seen the card (clears the toggle dot). */
   noticed: boolean;
-  /** Record that the card has been on screen; never undoes a close or read. */
+  /** Record that the card has been on screen; never undoes a read. */
   notice: () => void;
 } {
   const path = usePathname().replace(/\/$/, "");
@@ -127,9 +129,9 @@ export function useAnnouncement(items: AnnouncementItem[]): {
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const dismiss = useCallback(() => {
+  const open = useCallback(() => {
     if (!chosen) return;
-    write(chosen.id, "dismissed");
+    write(chosen.id, "read");
     setLeaving(true);
     clearTimeout(timer.current);
     // The fade out runs under reduced motion too (only the lift is dropped).
@@ -157,7 +159,7 @@ export function useAnnouncement(items: AnnouncementItem[]): {
   return {
     phase,
     item: chosen ?? null,
-    dismiss,
+    open,
     noticed: Boolean(chosen && seen[chosen.id] === "noticed"),
     notice,
   };

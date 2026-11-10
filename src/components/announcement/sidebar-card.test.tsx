@@ -15,7 +15,6 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 const marker = () => document.querySelector("[data-slot=marker]");
-const close = (name = "Dismiss Layout") => screen.getByRole("button", { name });
 
 describe("SidebarCard", () => {
   it("renders the essay item, its title as the link", () => {
@@ -54,55 +53,56 @@ describe("SidebarCard", () => {
     );
   });
 
-  it("lines the close icon up with the essay dot on the New essay row", () => {
+  it("has no close button: opening it is the only way out", () => {
+    render(<SidebarCard items={[promo]} />);
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("puts the essay dot on the New essay row", () => {
     render(<SidebarCard items={[essay]} />);
-    expect(marker()).toHaveClass("col-start-1", "row-start-1");
-    expect(close()).toHaveClass("col-start-3", "row-start-1");
+    expect(marker()).toHaveClass("col-start-1", "row-start-1", "h-lh");
     expect(screen.getByText("New essay")).toHaveClass("row-start-1");
     expect(screen.getByRole("link", { name: "Layout" })).toHaveClass(
       "row-start-2",
     );
   });
 
-  it("lines the close icon up with a promo's favicon on the title row", () => {
+  it("hangs a promo's favicon on the title's first line", () => {
     render(<SidebarCard items={[promo]} />);
-    expect(marker()).toHaveClass("row-start-1");
-    expect(close("Dismiss Interfaces")).toHaveClass("row-start-1");
+    expect(marker()).toHaveClass("row-start-1", "h-lh");
     expect(
       screen.getByRole("link", { name: "Interfaces (opens in a new tab)" }),
     ).toHaveClass("row-start-1");
     expect(screen.getByText("A magazine.")).toHaveClass("row-start-2");
   });
 
-  it("hangs both icons on the first line, however the title wraps", () => {
-    render(<SidebarCard items={[essay]} />);
-    expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
-      "items-start",
-    );
-    // One line of the New essay row tall, so each centers on that line.
-    expect(marker()).toHaveClass("h-lh", "text-xs/[18px]");
-    expect(close()).toHaveClass("h-lh", "text-xs/[18px]");
-  });
-
-  it("close button is not inside the link", () => {
-    render(<SidebarCard items={[essay]} />);
-    const link = screen.getByRole("link", { name: "Layout" });
-    expect(link.contains(close())).toBe(false);
-  });
-
-  it("dismiss removes it and focuses Resources", () => {
+  it("opening a promo marks it read and fades the card out", () => {
     render(
       <>
-        <SidebarCard items={[essay]} />
+        <SidebarCard items={[promo]} />
         <a href="/resources">Resources</a>
       </>,
     );
-    fireEvent.click(close());
+    fireEvent.click(
+      screen.getByRole("link", { name: "Interfaces (opens in a new tab)" }),
+    );
+    expect(
+      JSON.parse(localStorage.getItem("sanding-space:announcement") ?? "{}"),
+    ).toEqual({ p1: "read" });
     act(() => vi.advanceTimersByTime(200));
-    expect(screen.queryByRole("region", { name: "New essay" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Announcement" })).toBeNull();
+    // Focus moves on instead of being lost with the card.
     expect(document.activeElement).toBe(
       screen.getByRole("link", { name: "Resources" }),
     );
+  });
+
+  it("opening an essay marks it read", () => {
+    render(<SidebarCard items={[essay]} />);
+    fireEvent.click(screen.getByRole("link", { name: "Layout" }));
+    expect(
+      JSON.parse(localStorage.getItem("sanding-space:announcement") ?? "{}"),
+    ).toEqual({ layout: "read" });
   });
 
   it("fades in from its first paint", () => {
@@ -161,24 +161,19 @@ describe("SidebarCard", () => {
     );
   });
 
-  it("lines its icons up with the sidebar's: marker under the logo, close under the mute icon", () => {
+  it("reaches past the column so its marker sits on the logo's edge", () => {
     render(<SidebarCard items={[essay]} />);
     // 13px = 12px padding + 1px border: the marker column starts on the
-    // sidebar's text edge. 20px end padding puts the close icon's center on
-    // the mute button's (a 32px button, 8px in from the column's end).
+    // sidebar's text edge.
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
       "-mx-[13px]",
-      "pe-5",
     );
   });
 
-  it("stays inside the mobile sidebar, close icon over the mute icon", () => {
+  it("stays inside the mobile sidebar", () => {
     render(<SidebarCard items={[essay]} />);
-    // The mobile sidebar ends where the nav does, so the card can't reach
-    // past it; 13px end padding puts the close icon over the mute icon.
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
       "max-md:me-0",
-      "max-md:pe-[13px]",
     );
   });
 
@@ -193,11 +188,6 @@ describe("SidebarCard", () => {
     expect(label).toHaveClass("delay-0");
     expect(title).toHaveClass("delay-[40ms]");
     expect(summary).toHaveClass("delay-[80ms]");
-  });
-
-  it("draws the close icon at 14px beside the 12px label", () => {
-    render(<SidebarCard items={[essay]} />);
-    expect(close().querySelector("svg")).toHaveClass("size-3.5");
   });
 
   it("shows at every width, inside the mobile sidebar too", () => {

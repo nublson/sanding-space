@@ -11,12 +11,13 @@ import { useAnnouncement } from "./use-announcement";
  * width (on mobile, inside the sidebar; a dot on the toggle points to it).
  * Its height comes out of the scrolling list, never the content.
  * It reaches 13px past the column on each side so its icons share the
- * sidebar's: the marker on the logo's and the nav's left edge, the close
- * icon centered over the mute icon. Once it is actually on screen it counts
- * as noticed, which clears the toggle dot.
+ * sidebar's: the marker on the logo's and the nav's left edge. There is no
+ * close button: opening the card marks it read, which is the only way to
+ * make it go. Once it is actually on screen it counts as noticed, which
+ * clears the toggle dot.
  */
 export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
-  const { phase, item, dismiss, notice } = useAnnouncement(items);
+  const { phase, item, open, notice } = useAnnouncement(items);
   const ref = useRef<HTMLElement>(null);
 
   // On desktop the card is on screen at once; on mobile only when the
@@ -49,7 +50,7 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
       aria-label={item.label ?? "Announcement"}
       {...phaseProps(
         phase,
-        "relative mt-3 grid grid-cols-[1rem_minmax(0,1fr)_auto] items-start gap-x-2 gap-y-0.5 -mx-[13px] rounded-[10px] border border-border bg-card px-3 pe-5 pt-2.5 pb-3 max-md:me-0 max-md:pe-[13px] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
+        "relative mt-3 grid grid-cols-[1rem_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5 -mx-[13px] rounded-[10px] border border-border bg-card px-3 pt-2.5 pb-3 max-md:me-0 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
       )}
     >
       <AnnouncementBody
@@ -61,9 +62,15 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
           "text-pretty text-[13px]/[19px] text-muted-foreground",
           item.kind === "essay" && "line-clamp-2",
         )}
-        onDismiss={() => {
-          dismiss();
-          document.querySelector<HTMLElement>('a[href="/resources"]')?.focus();
+        onOpen={() => {
+          open();
+          // A promo opens in a new tab and the card fades out here; move
+          // focus on so it isn't lost with the card. An essay navigates.
+          if (item.kind === "external") {
+            document
+              .querySelector<HTMLElement>('a[href="/resources"]')
+              ?.focus();
+          }
         }}
       />
     </section>

@@ -80,11 +80,11 @@ describe("useAnnouncement", () => {
     expect(none.current.phase).toBe("hidden");
   });
 
-  it("dismiss persists per id", () => {
+  it("opening persists per id", () => {
     const { result } = renderHook(() => useAnnouncement([promo]));
-    act(() => result.current.dismiss());
+    act(() => result.current.open());
     expect(result.current.phase).toBe("leaving");
-    expect(stored()).toEqual({ p1: "dismissed" });
+    expect(stored()).toEqual({ p1: "read" });
     act(() => vi.advanceTimersByTime(200));
     expect(result.current.phase).toBe("hidden");
 
@@ -93,10 +93,10 @@ describe("useAnnouncement", () => {
     expect(again.current.phase).toBe("hidden");
   });
 
-  it("a dismissed promo does not hide the essay on the next path", () => {
+  it("an opened promo does not hide the essay on the next path", () => {
     const items = [promo, essay];
     const { result, rerender } = renderHook(() => useAnnouncement(items));
-    act(() => result.current.dismiss());
+    act(() => result.current.open());
     act(() => vi.advanceTimersByTime(200));
     rerender();
     expect(result.current.phase).toBe("hidden");
@@ -118,12 +118,12 @@ describe("useAnnouncement", () => {
     expect(later.current.phase).toBe("hidden");
   });
 
-  it("two hooks share a dismissal", () => {
+  it("two hooks share an open", () => {
     const { result } = renderHook(() => ({
       card: useAnnouncement([essay]),
       bar: useAnnouncement([essay]),
     }));
-    act(() => result.current.card.dismiss());
+    act(() => result.current.card.open());
     expect(result.current.bar.phase).toBe("hidden");
   });
 
@@ -136,7 +136,7 @@ describe("useAnnouncement", () => {
     });
     const { result } = renderHook(() => useAnnouncement([essay]));
     expect(result.current.phase).toBe("shown");
-    act(() => result.current.dismiss());
+    act(() => result.current.open());
     act(() => vi.advanceTimersByTime(200));
     expect(result.current.phase).toBe("hidden");
   });
@@ -149,7 +149,7 @@ describe("useAnnouncement", () => {
         .mockReturnValue({ matches: true }) as unknown as typeof matchMedia,
     );
     const { result } = renderHook(() => useAnnouncement([essay]));
-    act(() => result.current.dismiss());
+    act(() => result.current.open());
     act(() => vi.advanceTimersByTime(0));
     expect(result.current.phase).toBe("leaving");
     act(() => vi.advanceTimersByTime(200));
@@ -170,11 +170,11 @@ describe("useAnnouncement", () => {
     expect(again.current.noticed).toBe(true);
   });
 
-  it("a close after noticing still hides it", () => {
+  it("opening after noticing still hides it", () => {
     const { result } = renderHook(() => useAnnouncement([essay]));
     act(() => result.current.notice());
-    act(() => result.current.dismiss());
-    expect(stored()).toEqual({ layout: "dismissed" });
+    act(() => result.current.open());
+    expect(stored()).toEqual({ layout: "read" });
   });
 
   it("noticing never undoes a close or a read", () => {
@@ -192,10 +192,10 @@ describe("useAnnouncement", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(full));
     resetAnnouncementStore();
     const { result } = renderHook(() => useAnnouncement([essay]));
-    act(() => result.current.dismiss());
+    act(() => result.current.open());
     const after = stored();
     expect(Object.keys(after)).toHaveLength(50);
     expect(after["old-0"]).toBeUndefined();
-    expect(after.layout).toBe("dismissed");
+    expect(after.layout).toBe("read");
   });
 });

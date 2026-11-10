@@ -1,7 +1,5 @@
-import { X } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 import type { AnnouncementItem } from "@/lib/content/announcement";
 import { cn } from "@/lib/utils";
 import type { AnnouncementPhase } from "./use-announcement";
@@ -14,15 +12,22 @@ import type { AnnouncementPhase } from "./use-announcement";
 export function AnnouncementLink({
   item,
   className,
+  onClick,
   children,
 }: {
   item: AnnouncementItem;
   className?: string;
+  onClick?: () => void;
   children: ReactNode;
 }) {
   if (item.kind === "essay") {
     return (
-      <Link href={item.href} data-sound="page" className={className}>
+      <Link
+        href={item.href}
+        data-sound="page"
+        className={className}
+        onClick={onClick}
+      >
         {children}
       </Link>
     );
@@ -34,6 +39,7 @@ export function AnnouncementLink({
       rel="noopener"
       data-sound="page"
       className={className}
+      onClick={onClick}
     >
       {children} <span className="sr-only">(opens in a new tab)</span>
     </a>
@@ -68,59 +74,39 @@ const RISE =
   "transition-[opacity,translate] duration-250 ease-(--ease-out) starting:translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0";
 
 /**
- * What the card and the bar share, laid out on their grid of three columns:
- * marker, text, close. The marker sits on the line it belongs to: the "New
- * essay" row for an essay's dot, the title's row for a promo's favicon. The
- * close icon always sits on the first row. The title is the link, and its ::after
- * stretches over the whole surface, so pressing anywhere opens it; the close
- * button sits above that layer.
+ * The card's content on its two-column grid: marker, then one text column.
+ * An essay's dot sits on its "New essay" line; a promo's favicon on the
+ * title's first line. Each marker cell is one line of its neighbour's text
+ * tall (h-lh), so the two share a center. The title is the link, and its
+ * ::after stretches over the whole card, so pressing anywhere opens it.
+ * Opening it is the only way to make the card go away.
  */
 export function AnnouncementBody({
   item,
-  onDismiss,
+  onOpen,
   labelClassName,
   titleClassName,
   summaryClassName,
-  closeClassName,
   labelLineClassName = "text-xs/[18px]",
-  titleLineClassName,
 }: {
   item: AnnouncementItem;
-  onDismiss: () => void;
+  onOpen: () => void;
   labelClassName: string;
   titleClassName: string;
-  /** Size and leading of the label's line, so an icon can be one line tall. */
+  summaryClassName: string;
+  /** Size and leading of the label's line, so the dot can be one line tall. */
   labelLineClassName?: string;
-  /** Size and leading of the title's line; omit when the title inherits them. */
-  titleLineClassName?: string;
-  /** Omit to leave the summary out. */
-  summaryClassName?: string;
-  closeClassName?: string;
 }) {
+  // Only essays carry a label ("New essay").
   const titleRow = item.label ? 1 : 0;
-  const onLabel = item.kind === "essay" && Boolean(item.label);
-  const markerRow = onLabel ? 0 : titleRow;
-  // Each icon is exactly one line of its row's text tall, and the grid
-  // aligns to the top, so the icons sit on that row's first line however
-  // many lines the title wraps to.
-  const line = cn("h-lh", onLabel ? labelLineClassName : titleLineClassName);
-  // The close icon always sits on the first line: the label's when there is
-  // one ("New essay", a promo's Tag), else the title's.
-  const closeLine = cn(
-    "h-lh",
-    item.label ? labelLineClassName : titleLineClassName,
-  );
-  // The title's ::after covers the whole surface, so a press anywhere opens
-  // it; the close button sits above that layer.
-  const stretched = "after:absolute after:inset-0 focus-visible:outline-none";
   return (
     <>
       <span
         data-slot="marker"
         className={cn(
-          "col-start-1 flex items-center justify-center",
-          line,
-          ROW[markerRow],
+          "col-start-1 flex h-lh items-center justify-center",
+          item.label && labelLineClassName,
+          ROW[item.label ? 0 : titleRow],
         )}
       >
         <AnnouncementMarker item={item} />
@@ -139,9 +125,9 @@ export function AnnouncementBody({
       )}
       <AnnouncementLink
         item={item}
+        onClick={onOpen}
         className={cn(
-          "col-start-2",
-          stretched,
+          "col-start-2 after:absolute after:inset-0 focus-visible:outline-none",
           RISE,
           "delay-[40ms]",
           ROW[titleRow],
@@ -150,7 +136,7 @@ export function AnnouncementBody({
       >
         {item.title}
       </AnnouncementLink>
-      {summaryClassName && item.summary && (
+      {item.summary && (
         <span
           className={cn(
             "col-start-2",
@@ -163,29 +149,12 @@ export function AnnouncementBody({
           {item.summary}
         </span>
       )}
-      <Button
-        aria-label={`Dismiss ${item.title}`}
-        data-sound="tap"
-        className={cn(
-          // A 16px-wide, one-line-tall icon whose ::after widens the hit
-          // area, so the row keeps the height of its text.
-          "relative z-10 col-start-3 w-4 rounded-[4px] after:absolute after:-inset-1.5 hover:bg-transparent",
-          closeLine,
-          "row-start-1",
-          closeClassName,
-        )}
-        onClick={onDismiss}
-      >
-        {/* 14px: it sits on the 12px label line, so it carries the label's
-            weight rather than the title's. */}
-        <X className="size-3.5" />
-      </Button>
     </>
   );
 }
 
 /**
- * Shared by the card and the bar: invisible and unreachable until the
+ * The card's phases: invisible and unreachable until the
  * browser has chosen (pending) and while leaving; faded and lifted in.
  */
 export function phaseProps(phase: AnnouncementPhase, className: string) {

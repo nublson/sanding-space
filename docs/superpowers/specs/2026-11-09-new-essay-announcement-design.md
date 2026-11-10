@@ -12,6 +12,8 @@ Prototype of the chosen treatments: https://claude.ai/artifact/KFH8ze9uEUDBziMht
 
 **Revised 2026-11-10: no promo label.** The Tag column and the promo label are gone; a promo shows its favicon, a short Name and the Description. Only essays carry a label ("New essay"). Earlier notes about a Tag or Label below are superseded.
 
+**Revised 2026-11-10: no close button.** Opening the card (pressing anywhere on it) marks the item read and is the only way to make it go; a promo, which opens in a new tab, fades out on the click and focus moves to Resources. Notes below about closing or dismissing are superseded.
+
 ## Decisions
 
 - **Two kinds of item.** The *essay* item is automatic: the newest essay with status `Published` and a `Published` date, for **14 days** after that date. *External* items come from a new Notion **Promotions** database.
