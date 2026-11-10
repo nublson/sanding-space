@@ -112,6 +112,9 @@ export function useAnnouncement(items: AnnouncementItem[]): {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: itemsKey stands for items (read through the ref).
   useEffect(() => {
+    // A leave still fading out from the last page must not clear the item
+    // chosen for this one.
+    clearTimeout(timer.current);
     const items = latest.current;
     const ownPage = (i: AnnouncementItem) =>
       i.kind === "essay" && i.href === path;

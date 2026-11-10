@@ -5,6 +5,15 @@ import { essay, promo } from "./test-items";
 import { resetAnnouncementStore } from "./use-announcement";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/spring" }));
+// Exposes Link's transitionTypes, which next/link doesn't render.
+vi.mock("next/link", () => ({
+  default: ({
+    transitionTypes,
+    ...props
+  }: React.ComponentProps<"a"> & { transitionTypes?: string[] }) => (
+    <a data-transition-types={transitionTypes?.join(" ")} {...props} />
+  ),
+}));
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -94,6 +103,14 @@ describe("SidebarCard", () => {
     // Focus moves on instead of being lost with the card.
     expect(document.activeElement).toBe(
       screen.getByRole("link", { name: "Resources" }),
+    );
+  });
+
+  it("opens an essay with the sidebar's slide, like the other sidebar links", () => {
+    render(<SidebarCard items={[essay]} />);
+    expect(screen.getByRole("link", { name: "Layout" })).toHaveAttribute(
+      "data-transition-types",
+      "sidebar-nav",
     );
   });
 
@@ -211,9 +228,27 @@ describe("SidebarCard", () => {
     );
     render(<SidebarCard items={[essay]} />);
     expect(localStorage.getItem("sanding-space:announcement")).toBeNull();
+    // A glimpse during a swipe intersects but isn't half the card yet.
     act(() =>
       callback(
-        [{ isIntersecting: true } as IntersectionObserverEntry],
+        [
+          {
+            isIntersecting: true,
+            intersectionRatio: 0.2,
+          } as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver,
+      ),
+    );
+    expect(localStorage.getItem("sanding-space:announcement")).toBeNull();
+    act(() =>
+      callback(
+        [
+          {
+            isIntersecting: true,
+            intersectionRatio: 0.6,
+          } as IntersectionObserverEntry,
+        ],
         {} as IntersectionObserver,
       ),
     );

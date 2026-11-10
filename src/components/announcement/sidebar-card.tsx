@@ -32,7 +32,9 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
       return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting) {
+        // isIntersecting is true for any overlap; a glimpse during a swipe
+        // isn't seeing the card.
+        if (entry?.isIntersecting && entry.intersectionRatio >= 0.5) {
           notice();
           observer.disconnect();
         }

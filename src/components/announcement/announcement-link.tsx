@@ -25,6 +25,9 @@ export function AnnouncementLink({
       <Link
         href={item.href}
         data-sound="page"
+        // Like the other sidebar links: on mobile the shell closes the
+        // sidebar and this route transition slides the content back.
+        transitionTypes={["sidebar-nav"]}
         className={className}
         onClick={onClick}
       >

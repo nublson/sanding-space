@@ -107,6 +107,20 @@ describe("useAnnouncement", () => {
     expect(result.current.item?.id).toBe("layout");
   });
 
+  it("a pending leave doesn't hide the item chosen on the next path", () => {
+    const items = [promo, essay];
+    const { result, rerender } = renderHook(() => useAnnouncement(items));
+    act(() => result.current.open());
+    // Navigate before the 200ms fade ends.
+    act(() => vi.advanceTimersByTime(50));
+    pathname = "/other";
+    rerender();
+    expect(result.current.item?.id).toBe("layout");
+    act(() => vi.advanceTimersByTime(200));
+    expect(result.current.phase).toBe("shown");
+    expect(result.current.item?.id).toBe("layout");
+  });
+
   it("marks the essay read on its own path, trailing slash included", () => {
     pathname = "/layout/";
     const { result } = renderHook(() => useAnnouncement([essay]));
