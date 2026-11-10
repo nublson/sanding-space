@@ -59,6 +59,14 @@ export function AnnouncementMarker({ item }: { item: AnnouncementItem }) {
 
 const ROW = ["row-start-1", "row-start-2", "row-start-3"] as const;
 
+/*
+ * On its first paint the text arrives in reading order, 40ms apart: label,
+ * title, summary. Opacity and a 4px lift only, from @starting-style, so it
+ * never replays on re-renders or navigation.
+ */
+const RISE =
+  "transition-[opacity,translate] duration-250 ease-(--ease-out) starting:translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0";
+
 /**
  * What the card and the bar share, laid out on their grid of three columns:
  * marker, text, close. The marker sits on the line it belongs to: the "New
@@ -118,19 +126,39 @@ export function AnnouncementBody({
         <AnnouncementMarker item={item} />
       </span>
       {item.label && (
-        <span className={cn("col-start-2 row-start-1", labelClassName)}>
+        <span
+          className={cn(
+            "col-start-2 row-start-1",
+            RISE,
+            "delay-0",
+            labelClassName,
+          )}
+        >
           {item.label}
         </span>
       )}
       <AnnouncementLink
         item={item}
-        className={cn("col-start-2", stretched, ROW[titleRow], titleClassName)}
+        className={cn(
+          "col-start-2",
+          stretched,
+          RISE,
+          "delay-[40ms]",
+          ROW[titleRow],
+          titleClassName,
+        )}
       >
         {item.title}
       </AnnouncementLink>
       {summaryClassName && item.summary && (
         <span
-          className={cn("col-start-2", ROW[titleRow + 1], summaryClassName)}
+          className={cn(
+            "col-start-2",
+            RISE,
+            "delay-[80ms]",
+            ROW[titleRow + 1],
+            summaryClassName,
+          )}
         >
           {item.summary}
         </span>
@@ -148,7 +176,9 @@ export function AnnouncementBody({
         )}
         onClick={onDismiss}
       >
-        <X />
+        {/* 14px: it sits on the 12px label line, so it carries the label's
+            weight rather than the title's. */}
+        <X className="size-3.5" />
       </Button>
     </>
   );
@@ -165,13 +195,13 @@ export function phaseProps(phase: AnnouncementPhase, className: string) {
     inert: hidden || undefined,
     "aria-hidden": hidden || undefined,
     className: cn(
-      // Fade and lift at 300ms in, 200ms out; the press and the hover answer
+      // Fade and lift at 250ms in, 200ms out; the press and the hover answer
       // faster. Under reduced motion the lift is dropped here, and the
       // site-wide rule in globals.css cuts every transition to an instant.
       "transition-[opacity,translate,scale,border-color] ease-(--ease-out) has-[a:active]:scale-[0.98]",
       phase === "leaving"
         ? "duration-[200ms,200ms,160ms,150ms]"
-        : "duration-[300ms,300ms,160ms,150ms]",
+        : "duration-[250ms,250ms,160ms,150ms]",
       hidden
         ? "translate-y-2 opacity-0 motion-reduce:translate-y-0"
         : // Mounted already shown, so the fade starts from @starting-style.

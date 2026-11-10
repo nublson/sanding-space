@@ -21,6 +21,15 @@ describe("ToggleDot", () => {
     expect(screen.getByText(", new announcement")).toHaveClass("sr-only");
   });
 
+  it("grows in from half size as it fades in", () => {
+    const { container } = render(<ToggleDot items={[essay]} />);
+    expect(container.querySelector("[data-slot=toggle-dot]")).toHaveClass(
+      "starting:scale-50",
+      "starting:opacity-0",
+      "duration-200",
+    );
+  });
+
   it("is gone once the card has been noticed", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ layout: "noticed" }));
     resetAnnouncementStore();

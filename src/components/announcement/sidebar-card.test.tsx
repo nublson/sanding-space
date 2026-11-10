@@ -121,7 +121,7 @@ describe("SidebarCard", () => {
   it("answers hover quickly, and only on devices that hover", () => {
     render(<SidebarCard items={[essay]} />);
     const region = screen.getByRole("region", { name: "New essay" });
-    expect(region).toHaveClass("duration-[300ms,300ms,160ms,150ms]");
+    expect(region).toHaveClass("duration-[250ms,250ms,160ms,150ms]");
     expect(region).toHaveClass(
       "[@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
     );
@@ -211,6 +211,24 @@ describe("SidebarCard", () => {
       "max-md:me-0",
       "max-md:pe-[13px]",
     );
+  });
+
+  it("staggers label, title and summary in, 40ms apart", () => {
+    render(<SidebarCard items={[essay]} />);
+    const label = screen.getByText("New essay");
+    const title = screen.getByRole("link", { name: "Layout" });
+    const summary = screen.getByText("Why a box that jumps feels broken.");
+    for (const node of [label, title, summary]) {
+      expect(node).toHaveClass("starting:opacity-0", "starting:translate-y-1");
+    }
+    expect(label).toHaveClass("delay-0");
+    expect(title).toHaveClass("delay-[40ms]");
+    expect(summary).toHaveClass("delay-[80ms]");
+  });
+
+  it("draws the close icon at 14px beside the 12px label", () => {
+    render(<SidebarCard items={[essay]} />);
+    expect(close().querySelector("svg")).toHaveClass("size-3.5");
   });
 
   it("shows at every width, inside the mobile sidebar too", () => {
