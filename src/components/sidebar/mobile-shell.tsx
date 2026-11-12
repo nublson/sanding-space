@@ -341,7 +341,7 @@ export function MobileShell({
             setInstant(false);
             setOpen((value) => !value);
           }}
-          className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+          className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
         >
           <PanelLeft aria-hidden strokeWidth={1.5} className="size-4" />
         </button>

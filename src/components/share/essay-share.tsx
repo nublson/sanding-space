@@ -180,11 +180,11 @@ export function EssayShare({
                     data-icon={key}
                     data-shown={shown}
                     className={cn(
-                      "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none",
+                      "col-start-1 row-start-1 transition-[opacity,scale,filter] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-opacity",
                       key === "loading" && "motion-safe:animate-spin",
                       shown
                         ? "scale-100 opacity-100 blur-none"
-                        : "scale-25 opacity-0 blur-[4px]",
+                        : "scale-25 opacity-0 blur-[4px] motion-reduce:scale-100 motion-reduce:blur-none",
                     )}
                   />
                 ))}

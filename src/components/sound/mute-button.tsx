@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const MUTE_DELAY_MS = 150;
 
 const icon =
-  "absolute transition-[opacity,scale,filter] duration-150 ease-(--ease-out) motion-reduce:transition-none";
+  "absolute transition-[opacity,scale,filter] duration-150 ease-(--ease-out) motion-reduce:transition-opacity";
 
 export function MuteButton() {
   const [muted, setMutedState] = useState(false);
@@ -59,7 +59,7 @@ export function MuteButton() {
         className={cn(
           icon,
           muted
-            ? "scale-25 opacity-0 blur-[4px]"
+            ? "scale-25 opacity-0 blur-[4px] motion-reduce:scale-100 motion-reduce:blur-none"
             : "scale-100 opacity-100 blur-[0px]",
         )}
       />
@@ -69,7 +69,7 @@ export function MuteButton() {
           icon,
           muted
             ? "scale-100 opacity-100 blur-[0px]"
-            : "scale-25 opacity-0 blur-[4px]",
+            : "scale-25 opacity-0 blur-[4px] motion-reduce:scale-100 motion-reduce:blur-none",
         )}
       />
     </Button>

@@ -37,7 +37,7 @@ function MenuPopup({
           data-slot="menu-popup"
           {...props}
           className={cn(
-            "min-w-52 origin-(--transform-origin) rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg outline-none transition-[opacity,scale] duration-150 ease-(--ease-out) data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none",
+            "min-w-52 origin-(--transform-origin) rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg outline-none transition-[opacity,scale] duration-150 ease-(--ease-out) data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-ending-style:duration-100 motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100",
             className,
           )}
         >

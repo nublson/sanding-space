@@ -93,7 +93,7 @@ export function EssayCard({
     // fill as a linked card, but no press, sound or pointer cursor.
     const Thumbnail = demoThumbnail(essay.coverDemo);
     return (
-      <div className="group -m-2 cursor-default rounded-[18px] p-2 pointer-fine:hover:bg-muted/50">
+      <div className="group -m-2 cursor-default rounded-[18px] p-2 transition-colors duration-150 ease-(--ease-out) pointer-fine:hover:bg-muted/50">
         <DemoStage size={size} preview soon>
           {Thumbnail && <Thumbnail />}
         </DemoStage>
