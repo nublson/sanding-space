@@ -320,3 +320,30 @@ describe("MobileShell swipe", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 });
+
+describe("MobileShell toggle badge", () => {
+  it("renders the badge inside the toggle, joining its name", () => {
+    render(
+      <MobileShell
+        sidebar={<nav aria-label="Sections" />}
+        toggleBadge={<span className="sr-only">, new announcement</span>}
+      >
+        <p>Page content</p>
+      </MobileShell>,
+    );
+    expect(
+      screen.getByRole("button", { name: "Toggle sidebar, new announcement" }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps its plain name without a badge", () => {
+    render(
+      <MobileShell sidebar={<nav aria-label="Sections" />}>
+        <p>Page content</p>
+      </MobileShell>,
+    );
+    expect(
+      screen.getByRole("button", { name: "Toggle sidebar" }),
+    ).toBeInTheDocument();
+  });
+});

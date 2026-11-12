@@ -35,9 +35,15 @@ const SIDEBAR_ID = "site-sidebar";
  */
 export function MobileShell({
   sidebar,
+  toggleBadge,
   children,
 }: {
   sidebar: ReactNode;
+  /**
+   * Sits inside the sidebar toggle (the announcement's dot) and may add
+   * visually hidden text to its name.
+   */
+  toggleBadge?: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -335,15 +341,16 @@ export function MobileShell({
           type="button"
           aria-expanded={open}
           aria-controls={SIDEBAR_ID}
-          aria-label="Toggle sidebar"
           data-sound={open ? "toggle-off" : "toggle-on"}
           onClick={() => {
             setInstant(false);
             setOpen((value) => !value);
           }}
-          className="press flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
+          className="press relative flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
         >
           <PanelLeft aria-hidden strokeWidth={1.5} className="size-4" />
+          <span className="sr-only">Toggle sidebar</span>
+          {toggleBadge}
         </button>
         {/* The desktop wordmark, after the toggle (spec §9.5), on the mobile
             scale: 18px mark, 14px medium on a 28px line. */}

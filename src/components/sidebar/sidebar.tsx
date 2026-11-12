@@ -32,6 +32,7 @@ export function Sidebar({
   currentSectionSlug,
   currentEssaySlug,
   footerAction,
+  announcement,
 }: {
   sections: LibrarySection[];
   /** The fixed page open now (Introduction, Resources, About), by path. */
@@ -40,6 +41,8 @@ export function Sidebar({
   currentEssaySlug: string | null;
   /** Sits on the footer's last line, beside About (the mute button). */
   footerAction: ReactNode;
+  /** Sits above the footer's pages: the announcement card (desktop). */
+  announcement?: ReactNode;
 }) {
   const introductionCurrent = currentPagePath === INTRODUCTION.path;
   return (
@@ -184,6 +187,7 @@ export function Sidebar({
           })}
         </ul>
       </div>
+      {announcement}
       <div className="flex shrink-0 items-end justify-between py-3">
         <div className="flex flex-col">
           {FOOTER_PAGES.map((page) => {
