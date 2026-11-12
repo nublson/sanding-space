@@ -19,8 +19,7 @@ const FILLS = [
 ];
 
 // Delays apply only on the way in (the hover state), so leaving reverses at
-// once; reduced motion drops them, since the global rule shortens durations
-// but not delays.
+// once; reduced motion drops them, so the fades (which it keeps) play at once.
 const NO_DELAY_REDUCED =
   "motion-reduce:group-hover:delay-0 motion-reduce:group-focus-visible:delay-0";
 

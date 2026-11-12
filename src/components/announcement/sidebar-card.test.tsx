@@ -187,10 +187,10 @@ describe("SidebarCard", () => {
     );
   });
 
-  it("stays inside the mobile sidebar", () => {
+  it("stops short of the mobile sidebar's edge, clear of a full-bleed stage", () => {
     render(<SidebarCard items={[essay]} />);
     expect(screen.getByRole("region", { name: "New essay" })).toHaveClass(
-      "max-md:me-0",
+      "max-md:me-4",
     );
   });
 

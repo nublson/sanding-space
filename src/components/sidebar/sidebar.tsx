@@ -17,9 +17,9 @@ const row =
   "flex min-h-8 w-full items-center py-1 leading-6 max-md:min-h-7 max-md:leading-5 pointer-coarse:min-h-11";
 
 // Every row that links brightens to the ink on hover, like the footer's
-// .link, so a pointer can tell a link from a Soon row before pressing.
-const rowLink =
-  "transition-colors duration-150 ease-(--ease-out) hover:text-foreground";
+// .link, so a pointer can tell a link from a Soon row before pressing, and
+// presses in (.press, which also carries the color transition).
+const rowLink = "press hover:text-foreground";
 
 // The footer's pages, Resources above About.
 const FOOTER_PAGES = [RESOURCES, ABOUT];
@@ -48,7 +48,7 @@ export function Sidebar({
   return (
     <nav
       aria-label="Sections"
-      className="flex h-full w-48 flex-col pt-14 md:pt-32"
+      className="site-sidebar flex h-full w-48 flex-col pt-14 md:pt-32"
     >
       {/* Same 32px line box as the page title (SectionHeading), so the two
           rows are built identically and share baseline and cap height in any
@@ -106,22 +106,28 @@ export function Sidebar({
                 >
                   {section.name}
                 </Link>
+                {/* The rows fade with the height, so a closing list dissolves
+                    instead of being cut off by its shrinking box. Under
+                    reduced motion the height jumps and only the fade plays. */}
                 <div
                   className={cn(
-                    "grid transition-[grid-template-rows] duration-200 ease-(--ease-out)",
+                    "grid transition-[grid-template-rows] duration-200 ease-(--ease-out) motion-reduce:transition-none",
                     current ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
                   )}
                 >
                   <div
-                    className="overflow-hidden"
+                    className={cn(
+                      "overflow-hidden transition-opacity duration-200 ease-(--ease-out)",
+                      current ? "opacity-100" : "opacity-0",
+                    )}
                     inert={!current}
                     aria-hidden={!current}
                   >
-                    {current && (
-                      <p className="pb-1 text-sm/5 text-subtle-foreground max-md:text-xs/4">
-                        {section.question}
-                      </p>
-                    )}
+                    {/* Always mounted: unmounting it on collapse would drop
+                        its height in one frame before the rows close. */}
+                    <p className="pb-1 text-sm/5 text-subtle-foreground max-md:text-xs/4">
+                      {section.question}
+                    </p>
                     <ul className="border-l border-border">
                       {section.essays.map((essay) => {
                         const active = essay.slug === currentEssaySlug;
@@ -196,7 +202,11 @@ export function Sidebar({
                 aria-current={current ? "page" : undefined}
                 // .link carries the resting ink and hover; the current page
                 // takes the foreground instead, like Introduction above.
-                className={cn(footerLink, current ? "text-foreground" : "link")}
+                className={cn(
+                  footerLink,
+                  "press",
+                  current ? "text-foreground" : "link",
+                )}
               >
                 {page.name}
               </Link>

@@ -160,16 +160,18 @@ body {
     @apply rounded-sm outline-2 outline-offset-2 outline-ring;
   }
 
+  /*
+   * Reduced motion means less movement, not none: fades and color changes
+   * still carry state, so they keep playing. Movement opts out where it is
+   * declared (motion-reduce: on scale, translate and size transitions, the
+   * rules below for the page entrance, the shell and view transitions).
+   */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-      /* biome-ignore-start lint/complexity/noImportantStyles: reduced-motion must beat component styles */
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must beat component styles */
       scroll-behavior: auto !important;
-      /* biome-ignore-end lint/complexity/noImportantStyles: reduced-motion */
     }
   }
 }
@@ -408,6 +410,11 @@ body {
 [data-skeleton] {
   animation: none;
 }
+/* A demo whose chunk landed after its parent's fade: it fades in itself
+   (see LazyDemo), whatever it is nested in. */
+[data-stream-late] {
+  animation: stream-in 200ms var(--ease-out) both;
+}
 
 /* Press feedback on full-width rows: 0.98, not 0.96, so a wide row doesn't jump. */
 .press {
@@ -521,9 +528,10 @@ body {
 .article-layout > :nth-child(n + 5) {
   animation-delay: 240ms;
 }
+/* Reduced motion: the blocks fade in where they stand, without the rise. */
 @media (prefers-reduced-motion: reduce) {
   .article-layout > * {
-    animation: none;
+    animation-name: stream-in;
   }
 }
 /*
@@ -646,16 +654,52 @@ body {
 ::view-transition-old(site-header) {
   display: none;
 }
+/*
+ * The desktop sidebar is the same chrome before and after a route change, so
+ * like the header it leaves the root crossfade: its old image is dropped and
+ * the live one shows at once, so rows never double-expose while a section
+ * opens. Below md it stays in the root, which fades it out under the
+ * content's slide (.shell-close).
+ */
+@media (min-width: 768px) {
+  .site-sidebar {
+    view-transition-name: site-sidebar;
+  }
+}
+::view-transition-group(site-sidebar),
+::view-transition-new(site-sidebar) {
+  animation: none;
+}
+::view-transition-old(site-sidebar) {
+  display: none;
+}
+/*
+ * The current-essay bar glides to the new row on the stage morph's curve and
+ * time, so everything that moves in one navigation moves alike.
+ */
+::view-transition-group(sidebar-marker) {
+  animation-duration: 250ms;
+  animation-timing-function: var(--ease-out);
+}
 ::view-transition {
   pointer-events: none;
 }
+/*
+ * Reduced motion: nothing moves or resizes (the groups jump to their end
+ * box), but the snapshots still crossfade, so a navigation reads as a
+ * change of page rather than a cut.
+ */
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(*),
-  ::view-transition-new(*),
   ::view-transition-group(*) {
     /* biome-ignore-start lint/complexity/noImportantStyles: must beat React's per-name animations */
     animation-duration: 0s !important;
     animation-delay: 0s !important;
     /* biome-ignore-end lint/complexity/noImportantStyles: reduced-motion */
+  }
+  ::view-transition-old(.shell-close) {
+    animation: 200ms var(--ease-out) both page-fade-out;
+  }
+  ::view-transition-new(.shell-close) {
+    animation: 200ms var(--ease-out) both page-fade-in;
   }
 }

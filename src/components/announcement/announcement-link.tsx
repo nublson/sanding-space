@@ -168,9 +168,9 @@ export function phaseProps(phase: AnnouncementPhase, className: string) {
     "aria-hidden": hidden || undefined,
     className: cn(
       // Fade and lift at 250ms in, 200ms out; the press and the hover answer
-      // faster. Under reduced motion the lift is dropped here, and the
-      // site-wide rule in globals.css cuts every transition to an instant.
-      "transition-[opacity,translate,scale,border-color] ease-(--ease-out) has-[a:active]:scale-[0.98]",
+      // faster. Under reduced motion the lift and the press are dropped, and
+      // only the fade and the border color play.
+      "transition-[opacity,translate,scale,border-color] ease-(--ease-out) has-[a:active]:scale-[0.98] motion-reduce:has-[a:active]:scale-100",
       phase === "leaving"
         ? "duration-[200ms,200ms,160ms,150ms]"
         : "duration-[250ms,250ms,160ms,150ms]",

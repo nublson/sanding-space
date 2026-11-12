@@ -33,7 +33,7 @@ function Tooltip({
         >
           <TooltipPrimitive.Popup
             data-slot="tooltip"
-            className="origin-(--transform-origin) rounded-md border border-border bg-popover px-2 py-1 text-popover-foreground text-xs/4 shadow-md transition-[opacity,scale] duration-150 ease-(--ease-out) data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-instant:transition-none motion-reduce:transition-none"
+            className="origin-(--transform-origin) rounded-md border border-border bg-popover px-2 py-1 text-popover-foreground text-xs/4 shadow-md transition-[opacity,scale] duration-150 ease-(--ease-out) data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-instant:transition-none motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100"
           >
             {label}
           </TooltipPrimitive.Popup>

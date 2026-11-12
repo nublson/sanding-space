@@ -17,7 +17,7 @@ export function ToggleDot({ items }: { items: AnnouncementItem[] }) {
       <span
         data-slot="toggle-dot"
         aria-hidden
-        className="absolute top-3 right-3 size-1.5 rounded-full bg-foreground ring-2 ring-background transition-[opacity,scale] duration-200 ease-(--ease-out) starting:scale-50 starting:opacity-0"
+        className="absolute top-3 right-3 size-1.5 rounded-full bg-foreground ring-2 ring-background transition-[opacity,scale] duration-200 ease-(--ease-out) starting:scale-50 starting:opacity-0 motion-reduce:starting:scale-100"
       />
       <span className="sr-only">, new announcement</span>
     </>

@@ -11,7 +11,10 @@ import { useAnnouncement } from "./use-announcement";
  * width (on mobile, inside the sidebar; a dot on the toggle points to it).
  * Its height comes out of the scrolling list, never the content.
  * It reaches 13px past the column on each side so its icons share the
- * sidebar's: the marker on the logo's and the nav's left edge. There is no
+ * sidebar's: the marker on the logo's and the nav's left edge. Below md the
+ * column ends at the sidebar's edge, where the pushed content begins and an
+ * essay's stage runs edge to edge, so there the card stops 16px short of it
+ * (the nav's own inset on the left), never touching a stage. There is no
  * close button: opening the card marks it read, which is the only way to
  * make it go. Once it is actually on screen it counts as noticed, which
  * clears the toggle dot.
@@ -52,7 +55,7 @@ export function SidebarCard({ items }: { items: AnnouncementItem[] }) {
       aria-label={item.label ?? "Announcement"}
       {...phaseProps(
         phase,
-        "relative mt-3 grid grid-cols-[1rem_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5 -mx-[13px] rounded-[10px] border border-border bg-card px-3 pt-2.5 pb-3 max-md:me-0 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
+        "relative mt-3 grid grid-cols-[1rem_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5 -mx-[13px] rounded-[10px] border border-border bg-card px-3 pt-2.5 pb-3 max-md:me-4 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring [@media(hover:hover)_and_(pointer:fine)]:has-[a:hover]:border-input",
       )}
     >
       <AnnouncementBody
